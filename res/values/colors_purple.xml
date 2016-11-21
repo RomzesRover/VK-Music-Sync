@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_color">#3a2c61</color>
+    <color name="white_color">#fff</color>
+    <color name="black_color">#000</color>
+    <color name="gray_color">#ccc</color>
+    <color name="transparent_color">#00000000</color>
+    
+    <color name="menu_bg_color">#0d0d0d</color>
+    <color name="menu_divider_color">#262626</color>
+    <color name="menu_text_color">#fff</color>
+    <color name="menu_subtext_color">#a2a3a7</color>
+    <color name="menu_selected_color">#3a2c61</color>
+    
+
+</resources>

@@ -1,0 +1,78 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/menu_bg_color" >
+    
+    <RelativeLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="7dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="7dp" >
+
+        <ImageView
+            android:id="@+id/cover_art_bg"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:padding="2dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/nopic" />
+
+        <ImageView
+            android:id="@+id/cover_art"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:padding="2dp"
+            android:scaleType="centerCrop"
+            android:src="@color/transparent_color" />
+
+        <ImageView
+            android:id="@+id/mask"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignBottom="@+id/cover_art"
+            android:layout_alignLeft="@+id/cover_art"
+            android:layout_alignRight="@+id/cover_art"
+            android:layout_alignTop="@+id/cover_art"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_owner_avatar_mask" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/cover_art"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="7dp"
+            android:ellipsize="end"
+            android:gravity="center_horizontal"
+            android:lines="1"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/white_color"
+            android:textSize="16sp" />
+
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/slider_menu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/content"
+        android:animationCache="false"
+        android:divider="@color/menu_divider_color"
+        android:dividerHeight="0.5dip"
+        android:listSelector="@drawable/purple_list_selector_holo_dark"
+        android:scrollingCache="false" />
+
+    
+
+</RelativeLayout>
