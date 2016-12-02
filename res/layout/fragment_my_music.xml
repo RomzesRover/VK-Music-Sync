@@ -14,10 +14,19 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:animationCache="false"
-            android:divider="@color/menu_divider_color"
+            android:divider="@color/transparent_color"
             android:dividerHeight="0.5dip"
             android:listSelector="@drawable/purple_list_selector_holo_dark"
             android:scrollingCache="false" />
+
+        <ImageView
+            android:id="@+id/bottom_glow"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_gravity="bottom"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_bottom_glow" />
+
     </uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout>
 
 </LinearLayout>
