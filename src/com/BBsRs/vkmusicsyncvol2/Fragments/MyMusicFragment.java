@@ -15,7 +15,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -80,9 +79,17 @@ public class MyMusicFragment extends BaseFragment {
           .listener(customOnRefreshListener)
           .setup(mPullToRefreshLayout);
         
-        //refresh on open to load data when app first time started
-        mPullToRefreshLayout.setRefreshing(true);
-        customOnRefreshListener.onRefreshStarted(null);
+        if(savedInstanceState == null) {
+	        //refresh on open to load data when app first time started
+	        mPullToRefreshLayout.setRefreshing(true);
+	        customOnRefreshListener.onRefreshStarted(null);
+        } else {
+        	ArrayList<MusicCollection> musicCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_MUSIC_COLLECTION);
+        	musicListAdapter = new MusicListAdapter(getActivity(), musicCollection, options);
+        	list.setAdapter(musicListAdapter);
+        	list.setSelection(savedInstanceState.getInt(Constants.EXTRA_LIST_POSX));
+        	list.setVisibility(View.VISIBLE);
+        }
     	
     	return contentView;
 	}
@@ -93,6 +100,15 @@ public class MyMusicFragment extends BaseFragment {
         //set subtitle for a current fragment with custom font
         setTitle(getResources().getStringArray(R.array.menu)[1]);
     }
+    
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (musicListAdapter != null){
+			outState.putParcelableArrayList(Constants.EXTRA_LIST_MUSIC_COLLECTION, musicListAdapter.getMusicCollection());
+			outState.putInt(Constants.EXTRA_LIST_POSX,  list.getFirstVisiblePosition());
+		}
+	}
     
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) 
     public class CustomOnRefreshListener  implements OnRefreshListener{
@@ -126,7 +142,6 @@ public class MyMusicFragment extends BaseFragment {
 						musicList = api.getAudio(account.user_id, null, null, null, null, null);
 						
 						for (Audio one : musicList){
-							Log.i("Tag", one.artist+" "+one.title);
 							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, one.url, one.lyrics_id));
 						}
 						

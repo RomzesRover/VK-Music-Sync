@@ -53,6 +53,10 @@ public class MusicListAdapter extends BaseAdapter {
 	public MusicCollection getItem(int position) {
 		return musicCollection.get(position);
 	}
+	
+	public ArrayList<MusicCollection> getMusicCollection() {
+		return musicCollection;
+	}
 
 	@Override
 	public long getItemId(int position) {
