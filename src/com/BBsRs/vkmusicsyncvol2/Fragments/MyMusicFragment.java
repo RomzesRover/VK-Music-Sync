@@ -14,9 +14,12 @@ import android.annotation.TargetApi;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import com.BBsRs.vkmusicsyncvol2.R;
 import com.BBsRs.vkmusicsyncvol2.Adapters.MusicListAdapter;
@@ -31,6 +34,8 @@ import com.perm.kate.api.Audio;
 public class MyMusicFragment extends BaseFragment {
 	
 	SharedPreferences sPref;
+	
+	private final Handler handler = new Handler();
 	
     /*----------------------------VK API-----------------------------*/
     Account account=new Account();
@@ -100,8 +105,20 @@ public class MyMusicFragment extends BaseFragment {
 				@Override
 				protected Void doInBackground(Void... params) {
 					try {
+						//show animataion only if list is already visible
+						if (list.getVisibility() == View.VISIBLE){
+							handler.post(new Runnable(){
+								@Override
+								public void run() {
+									Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);
+			                    	list.startAnimation(flyDownAnimation);
+			                    	list.setVisibility(View.INVISIBLE);
+								}
+							});
+						}
+						
 						//slep to prevent laggy animations
-						Thread.sleep(1500);
+						Thread.sleep(1000);
 						
 						ArrayList<Audio> musicList = new ArrayList<Audio>();
 						ArrayList<MusicCollection> musicCollection = new ArrayList<MusicCollection>();
@@ -127,6 +144,10 @@ public class MyMusicFragment extends BaseFragment {
                     
                     if (!error){
                     	list.setAdapter(musicListAdapter);
+                    	//with fly up animation
+                    	list.setVisibility(View.VISIBLE);
+                    	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim);
+                    	list.startAnimation(flyUpAnimation);
                     } else {
                     	//TODO SHOW error message
                     }
