@@ -55,7 +55,7 @@ public class MusicFragment extends BaseFragment {
     Bundle bundle;
 	
 	@Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
     	View contentView = inflater.inflate(R.layout.fragment_music_frgr);
     	
     	//set up preferences
@@ -86,9 +86,14 @@ public class MusicFragment extends BaseFragment {
       	bundle = this.getArguments();
         
         if(savedInstanceState == null) {
-	        //refresh on open to load data when app first time started
-	        mPullToRefreshLayout.setRefreshing(true);
-	        customOnRefreshListener.onRefreshStarted(null);
+          	handler.postDelayed(new Runnable(){
+    			@Override
+    			public void run() {
+    				//refresh on open to load data when app first time started
+    		        mPullToRefreshLayout.setRefreshing(true);
+    		        customOnRefreshListener.onRefreshStarted(null);
+    			}
+          	}, 100);
         } else {
         	ArrayList<MusicCollection> musicCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
         	musicListAdapter = new MusicListAdapter(getActivity(), musicCollection, options);
@@ -156,7 +161,7 @@ public class MusicFragment extends BaseFragment {
 						}
 						
 						//slep to prevent laggy animations
-						Thread.sleep(1000);
+						Thread.sleep(100);
 						
 						ArrayList<Audio> musicList = new ArrayList<Audio>();
 						ArrayList<MusicCollection> musicCollection = new ArrayList<MusicCollection>();
@@ -201,7 +206,7 @@ public class MusicFragment extends BaseFragment {
 					});
 					//slep to prevent laggy animations
 					try {
-						Thread.sleep(100);
+						Thread.sleep(150);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

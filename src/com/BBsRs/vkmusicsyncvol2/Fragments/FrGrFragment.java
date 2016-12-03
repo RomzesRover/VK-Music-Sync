@@ -56,7 +56,7 @@ public class FrGrFragment extends BaseFragment {
     Bundle bundle;
 	
 	@Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
     	View contentView = inflater.inflate(R.layout.fragment_music_frgr);
     	
     	//set up preferences
@@ -86,10 +86,15 @@ public class FrGrFragment extends BaseFragment {
         //retrieve bundle
       	bundle = this.getArguments();
         
-        if(savedInstanceState == null) {
-	        //refresh on open to load data when app first time started
-	        mPullToRefreshLayout.setRefreshing(true);
-	        customOnRefreshListener.onRefreshStarted(null);
+		if(savedInstanceState == null) {
+	      	handler.postDelayed(new Runnable(){
+				@Override
+				public void run() {
+			        //refresh on open to load data when app first time started
+			        mPullToRefreshLayout.setRefreshing(true);
+			        customOnRefreshListener.onRefreshStarted(null);
+				}
+	      	}, 100);
         } else {
         	ArrayList<FrGrCollection> frGrCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
         	frGrListAdapter = new FrGrListAdapter(getActivity(), frGrCollection, options);
@@ -97,7 +102,7 @@ public class FrGrFragment extends BaseFragment {
         	list.setSelection(savedInstanceState.getInt(Constants.EXTRA_LIST_POSX));
         	list.setVisibility(View.VISIBLE);
         }
-    	
+		
     	return contentView;
 	}
 	
@@ -148,7 +153,7 @@ public class FrGrFragment extends BaseFragment {
 						}
 						
 						//slep to prevent laggy animations
-						Thread.sleep(1000);
+						Thread.sleep(100);
 						
 						ArrayList<FrGrCollection> frGrCollection = new ArrayList<FrGrCollection>();
 						
@@ -185,7 +190,7 @@ public class FrGrFragment extends BaseFragment {
 					});
 					//slep to prevent laggy animations
 					try {
-						Thread.sleep(100);
+						Thread.sleep(150);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
