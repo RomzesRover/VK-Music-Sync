@@ -92,7 +92,8 @@ public class ContentActivity extends BaseActivity {
         sliderMenu.add(getResources().getStringArray(R.array.menu)[9], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_settings).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
         sliderMenu.add(getResources().getStringArray(R.array.menu)[10], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_premium).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
         
-        sliderMenu.setCurrentPage(1);
+        if(savedInstanceState == null)
+        	sliderMenu.setCurrentPage(1);
         
         //set up user circle
        	SFUIFonts.ULTRALIGHT.apply(getApplicationContext(), ((TextView) findViewById(R.id.title)));
