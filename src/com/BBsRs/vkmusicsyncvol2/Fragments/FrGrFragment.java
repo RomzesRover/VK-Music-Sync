@@ -175,13 +175,26 @@ public class FrGrFragment extends BaseFragment {
 						e.printStackTrace();
 						error = true;
 					}
+					
+					handler.post(new Runnable(){
+						@Override
+						public void run() {
+							// Notify PullToRefreshLayout that the refresh has finished
+		                    mPullToRefreshLayout.setRefreshComplete();
+						}
+					});
+					//slep to prevent laggy animations
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
 					return null;
 				}
 				@Override
 		        protected void onPostExecute(Void result) {
-					// Notify PullToRefreshLayout that the refresh has finished
-                    mPullToRefreshLayout.setRefreshComplete();
-                    
                     if (!error){
                     	list.setAdapter(frGrListAdapter);
                     	//with fly up animation
