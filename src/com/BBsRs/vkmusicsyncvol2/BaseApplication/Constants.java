@@ -11,9 +11,8 @@ public class Constants {
 	public static final String PREFERENCES_USER_FIRST_NAME = "preferences:user_first_name";
 	public static final String PREFERENCES_USER_LAST_NAME = "preferences:user_last_name";
 	
-	
 	public static final String EXTRA_LIST_POSX = "extra:list_posx";
-	public static final String EXTRA_LIST_MUSIC_COLLECTION = "extra:list_music_collection";
+	public static final String EXTRA_LIST_COLLECTIONS = "extra:list_collections";
 	
 	public static final String BUNDLE_MUSIC_LIST_TYPE = "bundle:music_list_type";
 	public static final int BUNDLE_MUSIC_LIST_MY_MUSIC = 0;
@@ -22,6 +21,9 @@ public class Constants {
 	public static final int BUNDLE_MUSIC_LIST_SEARCH = 3;
 	public static final int BUNDLE_MUSIC_LIST_DOWNLOADED = 4;
 	
+	public static final String BUNDLE_FRGR_LIST_TYPE = "bundle:frgr_list_type";
+	public static final int BUNDLE_FRGR_LIST_FRIENDS = 0;
+	public static final int BUNDLE_FRGR_LIST_GROUPS = 1;
 	
 
 }

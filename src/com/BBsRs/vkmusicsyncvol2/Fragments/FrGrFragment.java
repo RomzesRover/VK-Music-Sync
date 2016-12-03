@@ -21,16 +21,17 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.BBsRs.vkmusicsyncvol2.R;
-import com.BBsRs.vkmusicsyncvol2.Adapters.MusicListAdapter;
+import com.BBsRs.vkmusicsyncvol2.Adapters.FrGrListAdapter;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseFragment;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
-import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
+import com.BBsRs.vkmusicsyncvol2.collections.FrGrCollection;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.perm.kate.api.Api;
-import com.perm.kate.api.Audio;
+import com.perm.kate.api.Group;
+import com.perm.kate.api.User;
 
-public class MusicFragment extends BaseFragment {
+public class FrGrFragment extends BaseFragment {
 	
 	SharedPreferences sPref;
 	
@@ -49,7 +50,7 @@ public class MusicFragment extends BaseFragment {
 	//with this options we will load images
     DisplayImageOptions options ;
     
-    MusicListAdapter musicListAdapter;
+    FrGrListAdapter frGrListAdapter;
     
     //for retrieve data from activity
     Bundle bundle;
@@ -68,7 +69,7 @@ public class MusicFragment extends BaseFragment {
         //init image loader
         options = new DisplayImageOptions.Builder()
         .cacheOnDisk(true)
-        .showImageOnLoading(R.drawable.music_stub)
+        .showImageOnLoading(R.drawable.nopic)
         .cacheInMemory(true)					
         .build();
     	
@@ -90,9 +91,9 @@ public class MusicFragment extends BaseFragment {
 	        mPullToRefreshLayout.setRefreshing(true);
 	        customOnRefreshListener.onRefreshStarted(null);
         } else {
-        	ArrayList<MusicCollection> musicCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
-        	musicListAdapter = new MusicListAdapter(getActivity(), musicCollection, options);
-        	list.setAdapter(musicListAdapter);
+        	ArrayList<FrGrCollection> frGrCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
+        	frGrListAdapter = new FrGrListAdapter(getActivity(), frGrCollection, options);
+        	list.setAdapter(frGrListAdapter);
         	list.setSelection(savedInstanceState.getInt(Constants.EXTRA_LIST_POSX));
         	list.setVisibility(View.VISIBLE);
         }
@@ -104,21 +105,12 @@ public class MusicFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         //set subtitle for a current fragment with custom font
-        switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
-	        default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
-	        	setTitle(getResources().getStringArray(R.array.menu)[1]);
+        switch (bundle.getInt(Constants.BUNDLE_FRGR_LIST_TYPE)){
+	        default: case Constants.BUNDLE_FRGR_LIST_FRIENDS:
+	        	setTitle(getResources().getStringArray(R.array.menu)[5]);
 	        	break;
-	        case Constants.BUNDLE_MUSIC_LIST_POPULAR:
-	        	setTitle(getResources().getStringArray(R.array.menu)[3]);
-	        	break;
-	        case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS:
-	        	setTitle(getResources().getStringArray(R.array.menu)[4]);
-	        	break;
-	        case Constants.BUNDLE_MUSIC_LIST_SEARCH:
-	        	setTitle(getResources().getStringArray(R.array.menu)[2]);
-	        	break;
-	        case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED:
-	        	setTitle(getResources().getStringArray(R.array.menu)[7]);
+	        case Constants.BUNDLE_FRGR_LIST_GROUPS:
+	        	setTitle(getResources().getStringArray(R.array.menu)[6]);
 	        	break;
         }
     }
@@ -126,8 +118,8 @@ public class MusicFragment extends BaseFragment {
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		if (musicListAdapter != null){
-			outState.putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, musicListAdapter.getMusicCollection());
+		if (frGrListAdapter != null){
+			outState.putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, frGrListAdapter.getFrGrCollection());
 			outState.putInt(Constants.EXTRA_LIST_POSX,  list.getFirstVisiblePosition());
 		}
 	}
@@ -158,35 +150,27 @@ public class MusicFragment extends BaseFragment {
 						//slep to prevent laggy animations
 						Thread.sleep(1000);
 						
-						ArrayList<Audio> musicList = new ArrayList<Audio>();
-						ArrayList<MusicCollection> musicCollection = new ArrayList<MusicCollection>();
+						ArrayList<FrGrCollection> frGrCollection = new ArrayList<FrGrCollection>();
 						
-						//load nesc music
-				        switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
-					        default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
-					        	musicList = api.getAudio(account.user_id, null, null, null, null, null);
+						//load nesc frgr list
+				        switch (bundle.getInt(Constants.BUNDLE_FRGR_LIST_TYPE)){
+					        default: case Constants.BUNDLE_FRGR_LIST_FRIENDS:
+					        	ArrayList<User> friendList = new ArrayList<User>();
+					        	friendList = api.getFriends(account.user_id, "photo_100", null, null, null);
+								for (User one : friendList){
+									frGrCollection.add(new FrGrCollection(one.uid, one.first_name + " " + one.last_name, one.photo_medium_rec, one.online ? 1 : 0));
+								}
 					        	break;
-					        case Constants.BUNDLE_MUSIC_LIST_POPULAR:
-					        	musicList = api.getAudioPopular(0, null, null, null);
-					        	break;
-					        case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS:
-					        	musicList = api.getAudioRecommendations();
-					        	break;
-					        case Constants.BUNDLE_MUSIC_LIST_SEARCH:
-					        	//TODO
-					        	break;
-					        case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED:
-					        	//TODO
+					        case Constants.BUNDLE_FRGR_LIST_GROUPS:
+					        	ArrayList<Group> groupList = new ArrayList<Group>();
+					        	groupList = api.getUserGroups(account.user_id);
+								for (Group one : groupList){
+									frGrCollection.add(new FrGrCollection(one.gid, one.name, one.photo_medium, -1));
+								}
 					        	break;
 				        }
 						
-						
-						
-						for (Audio one : musicList){
-							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, one.url, one.lyrics_id));
-						}
-						
-						musicListAdapter = new MusicListAdapter(getActivity(), musicCollection, options);
+				        frGrListAdapter = new FrGrListAdapter(getActivity(), frGrCollection, options);
 					} catch (Exception e) {
 						e.printStackTrace();
 						error = true;
@@ -199,7 +183,7 @@ public class MusicFragment extends BaseFragment {
                     mPullToRefreshLayout.setRefreshComplete();
                     
                     if (!error){
-                    	list.setAdapter(musicListAdapter);
+                    	list.setAdapter(frGrListAdapter);
                     	//with fly up animation
                     	list.setVisibility(View.VISIBLE);
                     	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim);
