@@ -20,7 +20,7 @@ import android.widget.ImageView;
 import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseActivity;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
-import com.BBsRs.vkmusicsyncvol2.Fragments.MyMusicFragment;
+import com.BBsRs.vkmusicsyncvol2.Fragments.MusicFragment;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
@@ -63,16 +63,16 @@ public class ContentActivity extends BaseActivity {
         addonSlider().setOverlayActionBar(true);
         
         sliderMenu.add(getResources().getStringArray(R.array.menu)[0].toUpperCase()).setCustomLayout(R.layout.custom_slider_menu_item).clickable(false).setTextAppereance(1);
-        sliderMenu.add(getResources().getStringArray(R.array.menu)[1], MyMusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_my_music).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
-        sliderMenu.add(getResources().getStringArray(R.array.menu)[2], MyMusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_search).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
-        sliderMenu.add(getResources().getStringArray(R.array.menu)[3], MyMusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_popular).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
-        sliderMenu.add(getResources().getStringArray(R.array.menu)[4], MyMusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_recommendations).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
-        sliderMenu.add(getResources().getStringArray(R.array.menu)[5], MyMusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_friends).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
-        sliderMenu.add(getResources().getStringArray(R.array.menu)[6], MyMusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_groups).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
-        sliderMenu.add(getResources().getStringArray(R.array.menu)[7], MyMusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_downloads).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
+        sliderMenu.add(getResources().getStringArray(R.array.menu)[1], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_my_music).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
+        sliderMenu.add(getResources().getStringArray(R.array.menu)[2], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_search).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
+        sliderMenu.add(getResources().getStringArray(R.array.menu)[3], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_popular).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
+        sliderMenu.add(getResources().getStringArray(R.array.menu)[4], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_recommendations).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
+        sliderMenu.add(getResources().getStringArray(R.array.menu)[5], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_friends).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
+        sliderMenu.add(getResources().getStringArray(R.array.menu)[6], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_groups).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
+        sliderMenu.add(getResources().getStringArray(R.array.menu)[7], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_downloads).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
         sliderMenu.add(getResources().getStringArray(R.array.menu)[8].toUpperCase()).setCustomLayout(R.layout.custom_slider_menu_item).clickable(false).setTextAppereance(1);
-        sliderMenu.add(getResources().getStringArray(R.array.menu)[9], MyMusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_settings).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
-        sliderMenu.add(getResources().getStringArray(R.array.menu)[10], MyMusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_premium).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
+        sliderMenu.add(getResources().getStringArray(R.array.menu)[9], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_settings).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
+        sliderMenu.add(getResources().getStringArray(R.array.menu)[10], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_premium).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
         
         sliderMenu.setCurrentPage(1);
         

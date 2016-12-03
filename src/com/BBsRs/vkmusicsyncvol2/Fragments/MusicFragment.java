@@ -30,7 +30,7 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.perm.kate.api.Api;
 import com.perm.kate.api.Audio;
 
-public class MyMusicFragment extends BaseFragment {
+public class MusicFragment extends BaseFragment {
 	
 	SharedPreferences sPref;
 	
