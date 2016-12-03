@@ -53,7 +53,7 @@ public class MusicFragment extends BaseFragment {
 	
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    	View contentView = inflater.inflate(R.layout.fragment_my_music);
+    	View contentView = inflater.inflate(R.layout.fragment_music);
     	
     	//set up preferences
 	    sPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
