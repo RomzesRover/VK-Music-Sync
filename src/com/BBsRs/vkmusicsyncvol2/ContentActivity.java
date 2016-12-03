@@ -62,11 +62,21 @@ public class ContentActivity extends BaseActivity {
         sliderMenu.setInverseTextColorWhenSelected(false);
         addonSlider().setOverlayActionBar(true);
         
+        //init bundles
+        Bundle myMusic  = new Bundle();
+        myMusic.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_MY_MUSIC);
+        
+        Bundle popular  = new Bundle();
+        popular.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_POPULAR);
+        
+        Bundle recommendations  = new Bundle();
+        recommendations.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS);
+        
         sliderMenu.add(getResources().getStringArray(R.array.menu)[0].toUpperCase()).setCustomLayout(R.layout.custom_slider_menu_item).clickable(false).setTextAppereance(1);
-        sliderMenu.add(getResources().getStringArray(R.array.menu)[1], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_my_music).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
+        sliderMenu.add(getResources().getStringArray(R.array.menu)[1], MusicFragment.class, myMusic, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_my_music).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
         sliderMenu.add(getResources().getStringArray(R.array.menu)[2], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_search).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
-        sliderMenu.add(getResources().getStringArray(R.array.menu)[3], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_popular).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
-        sliderMenu.add(getResources().getStringArray(R.array.menu)[4], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_recommendations).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
+        sliderMenu.add(getResources().getStringArray(R.array.menu)[3], MusicFragment.class, popular, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_popular).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
+        sliderMenu.add(getResources().getStringArray(R.array.menu)[4], MusicFragment.class, recommendations, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_recommendations).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
         sliderMenu.add(getResources().getStringArray(R.array.menu)[5], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_friends).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
         sliderMenu.add(getResources().getStringArray(R.array.menu)[6], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_groups).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
         sliderMenu.add(getResources().getStringArray(R.array.menu)[7], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_downloads).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);

@@ -50,6 +50,9 @@ public class MusicFragment extends BaseFragment {
     DisplayImageOptions options ;
     
     MusicListAdapter musicListAdapter;
+    
+    //for retrieve data from activity
+    Bundle bundle;
 	
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -79,6 +82,9 @@ public class MusicFragment extends BaseFragment {
           .listener(customOnRefreshListener)
           .setup(mPullToRefreshLayout);
         
+        //retrieve bundle
+      	bundle = this.getArguments();
+        
         if(savedInstanceState == null) {
 	        //refresh on open to load data when app first time started
 	        mPullToRefreshLayout.setRefreshing(true);
@@ -98,7 +104,23 @@ public class MusicFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         //set subtitle for a current fragment with custom font
-        setTitle(getResources().getStringArray(R.array.menu)[1]);
+        switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
+	        default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
+	        	setTitle(getResources().getStringArray(R.array.menu)[1]);
+	        	break;
+	        case Constants.BUNDLE_MUSIC_LIST_POPULAR:
+	        	setTitle(getResources().getStringArray(R.array.menu)[3]);
+	        	break;
+	        case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS:
+	        	setTitle(getResources().getStringArray(R.array.menu)[4]);
+	        	break;
+	        case Constants.BUNDLE_MUSIC_LIST_SEARCH:
+	        	setTitle(getResources().getStringArray(R.array.menu)[2]);
+	        	break;
+	        case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED:
+	        	setTitle(getResources().getStringArray(R.array.menu)[7]);
+	        	break;
+        }
     }
     
 	@Override
@@ -139,7 +161,26 @@ public class MusicFragment extends BaseFragment {
 						ArrayList<Audio> musicList = new ArrayList<Audio>();
 						ArrayList<MusicCollection> musicCollection = new ArrayList<MusicCollection>();
 						
-						musicList = api.getAudio(account.user_id, null, null, null, null, null);
+						//load nesc music
+				        switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
+					        default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
+					        	musicList = api.getAudio(account.user_id, null, null, null, null, null);
+					        	break;
+					        case Constants.BUNDLE_MUSIC_LIST_POPULAR:
+					        	musicList = api.getAudioPopular(0, null, null, null);
+					        	break;
+					        case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS:
+					        	musicList = api.getAudioRecommendations();
+					        	break;
+					        case Constants.BUNDLE_MUSIC_LIST_SEARCH:
+					        	//TODO
+					        	break;
+					        case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED:
+					        	//TODO
+					        	break;
+				        }
+						
+						
 						
 						for (Audio one : musicList){
 							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, one.url, one.lyrics_id));
