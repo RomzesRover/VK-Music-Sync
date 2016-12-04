@@ -125,6 +125,9 @@ public class MusicFragment extends BaseFragment {
 	        case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED:
 	        	setTitle(getResources().getStringArray(R.array.menu)[7]);
 	        	break;
+	        case Constants.BUNDLE_MUSIC_LIST_FRIEND: case Constants.BUNDLE_MUSIC_LIST_GROUP:
+	        	setTitle(bundle.getString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME));
+	        	break;
         }
     }
     
@@ -179,6 +182,12 @@ public class MusicFragment extends BaseFragment {
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_SEARCH:
 					        	//TODO
+					        	break;
+					        case Constants.BUNDLE_MUSIC_LIST_FRIEND:
+					        	musicList = api.getAudio(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID), null, null, null, null, null);
+					        	break;
+					        case Constants.BUNDLE_MUSIC_LIST_GROUP:
+					        	musicList = api.getAudio(null, bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID), null, null, null, null);
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED:
 					        	//TODO

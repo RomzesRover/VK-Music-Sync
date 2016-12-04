@@ -3,6 +3,7 @@ package com.BBsRs.vkmusicsyncvol2.Fragments;
 import java.util.ArrayList;
 
 import org.holoeverywhere.LayoutInflater;
+import org.holoeverywhere.app.Fragment;
 import org.holoeverywhere.preference.PreferenceManager;
 import org.holoeverywhere.preference.SharedPreferences;
 import org.holoeverywhere.widget.ListView;
@@ -19,7 +20,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 
+import com.BBsRs.vkmusicsyncvol2.ContentActivity;
 import com.BBsRs.vkmusicsyncvol2.R;
 import com.BBsRs.vkmusicsyncvol2.Adapters.FrGrListAdapter;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
@@ -102,6 +106,41 @@ public class FrGrFragment extends BaseFragment {
         	list.setSelection(savedInstanceState.getInt(Constants.EXTRA_LIST_POSX));
         	list.setVisibility(View.VISIBLE);
         }
+		
+		//init this fragment to use in methods
+		final Fragment thisFr = this;
+		
+		//view job
+		list.setOnItemClickListener(new OnItemClickListener(){
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+				//create bundle to m list
+				Bundle frGrMusicBundle  = new Bundle();
+				
+				//set up bundle
+		        switch (bundle.getInt(Constants.BUNDLE_FRGR_LIST_TYPE)){
+			        default: case Constants.BUNDLE_FRGR_LIST_FRIENDS:
+			        	frGrMusicBundle.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_FRIEND);
+			        	break;
+			        case Constants.BUNDLE_FRGR_LIST_GROUPS:
+			        	frGrMusicBundle.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_GROUP);
+			        	break;
+		        }
+		        frGrMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID, frGrListAdapter.getItem(position).fgid);
+		        frGrMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME, frGrListAdapter.getItem(position).friendGroupName);
+		        
+		        //create music list fragment
+		        MusicFragment musicListFragment = new MusicFragment();
+	           	musicListFragment.setArguments(frGrMusicBundle);
+	           	
+	           	//start new music list fragment
+	           	thisFr.onPause();
+				
+				((ContentActivity) getSupportActivity()).addonSlider()
+                .obtainSliderMenu().replaceFragment(musicListFragment);
+				
+			}
+		});
 		
     	return contentView;
 	}
