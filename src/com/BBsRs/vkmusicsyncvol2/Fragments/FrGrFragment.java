@@ -90,7 +90,7 @@ public class FrGrFragment extends BaseFragment {
         //retrieve bundle
       	bundle = this.getArguments();
         
-		if(savedInstanceState == null) {
+		if(savedInstanceState == null &&  bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS) == null) {
 	      	handler.postDelayed(new Runnable(){
 				@Override
 				public void run() {
@@ -100,10 +100,17 @@ public class FrGrFragment extends BaseFragment {
 				}
 	      	}, 100);
         } else {
-        	ArrayList<FrGrCollection> frGrCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
-        	frGrListAdapter = new FrGrListAdapter(getActivity(), frGrCollection, options);
-        	list.setAdapter(frGrListAdapter);
-        	list.setSelection(savedInstanceState.getInt(Constants.EXTRA_LIST_POSX));
+        	if (savedInstanceState != null){
+	        	ArrayList<FrGrCollection> frGrCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
+	        	frGrListAdapter = new FrGrListAdapter(getActivity(), frGrCollection, options);
+	        	list.setAdapter(frGrListAdapter);
+	        	list.setSelection(savedInstanceState.getInt(Constants.EXTRA_LIST_POSX));
+        	} else {
+        		ArrayList<FrGrCollection> frGrCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
+	        	frGrListAdapter = new FrGrListAdapter(getActivity(), frGrCollection, options);
+	        	list.setAdapter(frGrListAdapter);
+	        	list.setSelection(bundle.getInt(Constants.EXTRA_LIST_POSX));
+        	}
         	list.setVisibility(View.VISIBLE);
         }
 		
@@ -136,14 +143,21 @@ public class FrGrFragment extends BaseFragment {
 	           	//start new music list fragment
 	           	thisFr.onPause();
 				
-				((ContentActivity) getSupportActivity()).addonSlider()
-                .obtainSliderMenu().replaceFragment(musicListFragment);
-				
+				((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(musicListFragment);
 			}
 		});
 		
     	return contentView;
 	}
+	
+    @Override
+    public void onPause() {
+        super.onPause();
+		if (frGrListAdapter != null){
+			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, frGrListAdapter.getFrGrCollection());
+			getArguments().putInt(Constants.EXTRA_LIST_POSX,  list.getFirstVisiblePosition());
+		}
+    }
 	
     @Override
     public void onResume() {
@@ -184,7 +198,7 @@ public class FrGrFragment extends BaseFragment {
 							handler.post(new Runnable(){
 								@Override
 								public void run() {
-									Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);
+									Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim);
 			                    	list.startAnimation(flyDownAnimation);
 			                    	list.setVisibility(View.INVISIBLE);
 								}
@@ -243,7 +257,7 @@ public class FrGrFragment extends BaseFragment {
                     	list.setAdapter(frGrListAdapter);
                     	//with fly up animation
                     	list.setVisibility(View.VISIBLE);
-                    	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim);
+                    	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);
                     	list.startAnimation(flyUpAnimation);
                     } else {
                     	//TODO SHOW error message

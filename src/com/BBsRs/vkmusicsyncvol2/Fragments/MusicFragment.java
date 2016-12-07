@@ -156,7 +156,7 @@ public class MusicFragment extends BaseFragment {
 							handler.post(new Runnable(){
 								@Override
 								public void run() {
-									Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);
+									Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim);
 			                    	list.startAnimation(flyDownAnimation);
 			                    	list.setVisibility(View.INVISIBLE);
 								}
@@ -229,7 +229,7 @@ public class MusicFragment extends BaseFragment {
                     	list.setAdapter(musicListAdapter);
                     	//with fly up animation
                     	list.setVisibility(View.VISIBLE);
-                    	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim);
+                    	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);
                     	list.startAnimation(flyUpAnimation);
                     } else {
                     	//TODO SHOW error message
