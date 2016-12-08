@@ -15,8 +15,7 @@
             android:layout_height="match_parent"
             android:animationCache="false"
             android:divider="@color/transparent_color"
-            android:dividerHeight="0.5dip"
-            android:listSelector="@drawable/purple_list_selector_holo_dark"
+            android:listSelector="@drawable/purple_list_selector_holo_light"
             android:scrollingCache="false"
             android:visibility="invisible" />
 

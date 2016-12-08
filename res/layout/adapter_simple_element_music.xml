@@ -81,7 +81,7 @@
         android:layout_alignLeft="@+id/linearLayout2"
         android:layout_alignRight="@+id/linearLayout2"
         android:layout_below="@+id/albumArt"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="13dp"
         android:scaleType="fitXY"
         android:src="@color/gray_three_color" />
 
