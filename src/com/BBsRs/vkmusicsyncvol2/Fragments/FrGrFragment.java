@@ -214,16 +214,16 @@ public class FrGrFragment extends BaseFragment {
 				        switch (bundle.getInt(Constants.BUNDLE_FRGR_LIST_TYPE)){
 					        default: case Constants.BUNDLE_FRGR_LIST_FRIENDS:
 					        	ArrayList<User> friendList = new ArrayList<User>();
-					        	friendList = api.getFriends(account.user_id, "photo_100", null, null, null);
+					        	friendList = api.getFriends(account.user_id, "photo_200,photo_100", null, null, null);
 								for (User one : friendList){
-									frGrCollection.add(new FrGrCollection(one.uid, one.first_name + " " + one.last_name, one.photo_medium_rec, one.online ? 1 : 0));
+									frGrCollection.add(new FrGrCollection(one.uid, one.first_name + " " + one.last_name, ((one.photo_200 == null || one.photo_200.length()<1) ? one.photo_medium_rec : one.photo_200), one.online ? 1 : 0));
 								}
 					        	break;
 					        case Constants.BUNDLE_FRGR_LIST_GROUPS:
 					        	ArrayList<Group> groupList = new ArrayList<Group>();
 					        	groupList = api.getUserGroups(account.user_id);
 								for (Group one : groupList){
-									frGrCollection.add(new FrGrCollection(one.gid, one.name, one.photo_medium, -1));
+									frGrCollection.add(new FrGrCollection(one.gid, one.name, one.photo_big, -1));
 								}
 					        	break;
 				        }
