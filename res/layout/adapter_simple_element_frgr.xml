@@ -37,7 +37,7 @@
             android:layout_alignRight="@+id/cover_art"
             android:layout_alignTop="@+id/cover_art"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_friend_group_mask" />
+            android:src="@drawable/purple_list_selector_friend_group_mask_holo_light" />
 
         <ImageView
             android:id="@+id/online_status"
