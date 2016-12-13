@@ -148,6 +148,7 @@ public class MusicFragment extends BaseFragment {
 			//set close button icon
 	        ImageView closeBtn = (ImageView) searchField.get(searchView);
 	        closeBtn.setImageResource(R.drawable.ic_search_cancel);
+	        closeBtn.setBackground(null);
 	        //set search icon
 	        ImageView searchButton = (ImageView) searchView.findViewById(R.id.search_button);            
             searchButton.setImageResource(R.drawable.ic_menu_search);
@@ -163,7 +164,7 @@ public class MusicFragment extends BaseFragment {
             SFUIFonts.ULTRALIGHT.apply(getActivity(), mQueryTextView);
             mQueryTextView.setHint("");
             mQueryTextView.setTextColor(getActivity().getResources().getColor(R.color.white_color));
-            mQueryTextView.setTextSize((float)16);
+            mQueryTextView.setTextSize((float)17);
 		} catch (Exception e) {
 			Log.e("SearchView", e.getMessage(), e);
 		}

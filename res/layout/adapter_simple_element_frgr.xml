@@ -56,7 +56,6 @@
             android:layout_marginLeft="7dp"
             android:layout_toRightOf="@+id/online_status"
             android:ellipsize="end"
-            android:ems="3"
             android:lines="1"
             android:singleLine="true"
             android:textAppearance="?android:attr/textAppearanceMedium"

@@ -13,7 +13,7 @@
         android:layout_alignParentTop="true"
         android:scaleType="centerCrop"
         android:src="@drawable/music_stub" />
-    
+
     <ImageView
         android:id="@+id/albumArt"
         android:layout_width="63dp"
@@ -57,21 +57,26 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:lines="1"
+            android:singleLine="true"
             android:text="Medium Text"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/black_color"
-            android:textSize="13sp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="-5dp"
+            android:ellipsize="end"
+            android:lines="1"
+            android:singleLine="true"
             android:text="Small Text"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/gray_two_color"
-            android:textSize="11sp" />
-
+            android:textSize="12sp" />
     </LinearLayout>
 
     <ImageView
