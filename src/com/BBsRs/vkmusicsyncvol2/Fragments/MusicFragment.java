@@ -1,25 +1,37 @@
 package com.BBsRs.vkmusicsyncvol2.Fragments;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import org.holoeverywhere.LayoutInflater;
 import org.holoeverywhere.preference.PreferenceManager;
 import org.holoeverywhere.preference.SharedPreferences;
+import org.holoeverywhere.widget.LinearLayout;
 import org.holoeverywhere.widget.ListView;
 
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 import android.annotation.TargetApi;
+import android.app.SearchManager;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.SearchAutoComplete;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 
+import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
 import com.BBsRs.vkmusicsyncvol2.R;
 import com.BBsRs.vkmusicsyncvol2.Adapters.MusicListAdapter;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
@@ -32,6 +44,8 @@ import com.perm.kate.api.Audio;
 
 public class MusicFragment extends BaseFragment {
 	
+	private static final String SFUIDisplayFonts = null;
+
 	SharedPreferences sPref;
 	
 	private final Handler handler = new Handler();
@@ -60,6 +74,9 @@ public class MusicFragment extends BaseFragment {
     	
     	//set up preferences
 	    sPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+	    
+		//enable menu
+    	setHasOptionsMenu(true);
     	
     	//init vkapi
 	    account.restore(getActivity());
@@ -103,6 +120,53 @@ public class MusicFragment extends BaseFragment {
         }
     	
     	return contentView;
+	}
+	
+	//init search
+	SearchView searchView;
+	SearchManager searchManager;
+	
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.menu_fragment_music, menu);
+		
+		searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+  		//Create the search view
+  		searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+  		searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+  		
+  		setSearchStyles();
+	}
+	
+	@SuppressWarnings("deprecation")
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN) 
+	public void setSearchStyles(){
+		Field searchField;
+		try {
+			searchField = SearchView.class.getDeclaredField("mCloseButton");
+			searchField.setAccessible(true);
+			//set close button icon
+	        ImageView closeBtn = (ImageView) searchField.get(searchView);
+	        closeBtn.setImageResource(R.drawable.ic_search_cancel);
+	        //set search icon
+	        ImageView searchButton = (ImageView) searchView.findViewById(R.id.search_button);            
+            searchButton.setImageResource(R.drawable.ic_menu_search);
+            //set search textfield bg
+            LinearLayout searchPlate = (LinearLayout) searchView.findViewById(R.id.search_plate);            
+            if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN){
+            	searchPlate.setBackgroundDrawable(getActivity().getResources().getDrawable(R.drawable.ic_menu_search_textfield_bg));
+	        } else {
+	        	searchPlate.setBackground(getActivity().getResources().getDrawable(R.drawable.ic_menu_search_textfield_bg));
+	        }
+            //set text font
+            final SearchAutoComplete mQueryTextView = (SearchAutoComplete)searchView.findViewById(R.id.search_src_text);
+            SFUIFonts.ULTRALIGHT.apply(getActivity(), mQueryTextView);
+            mQueryTextView.setHint("");
+            mQueryTextView.setTextColor(getActivity().getResources().getColor(R.color.white_color));
+            mQueryTextView.setTextSize((float)16);
+		} catch (Exception e) {
+			Log.e("SearchView", e.getMessage(), e);
+		}
 	}
 	
     @Override

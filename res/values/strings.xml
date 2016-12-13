@@ -16,6 +16,8 @@
     <string name="login_activity_apply">Ok</string>
     <string name="login_activity_cancel">Cancel</string>
     
+    <string name="content_activity_search">Search</string>
+    
     <string-array name="menu">
         <item >Chapters</item>
         <item >My music</item>
