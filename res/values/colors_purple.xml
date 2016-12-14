@@ -16,5 +16,8 @@
     <color name="menu_subtext_color">#a2a3a7</color>
     <color name="menu_selected_color">#3a2c61</color>
     
+    <color name="search_view_background_color">#322556</color>
+    <color name="search_view_corner_color">#d7d4df</color>
+    
 
 </resources>

@@ -28,6 +28,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
@@ -169,12 +170,17 @@ public class MusicFragment extends BaseFragment {
 	        ImageView searchButton = (ImageView) searchView.findViewById(R.id.search_button);            
             searchButton.setImageResource(R.drawable.ic_menu_search);
             //set search textfield bg
-            LinearLayout searchPlate = (LinearLayout) searchView.findViewById(R.id.search_plate);            
+            LinearLayout searchPlate = (LinearLayout) searchView.findViewById(R.id.search_plate);    
             if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN){
             	searchPlate.setBackgroundDrawable(getActivity().getResources().getDrawable(R.drawable.ic_menu_search_textfield_bg));
 	        } else {
 	        	searchPlate.setBackground(getActivity().getResources().getDrawable(R.drawable.ic_menu_search_textfield_bg));
 	        }
+            //set edit text height
+            View searchSrcText = (View) searchView.findViewById(R.id.search_src_text);   
+            LayoutParams layoutParams = searchSrcText.getLayoutParams();
+            layoutParams.height = (int) (29 * getActivity().getResources().getDisplayMetrics().density + 0.5f);
+            searchSrcText.setLayoutParams(layoutParams);
             //set text font
             final SearchAutoComplete mQueryTextView = (SearchAutoComplete)searchView.findViewById(R.id.search_src_text);
             SFUIFonts.ULTRALIGHT.apply(getActivity(), mQueryTextView);
