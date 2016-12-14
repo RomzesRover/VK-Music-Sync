@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.support.v7.widget.SearchView.SearchAutoComplete;
 import android.util.Log;
 import android.view.Menu;
@@ -29,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 
 import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
@@ -44,8 +46,6 @@ import com.perm.kate.api.Audio;
 
 public class MusicFragment extends BaseFragment {
 	
-	private static final String SFUIDisplayFonts = null;
-
 	SharedPreferences sPref;
 	
 	private final Handler handler = new Handler();
@@ -135,6 +135,22 @@ public class MusicFragment extends BaseFragment {
   		searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
   		searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
   		
+  		searchView.setOnQueryTextListener(new OnQueryTextListener(){
+  			@Override
+  			public boolean onQueryTextSubmit(String query) {
+  				InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+  				imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+  				return false;
+  			}
+  			@Override
+  			public boolean onQueryTextChange(String newText) {
+  				if (musicListAdapter.getCountNonFiltered() !=0 && musicListAdapter != null){
+  					musicListAdapter.getFilter().filter(newText);
+  					list.setSelection(0);
+  				}
+  				return false;
+  			}});
+  		
   		setSearchStyles();
 	}
 	
@@ -200,7 +216,7 @@ public class MusicFragment extends BaseFragment {
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		if (musicListAdapter != null){
-			outState.putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, musicListAdapter.getMusicCollection());
+			outState.putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, musicListAdapter.getMusicCollectionNonFiltered());
 			outState.putInt(Constants.EXTRA_LIST_POSX,  list.getFirstVisiblePosition());
 		}
 	}
