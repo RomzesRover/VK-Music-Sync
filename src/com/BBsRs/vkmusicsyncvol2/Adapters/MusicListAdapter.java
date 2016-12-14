@@ -9,11 +9,15 @@ import java.util.List;
 import org.holoeverywhere.LayoutInflater;
 import org.holoeverywhere.widget.TextView;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 
 import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
@@ -26,17 +30,19 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
-public class MusicListAdapter extends BaseAdapter {
+public class MusicListAdapter extends BaseAdapter implements Filterable{
 	
 	LayoutInflater inflater;
 
 	Context context;
 	ArrayList<MusicCollection> musicCollection = new ArrayList<MusicCollection>();
+	ArrayList<MusicCollection> musicCollectionNonFiltered = new ArrayList<MusicCollection>();
 	//with this options we will load images
     DisplayImageOptions options ;
 	
 	public MusicListAdapter(Context _context, ArrayList<MusicCollection> _musicCollection, DisplayImageOptions _options){
 		musicCollection = _musicCollection;
+		musicCollectionNonFiltered.addAll(musicCollection);
 		context = _context;
 		options = _options;
 		
@@ -46,7 +52,7 @@ public class MusicListAdapter extends BaseAdapter {
 
 	@Override
 	public int getCount() {
-		return musicCollection.size()-1;
+		return musicCollection.size();
 	}
 
 	@Override
@@ -54,8 +60,12 @@ public class MusicListAdapter extends BaseAdapter {
 		return musicCollection.get(position);
 	}
 	
-	public ArrayList<MusicCollection> getMusicCollection() {
-		return musicCollection;
+	public int getCountNonFiltered() {
+		return musicCollectionNonFiltered.size();
+	}
+
+	public ArrayList<MusicCollection> getMusicCollectionNonFiltered() {
+		return musicCollectionNonFiltered;
 	}
 
 	@Override
@@ -145,5 +155,99 @@ public class MusicListAdapter extends BaseAdapter {
 			}
 		}
 	}
+
+    @SuppressLint("DefaultLocale") 
+    @Override
+    public Filter getFilter() {
+
+        Filter filter = new Filter() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+            	musicCollection = (ArrayList<MusicCollection>) results.values;
+                notifyDataSetChanged();
+            }
+
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+
+                FilterResults results = new FilterResults();
+                ArrayList<MusicCollection> FilteredArray = new ArrayList<MusicCollection>();
+
+                if (musicCollection == null)    {
+                	musicCollection = musicCollectionNonFiltered;
+                }
+                if (constraint == null || constraint.length() == 0) {
+                    results.count = musicCollectionNonFiltered.size();
+                    results.values = musicCollectionNonFiltered;
+                } else {
+                    constraint = constraint.toString().toLowerCase();
+                    for (int i = 0; i < musicCollectionNonFiltered.size(); i++) {
+                    	String[] arrayOfKeyWordsArtist = musicCollectionNonFiltered.get(i).artist.toLowerCase().split(" ");
+                    	String[] arrayOfKeyWordsTitle = musicCollectionNonFiltered.get(i).title.toLowerCase().split(" ");
+                    	String[] arrayOfRequestWords = constraint.toString().split(" ");
+                    	
+                    	boolean isCurrentAlreadyAdded = false;
+                    	int index = 0;
+                    	int index2 = 0;
+                		for (String oneWordArtist : arrayOfKeyWordsArtist){
+                			oneWordArtist="";
+                			index2 = 0;
+                			for (String requestWords : arrayOfRequestWords){
+                				if (index+index2<arrayOfKeyWordsArtist.length)
+                					oneWordArtist+=arrayOfKeyWordsArtist[index+index2];
+                				index2++;
+                			}
+                    		if (oneWordArtist.startsWith(constraint.toString().replace(" ", ""))){
+                    			FilteredArray.add(musicCollectionNonFiltered.get(i));
+                    			isCurrentAlreadyAdded = true;
+                    			break;
+                    		}
+                    		index++;
+                    	}
+                    	
+                    	
+                    	
+                    	if (!isCurrentAlreadyAdded){
+                    		index = 0;
+                    		for (String oneWordTitle : arrayOfKeyWordsTitle){
+                    			oneWordTitle="";
+                    			index2 = 0;
+                    			for (String requestWords : arrayOfRequestWords){
+                    				if (index+index2<arrayOfKeyWordsTitle.length)
+                    					oneWordTitle+=arrayOfKeyWordsTitle[index+index2];
+                    				index2++;
+                    			}
+                        		if (oneWordTitle.startsWith(constraint.toString().replace(" ", ""))){
+                        			FilteredArray.add(musicCollectionNonFiltered.get(i));
+                        			isCurrentAlreadyAdded = true;
+                        			break;
+                        		}
+                        		index++;
+                        	}
+                    	}
+                    	
+                    	if (!isCurrentAlreadyAdded)
+                    		if (musicCollectionNonFiltered.get(i).artist.toLowerCase().startsWith(constraint.toString()) || musicCollectionNonFiltered.get(i).title.toLowerCase().startsWith(constraint.toString()))  {
+                        			FilteredArray.add(musicCollectionNonFiltered.get(i));
+                        			isCurrentAlreadyAdded = true;
+                    		}
+                    }
+
+                    results.count = FilteredArray.size();
+                    results.values = FilteredArray;
+                }
+                
+                if (results.count==0){
+                	//TODO SEND RECEIVER NO RESULT
+                } 
+                
+                return results;
+            }
+        };
+
+        return filter;
+    }
 
 }
