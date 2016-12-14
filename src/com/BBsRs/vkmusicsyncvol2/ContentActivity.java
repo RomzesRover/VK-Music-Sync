@@ -12,8 +12,10 @@ import org.holoeverywhere.slider.SliderMenu;
 import org.holoeverywhere.widget.TextView;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -62,6 +64,24 @@ public class ContentActivity extends BaseActivity {
         sliderMenu = addonSlider().obtainDefaultSliderMenu(R.layout.menu);
         sliderMenu.setInverseTextColorWhenSelected(false);
         addonSlider().setOverlayActionBar(true);
+        try {
+        	addonSlider().setDrawerListener(new DrawerListener(){
+        		@Override
+        		public void onDrawerClosed(View arg0) {}
+        		@Override
+        		public void onDrawerOpened(View arg0) {
+        			Intent i = new Intent(Constants.BROADCAST_RECEIVER_HIDE_SEARCH_KEYBOARD);
+        			sendBroadcast(i);
+        		}
+        		@Override
+        		public void onDrawerSlide(View arg0, float arg1) {}
+        		@Override
+        		public void onDrawerStateChanged(int arg0) {}
+        	});
+        } catch (Exception e){
+        	e.printStackTrace();
+        	//Error on tablets !!
+        }
         
         //init bundles
         Bundle myMusic  = new Bundle();

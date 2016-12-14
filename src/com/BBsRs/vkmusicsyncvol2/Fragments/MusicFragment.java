@@ -14,7 +14,10 @@ import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 import android.annotation.TargetApi;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -139,8 +142,10 @@ public class MusicFragment extends BaseFragment {
   		searchView.setOnQueryTextListener(new OnQueryTextListener(){
   			@Override
   			public boolean onQueryTextSubmit(String query) {
-  				InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
-  				imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+  				if (searchView != null){
+	  				InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+	  				imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+  				}
   				return false;
   			}
   			@Override
@@ -192,9 +197,23 @@ public class MusicFragment extends BaseFragment {
 		}
 	}
 	
+	private BroadcastReceiver hideSearchKeyboard = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+        	//hide search, keyboard if its opened
+        	if (searchView != null){
+  				InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+  				imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+				}
+	    }
+	};
+	
     @Override
     public void onResume() {
         super.onResume();
+        //reg receivers
+        getActivity().registerReceiver(hideSearchKeyboard, new IntentFilter(Constants.BROADCAST_RECEIVER_HIDE_SEARCH_KEYBOARD));
+        
         //set subtitle for a current fragment with custom font
         switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
 	        default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
@@ -217,6 +236,13 @@ public class MusicFragment extends BaseFragment {
 	        	break;
         }
     }
+    
+	@Override
+	public void onPause() {
+		super.onPause();
+		//unreg receivers
+		getActivity().unregisterReceiver(hideSearchKeyboard);
+	}
     
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
@@ -246,6 +272,14 @@ public class MusicFragment extends BaseFragment {
 									Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim);
 			                    	list.startAnimation(flyDownAnimation);
 			                    	list.setVisibility(View.INVISIBLE);
+			                    	
+			                    	//hide search, keyboard if its opened
+			                    	if (searchView != null){
+			                    		searchView.setIconified(true);
+			                    		searchView.onActionViewCollapsed();
+			        	  				InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+			        	  				imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+			          				}
 								}
 							});
 						}
