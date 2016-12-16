@@ -8,6 +8,8 @@ import org.holoeverywhere.preference.PreferenceManager;
 import org.holoeverywhere.preference.SharedPreferences;
 import org.holoeverywhere.widget.LinearLayout;
 import org.holoeverywhere.widget.ListView;
+import org.holoeverywhere.widget.TextView;
+import org.holoeverywhere.widget.Toast;
 
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
@@ -63,6 +65,7 @@ public class MusicFragment extends BaseFragment {
     CustomOnRefreshListener customOnRefreshListener = new CustomOnRefreshListener();
 	PullToRefreshLayout mPullToRefreshLayout;
 	ListView list;
+	View header;
 	
 	//with this options we will load images
     DisplayImageOptions options ;
@@ -92,10 +95,24 @@ public class MusicFragment extends BaseFragment {
         .showImageOnLoading(R.drawable.music_stub)
         .cacheInMemory(true)					
         .build();
+        
+        //init adapter with null
+    	musicListAdapter = new MusicListAdapter(getActivity(), null, options);
     	
         //init views
     	mPullToRefreshLayout = (PullToRefreshLayout) contentView.findViewById(R.id.ptr_layout);
     	list = (ListView)contentView.findViewById(R.id.list);
+    	header = inflater.inflate(R.layout.list_music_header);
+    	SFUIFonts.MEDIUM.apply(getActivity(), (TextView)header.findViewById(R.id.albums));
+    	SFUIFonts.MEDIUM.apply(getActivity(), (TextView)header.findViewById(R.id.wall));
+    	((LinearLayout)header.findViewById(R.id.wallLayout)).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				Toast.makeText(getActivity(), "open wall", Toast.LENGTH_LONG).show();
+			}
+		});
+    	list.addHeaderView(header);
+    	list.setAdapter(musicListAdapter);
     	
         //init pull to refresh module
         ActionBarPullToRefresh.from(getActivity())
@@ -117,8 +134,8 @@ public class MusicFragment extends BaseFragment {
           	}, 100);
         } else {
         	ArrayList<MusicCollection> musicCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
-        	musicListAdapter = new MusicListAdapter(getActivity(), musicCollection, options);
-        	list.setAdapter(musicListAdapter);
+        	musicListAdapter.UpdateList(musicCollection);
+        	musicListAdapter.notifyDataSetChanged();
         	list.setSelection(savedInstanceState.getInt(Constants.EXTRA_LIST_POSX));
         	list.setVisibility(View.VISIBLE);
         }
@@ -150,7 +167,7 @@ public class MusicFragment extends BaseFragment {
   			}
   			@Override
   			public boolean onQueryTextChange(String newText) {
-  				if (musicListAdapter.getCountNonFiltered() !=0 && musicListAdapter != null){
+  				if (musicListAdapter != null && musicListAdapter.getCountNonFiltered() !=0){
   					musicListAdapter.getFilter().filter(newText);
   					list.setSelection(0);
   				}
@@ -321,7 +338,7 @@ public class MusicFragment extends BaseFragment {
 							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, one.url, one.lyrics_id));
 						}
 						
-						musicListAdapter = new MusicListAdapter(getActivity(), musicCollection, options);
+						musicListAdapter.UpdateList(musicCollection);
 					} catch (Exception e) {
 						e.printStackTrace();
 						error = true;
@@ -347,7 +364,7 @@ public class MusicFragment extends BaseFragment {
 				@Override
 		        protected void onPostExecute(Void result) {
                     if (!error){
-                    	list.setAdapter(musicListAdapter);
+                    	musicListAdapter.notifyDataSetChanged();
                     	//with fly up animation
                     	list.setVisibility(View.VISIBLE);
                     	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);

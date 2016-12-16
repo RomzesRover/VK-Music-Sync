@@ -12,7 +12,6 @@ import org.holoeverywhere.widget.TextView;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -41,13 +40,20 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
     DisplayImageOptions options ;
 	
 	public MusicListAdapter(Context _context, ArrayList<MusicCollection> _musicCollection, DisplayImageOptions _options){
-		musicCollection = _musicCollection;
+		if (_musicCollection != null)
+			musicCollection = _musicCollection;
 		musicCollectionNonFiltered.addAll(musicCollection);
 		context = _context;
 		options = _options;
 		
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		
+	}
+	
+	public void UpdateList(ArrayList<MusicCollection> _musicCollection){
+		musicCollection = _musicCollection;
+		musicCollectionNonFiltered = new ArrayList<MusicCollection>();
+		musicCollectionNonFiltered.addAll(musicCollection);
 	}
 
 	@Override
