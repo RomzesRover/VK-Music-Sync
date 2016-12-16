@@ -76,10 +76,14 @@ public class FrGrFragment extends BaseFragment {
         .showImageOnLoading(R.drawable.nopic)
         .cacheInMemory(true)					
         .build();
+        
+        //init adapter with null
+        frGrListAdapter = new FrGrListAdapter(getActivity(), null, options);
     	
         //init views
     	mPullToRefreshLayout = (PullToRefreshLayout) contentView.findViewById(R.id.ptr_layout);
     	list = (ListView)contentView.findViewById(R.id.list);
+    	list.setAdapter(frGrListAdapter);
     	
         //init pull to refresh module
         ActionBarPullToRefresh.from(getActivity())
@@ -102,13 +106,13 @@ public class FrGrFragment extends BaseFragment {
         } else {
         	if (savedInstanceState != null){
 	        	ArrayList<FrGrCollection> frGrCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
-	        	frGrListAdapter = new FrGrListAdapter(getActivity(), frGrCollection, options);
-	        	list.setAdapter(frGrListAdapter);
+	        	frGrListAdapter.UpdateList(frGrCollection);
+	        	frGrListAdapter.notifyDataSetChanged();
 	        	list.setSelection(savedInstanceState.getInt(Constants.EXTRA_LIST_POSX));
         	} else {
         		ArrayList<FrGrCollection> frGrCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
-	        	frGrListAdapter = new FrGrListAdapter(getActivity(), frGrCollection, options);
-	        	list.setAdapter(frGrListAdapter);
+        		frGrListAdapter.UpdateList(frGrCollection);
+	        	frGrListAdapter.notifyDataSetChanged();
 	        	list.setSelection(bundle.getInt(Constants.EXTRA_LIST_POSX));
         	}
         	list.setVisibility(View.VISIBLE);
@@ -228,7 +232,7 @@ public class FrGrFragment extends BaseFragment {
 					        	break;
 				        }
 						
-				        frGrListAdapter = new FrGrListAdapter(getActivity(), frGrCollection, options);
+				        frGrListAdapter.UpdateList(frGrCollection);
 					} catch (Exception e) {
 						e.printStackTrace();
 						error = true;
@@ -254,7 +258,7 @@ public class FrGrFragment extends BaseFragment {
 				@Override
 		        protected void onPostExecute(Void result) {
                     if (!error){
-                    	list.setAdapter(frGrListAdapter);
+                    	frGrListAdapter.notifyDataSetChanged();
                     	//with fly up animation
                     	list.setVisibility(View.VISIBLE);
                     	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);

@@ -34,12 +34,17 @@ public class FrGrListAdapter extends BaseAdapter {
     DisplayImageOptions options ;
 	
 	public FrGrListAdapter(Context _context, ArrayList<FrGrCollection> _frGrCollection, DisplayImageOptions _options){
-		frGrCollection = _frGrCollection;
+		if (_frGrCollection != null)
+			frGrCollection = _frGrCollection;
 		context = _context;
 		options = _options;
 		
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		
+	}
+	
+	public void UpdateList(ArrayList<FrGrCollection> _frGrCollection){
+		frGrCollection = _frGrCollection;
 	}
 
 	@Override
