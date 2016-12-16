@@ -16,10 +16,7 @@ import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 import android.annotation.TargetApi;
 import android.app.SearchManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -224,12 +221,11 @@ public class MusicFragment extends BaseFragment {
 	        	searchPlate.setBackground(getActivity().getResources().getDrawable(R.drawable.ic_menu_search_textfield_bg));
 	        }
             //set edit text height
-            View searchSrcText = (View) searchView.findViewById(R.id.search_src_text);   
-            LayoutParams layoutParams = searchSrcText.getLayoutParams();
-            layoutParams.height = (int) (29 * getActivity().getResources().getDisplayMetrics().density + 0.5f);
-            searchSrcText.setLayoutParams(layoutParams);
-            //set text font
             final SearchAutoComplete mQueryTextView = (SearchAutoComplete)searchView.findViewById(R.id.search_src_text);
+            LayoutParams layoutParams = mQueryTextView.getLayoutParams();
+            layoutParams.height = (int) (29 * getActivity().getResources().getDisplayMetrics().density + 0.5f);
+            mQueryTextView.setLayoutParams(layoutParams);
+            //set text font
             SFUIFonts.ULTRALIGHT.apply(getActivity(), mQueryTextView);
             mQueryTextView.setHint("");
             mQueryTextView.setTextColor(getActivity().getResources().getColor(R.color.white_color));

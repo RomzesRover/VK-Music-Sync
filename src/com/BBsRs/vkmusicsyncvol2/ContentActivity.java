@@ -12,10 +12,8 @@ import org.holoeverywhere.slider.SliderMenu;
 import org.holoeverywhere.widget.TextView;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.view.View;
 import android.widget.ImageView;
 
