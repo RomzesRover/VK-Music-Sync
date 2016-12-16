@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.support.v7.widget.SearchView.SearchAutoComplete;
@@ -40,6 +41,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 
 import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
+import com.BBsRs.vkmusicsyncvol2.ContentActivity;
 import com.BBsRs.vkmusicsyncvol2.R;
 import com.BBsRs.vkmusicsyncvol2.Adapters.MusicListAdapter;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
@@ -78,6 +80,29 @@ public class MusicFragment extends BaseFragment {
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
     	View contentView = inflater.inflate(R.layout.fragment_music_frgr);
+    	
+    	//init hide slider menu (hide search)
+        try {
+        	((ContentActivity) getSupportActivity()).addonSlider().setDrawerListener(new DrawerListener(){
+        		@Override
+        		public void onDrawerClosed(View arg0) {}
+        		@Override
+        		public void onDrawerOpened(View arg0) {
+        			//hide search, keyboard if its opened
+                	if (searchView != null){
+          				InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+          				imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+        				}
+        		}
+        		@Override
+        		public void onDrawerSlide(View arg0, float arg1) {}
+        		@Override
+        		public void onDrawerStateChanged(int arg0) {}
+        	});
+        } catch (Exception e){
+        	e.printStackTrace();
+        	//Error on tablets !!
+        }
     	
     	//set up preferences
 	    sPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -214,23 +239,9 @@ public class MusicFragment extends BaseFragment {
 		}
 	}
 	
-	private BroadcastReceiver hideSearchKeyboard = new BroadcastReceiver() {
-	    @Override
-	    public void onReceive(Context context, Intent intent) {
-        	//hide search, keyboard if its opened
-        	if (searchView != null){
-  				InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
-  				imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
-				}
-	    }
-	};
-	
     @Override
     public void onResume() {
         super.onResume();
-        //reg receivers
-        getActivity().registerReceiver(hideSearchKeyboard, new IntentFilter(Constants.BROADCAST_RECEIVER_HIDE_SEARCH_KEYBOARD));
-        
         //set subtitle for a current fragment with custom font
         switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
 	        default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
@@ -257,8 +268,6 @@ public class MusicFragment extends BaseFragment {
 	@Override
 	public void onPause() {
 		super.onPause();
-		//unreg receivers
-		getActivity().unregisterReceiver(hideSearchKeyboard);
 	}
     
 	@Override

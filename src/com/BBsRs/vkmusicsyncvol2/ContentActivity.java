@@ -64,24 +64,6 @@ public class ContentActivity extends BaseActivity {
         sliderMenu = addonSlider().obtainDefaultSliderMenu(R.layout.menu);
         sliderMenu.setInverseTextColorWhenSelected(false);
         addonSlider().setOverlayActionBar(true);
-        try {
-        	addonSlider().setDrawerListener(new DrawerListener(){
-        		@Override
-        		public void onDrawerClosed(View arg0) {}
-        		@Override
-        		public void onDrawerOpened(View arg0) {
-        			Intent i = new Intent(Constants.BROADCAST_RECEIVER_HIDE_SEARCH_KEYBOARD);
-        			sendBroadcast(i);
-        		}
-        		@Override
-        		public void onDrawerSlide(View arg0, float arg1) {}
-        		@Override
-        		public void onDrawerStateChanged(int arg0) {}
-        	});
-        } catch (Exception e){
-        	e.printStackTrace();
-        	//Error on tablets !!
-        }
         
         //init bundles
         Bundle myMusic  = new Bundle();

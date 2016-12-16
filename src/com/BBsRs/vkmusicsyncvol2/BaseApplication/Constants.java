@@ -30,7 +30,4 @@ public class Constants {
 	public static final int BUNDLE_FRGR_LIST_FRIENDS = 0;
 	public static final int BUNDLE_FRGR_LIST_GROUPS = 1;
 	
-	public static final String BROADCAST_RECEIVER_HIDE_SEARCH_KEYBOARD = "broadcast:receiver_hide_search_keyboard";
-	
-
 }
