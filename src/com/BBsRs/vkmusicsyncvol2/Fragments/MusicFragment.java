@@ -143,11 +143,11 @@ public class MusicFragment extends BaseFragment {
 				switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
 		        default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
 		        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID, account.user_id);
-		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME, getResources().getStringArray(R.array.menu)[1]);
+		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME, getResources().getStringArray(R.array.menu)[1]+";"+getResources().getString(R.string.content_activity_wall));
 		        	break;
 		        case Constants.BUNDLE_MUSIC_LIST_FRIEND: case Constants.BUNDLE_MUSIC_LIST_GROUP:
 		        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID, bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID));
-		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME, bundle.getString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME));
+		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME, bundle.getString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME)+";"+getResources().getString(R.string.content_activity_wall));
 		        	break;
 				}
 		        

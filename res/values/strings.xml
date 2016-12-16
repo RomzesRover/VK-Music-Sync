@@ -17,6 +17,9 @@
     <string name="login_activity_cancel">Cancel</string>
     
     <string name="content_activity_search">Search</string>
+    <string name="content_activity_wall">From wall</string>
+    <string name="content_activity_albums">Albums</string>
+    <string name="content_activity_recommendations">Recommendations</string>
     
     <string-array name="menu">
         <item >Chapters</item>
