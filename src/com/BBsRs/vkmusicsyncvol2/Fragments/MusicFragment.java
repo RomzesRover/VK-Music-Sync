@@ -88,7 +88,7 @@ public class MusicFragment extends BaseFragment {
         		@Override
         		public void onDrawerOpened(View arg0) {
         			//hide search, keyboard if its opened
-                	if (searchView != null){
+                	if (searchView != null && getActivity() != null){
           				InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
           				imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
         				}
@@ -145,8 +145,12 @@ public class MusicFragment extends BaseFragment {
 		        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID, account.user_id);
 		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME, getResources().getStringArray(R.array.menu)[1]+";"+getResources().getString(R.string.content_activity_wall));
 		        	break;
-		        case Constants.BUNDLE_MUSIC_LIST_FRIEND: case Constants.BUNDLE_MUSIC_LIST_GROUP:
+		        case Constants.BUNDLE_MUSIC_LIST_FRIEND:
 		        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID, bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID));
+		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME, bundle.getString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME)+";"+getResources().getString(R.string.content_activity_wall));
+		        	break;
+		        case Constants.BUNDLE_MUSIC_LIST_GROUP:
+		        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID, -bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID));
 		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME, bundle.getString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME)+";"+getResources().getString(R.string.content_activity_wall));
 		        	break;
 				}
@@ -420,8 +424,10 @@ public class MusicFragment extends BaseFragment {
 						
 						musicListAdapter.UpdateList(musicCollection);
 					} catch (Exception e) {
-						e.printStackTrace();
-						error = true;
+						if (!(e.getMessage().contains("Access denied: access to users audio is denied") || e.getMessage().contains("Access denied: group audio is disabled"))){
+							error = true;
+							e.printStackTrace();
+						}
 					}
 					
 					handler.post(new Runnable(){
