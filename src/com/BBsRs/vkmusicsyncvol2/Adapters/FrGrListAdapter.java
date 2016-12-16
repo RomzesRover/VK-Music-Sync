@@ -49,7 +49,7 @@ public class FrGrListAdapter extends BaseAdapter {
 
 	@Override
 	public int getCount() {
-		return frGrCollection.size()-1;
+		return frGrCollection.size();
 	}
 
 	@Override

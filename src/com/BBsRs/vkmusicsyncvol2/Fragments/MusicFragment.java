@@ -173,7 +173,7 @@ public class MusicFragment extends BaseFragment {
         //retrieve bundle
       	bundle = this.getArguments();
         
-        if(savedInstanceState == null) {
+        if(savedInstanceState == null &&  bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS) == null) {
           	handler.postDelayed(new Runnable(){
     			@Override
     			public void run() {
@@ -183,10 +183,17 @@ public class MusicFragment extends BaseFragment {
     			}
           	}, 100);
         } else {
-        	ArrayList<MusicCollection> musicCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
-        	musicListAdapter.UpdateList(musicCollection);
-        	musicListAdapter.notifyDataSetChanged();
-        	list.setSelection(savedInstanceState.getInt(Constants.EXTRA_LIST_POSX));
+        	if (savedInstanceState != null){
+	        	ArrayList<MusicCollection> musicCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
+	        	musicListAdapter.UpdateList(musicCollection);
+	        	musicListAdapter.notifyDataSetChanged();
+	        	list.setSelection(savedInstanceState.getInt(Constants.EXTRA_LIST_POSX));
+        	} else {
+	        	ArrayList<MusicCollection> musicCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
+	        	musicListAdapter.UpdateList(musicCollection);
+	        	musicListAdapter.notifyDataSetChanged();
+	        	list.setSelection(bundle.getInt(Constants.EXTRA_LIST_POSX));
+        	}
         	list.setVisibility(View.VISIBLE);
         }
     	
@@ -292,6 +299,10 @@ public class MusicFragment extends BaseFragment {
 	@Override
 	public void onPause() {
 		super.onPause();
+		if (musicListAdapter != null){
+			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, musicListAdapter.getMusicCollectionNonFiltered());
+			getArguments().putInt(Constants.EXTRA_LIST_POSX,  list.getFirstVisiblePosition());
+		}
 	}
     
 	@Override
