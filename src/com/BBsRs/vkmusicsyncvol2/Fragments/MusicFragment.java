@@ -4,12 +4,12 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import org.holoeverywhere.LayoutInflater;
+import org.holoeverywhere.app.Fragment;
 import org.holoeverywhere.preference.PreferenceManager;
 import org.holoeverywhere.preference.SharedPreferences;
 import org.holoeverywhere.widget.LinearLayout;
 import org.holoeverywhere.widget.ListView;
 import org.holoeverywhere.widget.TextView;
-import org.holoeverywhere.widget.Toast;
 
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
@@ -47,7 +47,9 @@ import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.perm.kate.api.Api;
+import com.perm.kate.api.Attachment;
 import com.perm.kate.api.Audio;
+import com.perm.kate.api.WallMessage;
 
 public class MusicFragment extends BaseFragment {
 	
@@ -121,6 +123,9 @@ public class MusicFragment extends BaseFragment {
         //init adapter with null
     	musicListAdapter = new MusicListAdapter(getActivity(), null, options);
     	
+    	//init this fragment to use in methods
+    	final Fragment thisFr = this;
+    	
         //init views
     	mPullToRefreshLayout = (PullToRefreshLayout) contentView.findViewById(R.id.ptr_layout);
     	list = (ListView)contentView.findViewById(R.id.list);
@@ -130,7 +135,30 @@ public class MusicFragment extends BaseFragment {
     	((LinearLayout)header.findViewById(R.id.wallLayout)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				Toast.makeText(getActivity(), "open wall", Toast.LENGTH_LONG).show();
+				//create bundle to m list
+				Bundle wallMusicBundle  = new Bundle();
+				
+				//set up bundle
+				wallMusicBundle.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_WALL);
+				switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
+		        default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
+		        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID, account.user_id);
+		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME, getResources().getStringArray(R.array.menu)[1]);
+		        	break;
+		        case Constants.BUNDLE_MUSIC_LIST_FRIEND: case Constants.BUNDLE_MUSIC_LIST_GROUP:
+		        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID, bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID));
+		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME, bundle.getString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME));
+		        	break;
+				}
+		        
+		        //create music list fragment
+		        MusicFragment musicListFragment = new MusicFragment();
+	           	musicListFragment.setArguments(wallMusicBundle);
+	           	
+	           	//start new music list fragment
+	           	thisFr.onPause();
+				
+				((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(musicListFragment);
 			}
 		});
     	list.addHeaderView(header);
@@ -255,7 +283,7 @@ public class MusicFragment extends BaseFragment {
 	        case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED:
 	        	setTitle(getResources().getStringArray(R.array.menu)[7]);
 	        	break;
-	        case Constants.BUNDLE_MUSIC_LIST_FRIEND: case Constants.BUNDLE_MUSIC_LIST_GROUP:
+	        case Constants.BUNDLE_MUSIC_LIST_FRIEND: case Constants.BUNDLE_MUSIC_LIST_GROUP: case Constants.BUNDLE_MUSIC_LIST_WALL:
 	        	setTitle(bundle.getString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME));
 	        	break;
         }
@@ -331,6 +359,42 @@ public class MusicFragment extends BaseFragment {
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_GROUP:
 					        	musicList = api.getAudio(null, bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID), null, null, null, null);
+					        	break;
+					        case Constants.BUNDLE_MUSIC_LIST_WALL:
+					        	ArrayList<WallMessage> wallMessageList = new ArrayList<WallMessage>();
+					        	while (true){
+                        			ArrayList<WallMessage> wallMessageListTemp = api.getWallMessages(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID), 100, wallMessageList.size(), null);
+                        			Thread.sleep(250);
+                        			wallMessageList.addAll(wallMessageListTemp);
+                        			if (wallMessageListTemp.size()<100 || wallMessageList.size()>=300)
+                        				break;
+                        		}
+                        		int index=0;
+                        		for (WallMessage one : wallMessageList){
+                        			if (one.post_type == 1)
+	                        			for (Attachment oneA : one.copy_history.get(0).attachments){
+	                        				if (oneA.audio != null){
+	                        					musicList.add(oneA.audio);
+	                        					index++;
+	                        					if (index>=2000){
+	                        						break;
+	                        					}
+	                        				}
+	                        			} 
+                        			else
+	                        			for (Attachment oneA : one.attachments){
+	                        				if (oneA.audio != null){
+	                        					musicList.add(oneA.audio);
+	                        					index++;
+	                        					if (index>=2000){
+	                        						break;
+	                        					}
+	                        				}
+	                        			}
+                        			if (index>=2000){
+                						break;
+                					}
+                        		}
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED:
 					        	//TODO
