@@ -109,9 +109,6 @@ public class MusicFragment extends BaseFragment {
     	//set up preferences
 	    sPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 	    
-		//enable menu
-    	setHasOptionsMenu(true);
-    	
     	//init vkapi
 	    account.restore(getActivity());
         api=new Api(account.access_token, Constants.CLIENT_ID);
@@ -208,7 +205,7 @@ public class MusicFragment extends BaseFragment {
         	setUpHeaderView();
         	list.setVisibility(View.VISIBLE);
         }
-    	
+        
     	return contentView;
 	}
 	
@@ -285,6 +282,8 @@ public class MusicFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        //enable menu
+    	setHasOptionsMenu(true);
         //set subtitle for a current fragment with custom font
         switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
 	        default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
@@ -329,6 +328,7 @@ public class MusicFragment extends BaseFragment {
 	}
 	
 	public void setUpHeaderView(){
+		if (header == null) return;
         switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
         default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
         	((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.GONE);
