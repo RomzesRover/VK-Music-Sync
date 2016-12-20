@@ -129,9 +129,11 @@ public class MusicFragment extends BaseFragment {
         //init views
     	mPullToRefreshLayout = (PullToRefreshLayout) contentView.findViewById(R.id.ptr_layout);
     	list = (ListView)contentView.findViewById(R.id.list);
+    	//init header buttons
     	header = inflater.inflate(R.layout.list_music_header);
     	SFUIFonts.MEDIUM.apply(getActivity(), (TextView)header.findViewById(R.id.albums));
     	SFUIFonts.MEDIUM.apply(getActivity(), (TextView)header.findViewById(R.id.wall));
+    	SFUIFonts.MEDIUM.apply(getActivity(), (TextView)header.findViewById(R.id.recc));
     	((LinearLayout)header.findViewById(R.id.wallLayout)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
@@ -198,6 +200,7 @@ public class MusicFragment extends BaseFragment {
 	        	musicListAdapter.notifyDataSetChanged();
 	        	list.setSelection(bundle.getInt(Constants.EXTRA_LIST_POSX));
         	}
+        	setUpHeaderView();
         	list.setVisibility(View.VISIBLE);
         }
     	
@@ -316,6 +319,22 @@ public class MusicFragment extends BaseFragment {
 			outState.putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, musicListAdapter.getMusicCollectionNonFiltered());
 			outState.putInt(Constants.EXTRA_LIST_POSX,  list.getFirstVisiblePosition());
 		}
+	}
+	
+	public void setUpHeaderView(){
+        switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
+        default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
+        	((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.GONE);
+        	break;
+        case Constants.BUNDLE_MUSIC_LIST_POPULAR: case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS: case Constants.BUNDLE_MUSIC_LIST_SEARCH: case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED: case Constants.BUNDLE_MUSIC_LIST_WALL:
+        	((LinearLayout)header.findViewById(R.id.wallLayout)).setVisibility(View.GONE);
+			((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.GONE);
+			((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
+        	break;
+        case Constants.BUNDLE_MUSIC_LIST_FRIEND: case Constants.BUNDLE_MUSIC_LIST_GROUP:
+        	//TODO add support albums list load
+        	break;
+    }
 	}
     
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) 
@@ -450,6 +469,7 @@ public class MusicFragment extends BaseFragment {
 				@Override
 		        protected void onPostExecute(Void result) {
                     if (!error){
+                    	setUpHeaderView();
                     	musicListAdapter.notifyDataSetChanged();
                     	//with fly up animation
                     	list.setVisibility(View.VISIBLE);
