@@ -44,11 +44,13 @@ import com.BBsRs.vkmusicsyncvol2.Adapters.MusicListAdapter;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseFragment;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
+import com.BBsRs.vkmusicsyncvol2.collections.AlbumCollection;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.perm.kate.api.Api;
 import com.perm.kate.api.Attachment;
 import com.perm.kate.api.Audio;
+import com.perm.kate.api.AudioAlbum;
 import com.perm.kate.api.WallMessage;
 
 public class MusicFragment extends BaseFragment {
@@ -72,6 +74,7 @@ public class MusicFragment extends BaseFragment {
     DisplayImageOptions options ;
     
     MusicListAdapter musicListAdapter;
+    ArrayList<AlbumCollection> albumCollection = new ArrayList<AlbumCollection>();
     
     //for retrieve data from activity
     Bundle bundle;
@@ -126,6 +129,9 @@ public class MusicFragment extends BaseFragment {
     	//init this fragment to use in methods
     	final Fragment thisFr = this;
     	
+        //retrieve bundle
+      	bundle = this.getArguments();
+    	
         //init views
     	mPullToRefreshLayout = (PullToRefreshLayout) contentView.findViewById(R.id.ptr_layout);
     	list = (ListView)contentView.findViewById(R.id.list);
@@ -176,9 +182,6 @@ public class MusicFragment extends BaseFragment {
           .listener(customOnRefreshListener)
           .setup(mPullToRefreshLayout);
         
-        //retrieve bundle
-      	bundle = this.getArguments();
-        
         if(savedInstanceState == null &&  bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS) == null) {
           	handler.postDelayed(new Runnable(){
     			@Override
@@ -191,11 +194,13 @@ public class MusicFragment extends BaseFragment {
         } else {
         	if (savedInstanceState != null){
 	        	ArrayList<MusicCollection> musicCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
+	        	albumCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS);
 	        	musicListAdapter.UpdateList(musicCollection);
 	        	musicListAdapter.notifyDataSetChanged();
 	        	list.setSelection(savedInstanceState.getInt(Constants.EXTRA_LIST_POSX));
         	} else {
 	        	ArrayList<MusicCollection> musicCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
+	        	albumCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS);
 	        	musicListAdapter.UpdateList(musicCollection);
 	        	musicListAdapter.notifyDataSetChanged();
 	        	list.setSelection(bundle.getInt(Constants.EXTRA_LIST_POSX));
@@ -309,6 +314,7 @@ public class MusicFragment extends BaseFragment {
 		if (musicListAdapter != null){
 			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, musicListAdapter.getMusicCollectionNonFiltered());
 			getArguments().putInt(Constants.EXTRA_LIST_POSX,  list.getFirstVisiblePosition());
+			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS, albumCollection);
 		}
 	}
     
@@ -318,6 +324,7 @@ public class MusicFragment extends BaseFragment {
 		if (musicListAdapter != null){
 			outState.putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, musicListAdapter.getMusicCollectionNonFiltered());
 			outState.putInt(Constants.EXTRA_LIST_POSX,  list.getFirstVisiblePosition());
+			outState.putParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS, albumCollection);
 		}
 	}
 	
@@ -325,6 +332,8 @@ public class MusicFragment extends BaseFragment {
         switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
         default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
         	((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.GONE);
+        	if (albumCollection.size() <= 0)
+        		((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
         	break;
         case Constants.BUNDLE_MUSIC_LIST_POPULAR: case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS: case Constants.BUNDLE_MUSIC_LIST_SEARCH: case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED: case Constants.BUNDLE_MUSIC_LIST_WALL:
         	((LinearLayout)header.findViewById(R.id.wallLayout)).setVisibility(View.GONE);
@@ -332,7 +341,8 @@ public class MusicFragment extends BaseFragment {
 			((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
         	break;
         case Constants.BUNDLE_MUSIC_LIST_FRIEND: case Constants.BUNDLE_MUSIC_LIST_GROUP:
-        	//TODO add support albums list load
+        	if (albumCollection.size() <= 0)
+        		((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
         	break;
     }
 	}
@@ -373,11 +383,15 @@ public class MusicFragment extends BaseFragment {
 						
 						ArrayList<Audio> musicList = new ArrayList<Audio>();
 						ArrayList<MusicCollection> musicCollection = new ArrayList<MusicCollection>();
+						albumCollection = new ArrayList<AlbumCollection>();
 						
 						//load nesc music
 				        switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
 					        default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
 					        	musicList = api.getAudio(account.user_id, null, null, null, null, null);
+					        	for (AudioAlbum one : api.getAudioAlbums(account.user_id, 0, 100)){
+                        	    	albumCollection.add(new AlbumCollection(one.album_id, one.owner_id, one.title));
+                        	    }
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_POPULAR:
 					        	musicList = api.getAudioPopular(0, null, null, null);
@@ -390,9 +404,15 @@ public class MusicFragment extends BaseFragment {
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_FRIEND:
 					        	musicList = api.getAudio(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID), null, null, null, null, null);
+					        	for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID), 0, 100)){
+                        	    	albumCollection.add(new AlbumCollection(one.album_id, one.owner_id, one.title));
+                        	    }
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_GROUP:
 					        	musicList = api.getAudio(null, bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID), null, null, null, null);
+					        	for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID), 0, 100)){
+                        	    	albumCollection.add(new AlbumCollection(one.album_id, one.owner_id, one.title));
+                        	    }
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_WALL:
 					        	ArrayList<WallMessage> wallMessageList = new ArrayList<WallMessage>();

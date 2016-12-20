@@ -13,6 +13,7 @@ public class Constants {
 	
 	public static final String EXTRA_LIST_POSX = "extra:list_posx";
 	public static final String EXTRA_LIST_COLLECTIONS = "extra:list_collections";
+	public static final String EXTRA_LIST_SECOND_COLLECTIONS = "extra:list_second_collections_2";
 	
 	public static final String BUNDLE_MUSIC_LIST_TYPE = "bundle:music_list_type";
 	public static final int BUNDLE_MUSIC_LIST_MY_MUSIC = 0;
