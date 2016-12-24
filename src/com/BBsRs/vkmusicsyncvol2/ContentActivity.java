@@ -77,18 +77,27 @@ public class ContentActivity extends BaseActivity {
         myMusic.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_OF_PAGE);
         myMusic.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, account.user_id);
         myMusic.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, getResources().getStringArray(R.array.menu)[1]);
+        
         Bundle search  = new Bundle();
         search.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_SEARCH);
+        search.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, getResources().getStringArray(R.array.menu)[2]);
+        
         Bundle downloaded  = new Bundle();
         downloaded.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_DOWNLOADED);
+        downloaded.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, getResources().getStringArray(R.array.menu)[7]);
+        
         Bundle popular  = new Bundle();
         popular.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_POPULAR);
+        popular.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, getResources().getStringArray(R.array.menu)[3]);
+        
         Bundle recommendations  = new Bundle();
         recommendations.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS);
         recommendations.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, getResources().getStringArray(R.array.menu)[4]);
         recommendations.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, account.user_id);
+        
         Bundle friends  = new Bundle();
         friends.putInt(Constants.BUNDLE_FRGR_LIST_TYPE, Constants.BUNDLE_FRGR_LIST_FRIENDS);
+        
         Bundle groups = new Bundle();
         groups.putInt(Constants.BUNDLE_FRGR_LIST_TYPE, Constants.BUNDLE_FRGR_LIST_GROUPS);
         

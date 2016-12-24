@@ -294,23 +294,7 @@ public class MusicFragment extends BaseFragment {
         //enable menu
     	setHasOptionsMenu(true);
         //set subtitle for a current fragment with custom font
-        switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
-	        case Constants.BUNDLE_MUSIC_LIST_POPULAR:
-	        	setTitle(getResources().getStringArray(R.array.menu)[3]);
-	        	break;
-	        case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS:
-	        	setTitle(bundle.getString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME));
-	        	break;
-	        case Constants.BUNDLE_MUSIC_LIST_SEARCH:
-	        	setTitle(getResources().getStringArray(R.array.menu)[2]);
-	        	break;
-	        case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED:
-	        	setTitle(getResources().getStringArray(R.array.menu)[7]);
-	        	break;
-	        case Constants.BUNDLE_MUSIC_LIST_OF_PAGE: case Constants.BUNDLE_MUSIC_LIST_WALL:
-	        	setTitle(bundle.getString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME));
-	        	break;
-        }
+    	setTitle(bundle.getString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME));
     }
     
 	@Override
