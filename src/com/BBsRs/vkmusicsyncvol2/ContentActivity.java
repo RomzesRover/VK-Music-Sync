@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
+import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseActivity;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 import com.BBsRs.vkmusicsyncvol2.Fragments.FrGrFragment;
@@ -27,12 +28,17 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.perm.kate.api.Api;
 
 @Addons(AddonSlider.class)
 public class ContentActivity extends BaseActivity {
 	public AddonSlider.AddonSliderA addonSlider() {
 	      return addon(AddonSlider.class);
 	}
+	
+    /*----------------------------VK API-----------------------------*/
+    Account account=new Account();
+    /*----------------------------VK API-----------------------------*/
 	
 	//with this options we will load images
     DisplayImageOptions options ;
@@ -47,6 +53,9 @@ public class ContentActivity extends BaseActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
+	    
+    	//init vkapi
+	    account.restore(this);
 	    
         //init image loader
         options = new DisplayImageOptions.Builder()
@@ -74,6 +83,8 @@ public class ContentActivity extends BaseActivity {
         popular.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_POPULAR);
         Bundle recommendations  = new Bundle();
         recommendations.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS);
+        recommendations.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, getResources().getStringArray(R.array.menu)[4]);
+        recommendations.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, account.user_id);
         Bundle friends  = new Bundle();
         friends.putInt(Constants.BUNDLE_FRGR_LIST_TYPE, Constants.BUNDLE_FRGR_LIST_FRIENDS);
         Bundle groups = new Bundle();

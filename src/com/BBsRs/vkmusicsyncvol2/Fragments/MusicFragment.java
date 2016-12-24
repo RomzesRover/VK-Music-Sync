@@ -147,22 +147,43 @@ public class MusicFragment extends BaseFragment {
 				wallMusicBundle.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_WALL);
 				switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
 		        default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
-		        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID, account.user_id);
-		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME, getResources().getStringArray(R.array.menu)[1]+";"+getResources().getString(R.string.content_activity_wall));
+		        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, account.user_id);
+		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, getResources().getStringArray(R.array.menu)[1]+";"+getResources().getString(R.string.content_activity_wall));
 		        	break;
 		        case Constants.BUNDLE_MUSIC_LIST_FRIEND:
-		        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID, bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID));
-		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME, bundle.getString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME)+";"+getResources().getString(R.string.content_activity_wall));
+		        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID));
+		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, bundle.getString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME)+";"+getResources().getString(R.string.content_activity_wall));
 		        	break;
 		        case Constants.BUNDLE_MUSIC_LIST_GROUP:
-		        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID, -bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID));
-		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME, bundle.getString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME)+";"+getResources().getString(R.string.content_activity_wall));
+		        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, -bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID));
+		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, bundle.getString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME)+";"+getResources().getString(R.string.content_activity_wall));
 		        	break;
 				}
 		        
 		        //create music list fragment
 		        MusicFragment musicListFragment = new MusicFragment();
 	           	musicListFragment.setArguments(wallMusicBundle);
+	           	
+	           	//start new music list fragment
+	           	thisFr.onPause();
+				
+				((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(musicListFragment);
+			}
+		});
+    	((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				//create bundle to m list
+		        Bundle recommendations  = new Bundle();
+				
+				//set up bundle
+		        recommendations.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS);
+		        recommendations.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, bundle.getString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME)+";"+getResources().getString(R.string.content_activity_recommendations));
+		        recommendations.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID));
+		        
+		        //create music list fragment
+		        MusicFragment musicListFragment = new MusicFragment();
+	           	musicListFragment.setArguments(recommendations);
 	           	
 	           	//start new music list fragment
 	           	thisFr.onPause();
@@ -293,7 +314,7 @@ public class MusicFragment extends BaseFragment {
 	        	setTitle(getResources().getStringArray(R.array.menu)[3]);
 	        	break;
 	        case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS:
-	        	setTitle(getResources().getStringArray(R.array.menu)[4]);
+	        	setTitle(bundle.getString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME));
 	        	break;
 	        case Constants.BUNDLE_MUSIC_LIST_SEARCH:
 	        	setTitle(getResources().getStringArray(R.array.menu)[2]);
@@ -302,7 +323,7 @@ public class MusicFragment extends BaseFragment {
 	        	setTitle(getResources().getStringArray(R.array.menu)[7]);
 	        	break;
 	        case Constants.BUNDLE_MUSIC_LIST_FRIEND: case Constants.BUNDLE_MUSIC_LIST_GROUP: case Constants.BUNDLE_MUSIC_LIST_WALL:
-	        	setTitle(bundle.getString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME));
+	        	setTitle(bundle.getString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME));
 	        	break;
         }
     }
@@ -397,27 +418,27 @@ public class MusicFragment extends BaseFragment {
 					        	musicList = api.getAudioPopular(0, null, null, null);
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS:
-					        	musicList = api.getAudioRecommendations();
+					        	musicList = api.getAudioRecommendations(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), null, null, null);
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_SEARCH:
 					        	//TODO
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_FRIEND:
-					        	musicList = api.getAudio(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID), null, null, null, null, null);
-					        	for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID), 0, 100)){
+					        	musicList = api.getAudio(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), null, null, null, null, null);
+					        	for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), 0, 100)){
                         	    	albumCollection.add(new AlbumCollection(one.album_id, one.owner_id, one.title));
                         	    }
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_GROUP:
-					        	musicList = api.getAudio(null, bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID), null, null, null, null);
-					        	for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID), 0, 100)){
+					        	musicList = api.getAudio(null, bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), null, null, null, null);
+					        	for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), 0, 100)){
                         	    	albumCollection.add(new AlbumCollection(one.album_id, one.owner_id, one.title));
                         	    }
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_WALL:
 					        	ArrayList<WallMessage> wallMessageList = new ArrayList<WallMessage>();
 					        	while (true){
-                        			ArrayList<WallMessage> wallMessageListTemp = api.getWallMessages(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID), 100, wallMessageList.size(), null);
+                        			ArrayList<WallMessage> wallMessageListTemp = api.getWallMessages(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), 100, wallMessageList.size(), null);
                         			Thread.sleep(250);
                         			wallMessageList.addAll(wallMessageListTemp);
                         			if (wallMessageListTemp.size()<100 || wallMessageList.size()>=300)

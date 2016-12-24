@@ -137,8 +137,8 @@ public class FrGrFragment extends BaseFragment {
 			        	frGrMusicBundle.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_GROUP);
 			        	break;
 		        }
-		        frGrMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_FRGR_ID, frGrListAdapter.getItem(position).fgid);
-		        frGrMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_FRGR_NAME, frGrListAdapter.getItem(position).friendGroupName);
+		        frGrMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, frGrListAdapter.getItem(position).fgid);
+		        frGrMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, frGrListAdapter.getItem(position).friendGroupName);
 		        
 		        //create music list fragment
 		        MusicFragment musicListFragment = new MusicFragment();

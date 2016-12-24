@@ -25,8 +25,8 @@ public class Constants {
 	public static final int BUNDLE_MUSIC_LIST_GROUP = 6;
 	public static final int BUNDLE_MUSIC_LIST_WALL = 7;
 	
-	public static final String BUNDLE_MUSIC_LIST_FRGR_ID = "bundle:music_list_frgr_id";
-	public static final String BUNDLE_MUSIC_LIST_FRGR_NAME = "bundle:music_list_frgr_name";
+	public static final String BUNDLE_MUSIC_LIST_USRFRGR_ID = "bundle:music_list_usrfrgr_id";
+	public static final String BUNDLE_MUSIC_LIST_TITLE_NAME = "bundle:music_list_title_name";
 	
 	public static final String BUNDLE_FRGR_LIST_TYPE = "bundle:frgr_list_type";
 	public static final int BUNDLE_FRGR_LIST_FRIENDS = 0;
