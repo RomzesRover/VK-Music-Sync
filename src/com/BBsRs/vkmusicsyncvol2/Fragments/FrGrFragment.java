@@ -130,7 +130,7 @@ public class FrGrFragment extends BaseFragment {
 				
 				//set up bundle
 		        switch (bundle.getInt(Constants.BUNDLE_FRGR_LIST_TYPE)){
-			        default: case Constants.BUNDLE_FRGR_LIST_FRIENDS:
+			        case Constants.BUNDLE_FRGR_LIST_FRIENDS:
 			        	frGrMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, frGrListAdapter.getItem(position).fgid);
 			        	break;
 			        case Constants.BUNDLE_FRGR_LIST_GROUPS:
@@ -168,7 +168,7 @@ public class FrGrFragment extends BaseFragment {
         super.onResume();
         //set subtitle for a current fragment with custom font
         switch (bundle.getInt(Constants.BUNDLE_FRGR_LIST_TYPE)){
-	        default: case Constants.BUNDLE_FRGR_LIST_FRIENDS:
+	        case Constants.BUNDLE_FRGR_LIST_FRIENDS:
 	        	setTitle(getResources().getStringArray(R.array.menu)[5]);
 	        	break;
 	        case Constants.BUNDLE_FRGR_LIST_GROUPS:
@@ -216,7 +216,7 @@ public class FrGrFragment extends BaseFragment {
 						
 						//load nesc frgr list
 				        switch (bundle.getInt(Constants.BUNDLE_FRGR_LIST_TYPE)){
-					        default: case Constants.BUNDLE_FRGR_LIST_FRIENDS:
+					        case Constants.BUNDLE_FRGR_LIST_FRIENDS:
 					        	ArrayList<User> friendList = new ArrayList<User>();
 					        	friendList = api.getFriends(account.user_id, "photo_200,photo_100", null, null, null);
 								for (User one : friendList){

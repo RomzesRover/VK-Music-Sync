@@ -374,7 +374,7 @@ public class MusicFragment extends BaseFragment {
 						
 						//load nesc music
 				        switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
-					        default: case Constants.BUNDLE_MUSIC_LIST_OF_PAGE:
+					        case Constants.BUNDLE_MUSIC_LIST_OF_PAGE:
 					        	musicList = api.getAudio(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), null, null, null, null, null);
 					        	for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), 0, 100)){
                         	    	albumCollection.add(new AlbumCollection(one.album_id, one.owner_id, one.title));
