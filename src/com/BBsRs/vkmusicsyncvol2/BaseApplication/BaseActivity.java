@@ -98,7 +98,7 @@ public class BaseActivity extends Activity{
 						public void onAnimationEnd(Animator arg0) {
 							maintitle.setText(titles[0]);
 							AnimatorSet animSet = new AnimatorSet();
-				            ObjectAnimator transAnim = ObjectAnimator.ofFloat(maintitle, "translationY", convertDpToPixel(2f, actionTitle.getContext()), convertDpToPixel(5f, actionTitle.getContext()));
+				            ObjectAnimator transAnim = ObjectAnimator.ofFloat(maintitle, "translationY", convertDpToPixel(7f, actionTitle.getContext()), convertDpToPixel(5f, actionTitle.getContext()));
 				            ObjectAnimator alphaAnim = ObjectAnimator.ofFloat(maintitle, "alpha", 0f, 1f);
 				            animSet.playTogether(transAnim, alphaAnim);
 				            animSet.setDuration(250);
