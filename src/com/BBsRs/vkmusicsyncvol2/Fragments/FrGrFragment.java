@@ -131,13 +131,13 @@ public class FrGrFragment extends BaseFragment {
 				//set up bundle
 		        switch (bundle.getInt(Constants.BUNDLE_FRGR_LIST_TYPE)){
 			        default: case Constants.BUNDLE_FRGR_LIST_FRIENDS:
-			        	frGrMusicBundle.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_FRIEND);
+			        	frGrMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, frGrListAdapter.getItem(position).fgid);
 			        	break;
 			        case Constants.BUNDLE_FRGR_LIST_GROUPS:
-			        	frGrMusicBundle.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_GROUP);
+			        	frGrMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, -frGrListAdapter.getItem(position).fgid);
 			        	break;
 		        }
-		        frGrMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, frGrListAdapter.getItem(position).fgid);
+		        frGrMusicBundle.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_OF_PAGE);
 		        frGrMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, frGrListAdapter.getItem(position).friendGroupName);
 		        
 		        //create music list fragment

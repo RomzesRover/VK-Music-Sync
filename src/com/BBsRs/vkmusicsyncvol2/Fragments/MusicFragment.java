@@ -145,21 +145,9 @@ public class MusicFragment extends BaseFragment {
 				
 				//set up bundle
 				wallMusicBundle.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_WALL);
-				switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
-		        default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
-		        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, account.user_id);
-		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, getResources().getStringArray(R.array.menu)[1]+";"+getResources().getString(R.string.content_activity_wall));
-		        	break;
-		        case Constants.BUNDLE_MUSIC_LIST_FRIEND:
-		        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID));
-		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, bundle.getString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME)+";"+getResources().getString(R.string.content_activity_wall));
-		        	break;
-		        case Constants.BUNDLE_MUSIC_LIST_GROUP:
-		        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, -bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID));
-		        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, bundle.getString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME)+";"+getResources().getString(R.string.content_activity_wall));
-		        	break;
-				}
-		        
+	        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID));
+	        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, bundle.getString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME)+";"+getResources().getString(R.string.content_activity_wall));
+
 		        //create music list fragment
 		        MusicFragment musicListFragment = new MusicFragment();
 	           	musicListFragment.setArguments(wallMusicBundle);
@@ -307,9 +295,6 @@ public class MusicFragment extends BaseFragment {
     	setHasOptionsMenu(true);
         //set subtitle for a current fragment with custom font
         switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
-	        default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
-	        	setTitle(getResources().getStringArray(R.array.menu)[1]);
-	        	break;
 	        case Constants.BUNDLE_MUSIC_LIST_POPULAR:
 	        	setTitle(getResources().getStringArray(R.array.menu)[3]);
 	        	break;
@@ -322,7 +307,7 @@ public class MusicFragment extends BaseFragment {
 	        case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED:
 	        	setTitle(getResources().getStringArray(R.array.menu)[7]);
 	        	break;
-	        case Constants.BUNDLE_MUSIC_LIST_FRIEND: case Constants.BUNDLE_MUSIC_LIST_GROUP: case Constants.BUNDLE_MUSIC_LIST_WALL:
+	        case Constants.BUNDLE_MUSIC_LIST_OF_PAGE: case Constants.BUNDLE_MUSIC_LIST_WALL:
 	        	setTitle(bundle.getString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME));
 	        	break;
         }
@@ -351,17 +336,12 @@ public class MusicFragment extends BaseFragment {
 	public void setUpHeaderView(){
 		if (header == null) return;
         switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
-        default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
-        	((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.GONE);
-        	if (albumCollection.size() <= 0)
-        		((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
-        	break;
         case Constants.BUNDLE_MUSIC_LIST_POPULAR: case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS: case Constants.BUNDLE_MUSIC_LIST_SEARCH: case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED: case Constants.BUNDLE_MUSIC_LIST_WALL:
         	((LinearLayout)header.findViewById(R.id.wallLayout)).setVisibility(View.GONE);
 			((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.GONE);
 			((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
         	break;
-        case Constants.BUNDLE_MUSIC_LIST_FRIEND: case Constants.BUNDLE_MUSIC_LIST_GROUP:
+        case Constants.BUNDLE_MUSIC_LIST_OF_PAGE:
         	if (albumCollection.size() <= 0)
         		((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
         	break;
@@ -408,9 +388,9 @@ public class MusicFragment extends BaseFragment {
 						
 						//load nesc music
 				        switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
-					        default: case Constants.BUNDLE_MUSIC_LIST_MY_MUSIC:
-					        	musicList = api.getAudio(account.user_id, null, null, null, null, null);
-					        	for (AudioAlbum one : api.getAudioAlbums(account.user_id, 0, 100)){
+					        default: case Constants.BUNDLE_MUSIC_LIST_OF_PAGE:
+					        	musicList = api.getAudio(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), null, null, null, null, null);
+					        	for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), 0, 100)){
                         	    	albumCollection.add(new AlbumCollection(one.album_id, one.owner_id, one.title));
                         	    }
 					        	break;
@@ -422,18 +402,6 @@ public class MusicFragment extends BaseFragment {
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_SEARCH:
 					        	//TODO
-					        	break;
-					        case Constants.BUNDLE_MUSIC_LIST_FRIEND:
-					        	musicList = api.getAudio(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), null, null, null, null, null);
-					        	for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), 0, 100)){
-                        	    	albumCollection.add(new AlbumCollection(one.album_id, one.owner_id, one.title));
-                        	    }
-					        	break;
-					        case Constants.BUNDLE_MUSIC_LIST_GROUP:
-					        	musicList = api.getAudio(null, bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), null, null, null, null);
-					        	for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), 0, 100)){
-                        	    	albumCollection.add(new AlbumCollection(one.album_id, one.owner_id, one.title));
-                        	    }
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_WALL:
 					        	ArrayList<WallMessage> wallMessageList = new ArrayList<WallMessage>();

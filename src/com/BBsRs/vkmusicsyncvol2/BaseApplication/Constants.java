@@ -16,13 +16,11 @@ public class Constants {
 	public static final String EXTRA_LIST_SECOND_COLLECTIONS = "extra:list_second_collections_2";
 	
 	public static final String BUNDLE_MUSIC_LIST_TYPE = "bundle:music_list_type";
-	public static final int BUNDLE_MUSIC_LIST_MY_MUSIC = 0;
+	public static final int BUNDLE_MUSIC_LIST_OF_PAGE = 0;
 	public static final int BUNDLE_MUSIC_LIST_POPULAR = 1;
 	public static final int BUNDLE_MUSIC_LIST_RECOMMENDATIONS = 2;
 	public static final int BUNDLE_MUSIC_LIST_SEARCH = 3;
 	public static final int BUNDLE_MUSIC_LIST_DOWNLOADED = 4;
-	public static final int BUNDLE_MUSIC_LIST_FRIEND = 5;
-	public static final int BUNDLE_MUSIC_LIST_GROUP = 6;
 	public static final int BUNDLE_MUSIC_LIST_WALL = 7;
 	
 	public static final String BUNDLE_MUSIC_LIST_USRFRGR_ID = "bundle:music_list_usrfrgr_id";

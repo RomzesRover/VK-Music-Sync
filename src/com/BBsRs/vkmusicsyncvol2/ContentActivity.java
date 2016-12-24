@@ -74,7 +74,9 @@ public class ContentActivity extends BaseActivity {
         
         //init bundles
         Bundle myMusic  = new Bundle();
-        myMusic.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_MY_MUSIC);
+        myMusic.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_OF_PAGE);
+        myMusic.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, account.user_id);
+        myMusic.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, getResources().getStringArray(R.array.menu)[1]);
         Bundle search  = new Bundle();
         search.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_SEARCH);
         Bundle downloaded  = new Bundle();
