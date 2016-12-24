@@ -342,6 +342,8 @@ public class MusicFragment extends BaseFragment {
 			((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
         	break;
         case Constants.BUNDLE_MUSIC_LIST_OF_PAGE:
+        	if (bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID) == account.user_id || bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID) < 0)
+        		((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.GONE);
         	if (albumCollection.size() <= 0)
         		((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
         	break;
@@ -443,8 +445,6 @@ public class MusicFragment extends BaseFragment {
 					        	//TODO
 					        	break;
 				        }
-						
-						
 						
 						for (Audio one : musicList){
 							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, one.url, one.lyrics_id));
