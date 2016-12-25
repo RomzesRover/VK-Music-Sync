@@ -25,17 +25,15 @@ import android.widget.AdapterView.OnItemClickListener;
 
 import com.BBsRs.vkmusicsyncvol2.ContentActivity;
 import com.BBsRs.vkmusicsyncvol2.R;
-import com.BBsRs.vkmusicsyncvol2.Adapters.FrGrListAdapter;
+import com.BBsRs.vkmusicsyncvol2.Adapters.AlbumListAdapter;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseFragment;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
-import com.BBsRs.vkmusicsyncvol2.collections.FrGrCollection;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.BBsRs.vkmusicsyncvol2.collections.AlbumCollection;
 import com.perm.kate.api.Api;
-import com.perm.kate.api.Group;
-import com.perm.kate.api.User;
+import com.perm.kate.api.AudioAlbum;
 
-public class FrGrFragment extends BaseFragment {
+public class AlbumsFragment extends BaseFragment {
 	
 	SharedPreferences sPref;
 	
@@ -51,10 +49,7 @@ public class FrGrFragment extends BaseFragment {
 	PullToRefreshLayout mPullToRefreshLayout;
 	ListView list;
 	
-	//with this options we will load images
-    DisplayImageOptions options ;
-    
-    FrGrListAdapter frGrListAdapter;
+    AlbumListAdapter albumListAdapter;
     
     //for retrieve data from activity
     Bundle bundle;
@@ -70,20 +65,13 @@ public class FrGrFragment extends BaseFragment {
 	    account.restore(getActivity());
         api=new Api(account.access_token, Constants.CLIENT_ID);
         
-        //init image loader
-        options = new DisplayImageOptions.Builder()
-        .cacheOnDisk(true)
-        .showImageOnLoading(R.drawable.nopic)
-        .cacheInMemory(true)					
-        .build();
-        
         //init adapter with null
-        frGrListAdapter = new FrGrListAdapter(getActivity(), null, options);
+        albumListAdapter = new AlbumListAdapter(getActivity(), null);
     	
         //init views
     	mPullToRefreshLayout = (PullToRefreshLayout) contentView.findViewById(R.id.ptr_layout);
     	list = (ListView)contentView.findViewById(R.id.list);
-    	list.setAdapter(frGrListAdapter);
+    	list.setAdapter(albumListAdapter);
     	
         //init pull to refresh module
         ActionBarPullToRefresh.from(getActivity())
@@ -105,13 +93,13 @@ public class FrGrFragment extends BaseFragment {
 	      	}, 100);
         } else {
         	if (savedInstanceState != null){
-	        	ArrayList<FrGrCollection> frGrCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
-	        	frGrListAdapter.UpdateList(frGrCollection);
-	        	frGrListAdapter.notifyDataSetChanged();
+	        	ArrayList<AlbumCollection> albumCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
+	        	albumListAdapter.UpdateList(albumCollection);
+	        	albumListAdapter.notifyDataSetChanged();
         	} else {
-        		ArrayList<FrGrCollection> frGrCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
-        		frGrListAdapter.UpdateList(frGrCollection);
-	        	frGrListAdapter.notifyDataSetChanged();
+        		ArrayList<AlbumCollection> albumCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
+        		albumListAdapter.UpdateList(albumCollection);
+	        	albumListAdapter.notifyDataSetChanged();
         	}
         	list.setVisibility(View.VISIBLE);
         }
@@ -124,23 +112,17 @@ public class FrGrFragment extends BaseFragment {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 				//create bundle to m list
-				Bundle frGrMusicBundle  = new Bundle();
+				Bundle albumMusicBundle  = new Bundle();
 				
 				//set up bundle
-		        switch (bundle.getInt(Constants.BUNDLE_FRGR_LIST_TYPE)){
-			        case Constants.BUNDLE_FRGR_LIST_FRIENDS:
-			        	frGrMusicBundle.putLong(Constants.BUNDLE_LIST_USRFRGR_ID, frGrListAdapter.getItem(position).fgid);
-			        	break;
-			        case Constants.BUNDLE_FRGR_LIST_GROUPS:
-			        	frGrMusicBundle.putLong(Constants.BUNDLE_LIST_USRFRGR_ID, -frGrListAdapter.getItem(position).fgid);
-			        	break;
-		        }
-		        frGrMusicBundle.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_OF_PAGE);
-		        frGrMusicBundle.putString(Constants.BUNDLE_LIST_TITLE_NAME, frGrListAdapter.getItem(position).friendGroupName);
+				albumMusicBundle.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_ALBUM);
+				albumMusicBundle.putLong(Constants.BUNDLE_LIST_USRFRGR_ID, albumListAdapter.getItem(position).owner_id);
+				albumMusicBundle.putLong(Constants.BUNDLE_LIST_ALBUM_ID, albumListAdapter.getItem(position).album_id);
+				albumMusicBundle.putString(Constants.BUNDLE_LIST_TITLE_NAME, bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME) + " - " + albumListAdapter.getItem(position).title);
 		        
 		        //create music list fragment
 		        MusicFragment musicListFragment = new MusicFragment();
-	           	musicListFragment.setArguments(frGrMusicBundle);
+	           	musicListFragment.setArguments(albumMusicBundle);
 	           	
 	           	//start new music list fragment
 	           	thisFr.onPause();
@@ -155,8 +137,8 @@ public class FrGrFragment extends BaseFragment {
     @Override
     public void onPause() {
         super.onPause();
-		if (frGrListAdapter != null){
-			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, frGrListAdapter.getFrGrCollection());
+		if (albumListAdapter != null){
+			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, albumListAdapter.getAlbumCollection());
 		}
     }
 	
@@ -170,8 +152,8 @@ public class FrGrFragment extends BaseFragment {
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		if (frGrListAdapter != null){
-			outState.putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, frGrListAdapter.getFrGrCollection());
+		if (albumListAdapter != null){
+			outState.putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, albumListAdapter.getAlbumCollection());
 		}
 	}
     
@@ -201,27 +183,14 @@ public class FrGrFragment extends BaseFragment {
 						//slep to prevent laggy animations
 						Thread.sleep(100);
 						
-						ArrayList<FrGrCollection> frGrCollection = new ArrayList<FrGrCollection>();
+						ArrayList<AlbumCollection> albumCollection = new ArrayList<AlbumCollection>();
 						
 						//load nesc frgr list
-				        switch (bundle.getInt(Constants.BUNDLE_FRGR_LIST_TYPE)){
-					        case Constants.BUNDLE_FRGR_LIST_FRIENDS:
-					        	ArrayList<User> friendList = new ArrayList<User>();
-					        	friendList = api.getFriends(account.user_id, "photo_200,photo_100", null, null, null);
-								for (User one : friendList){
-									frGrCollection.add(new FrGrCollection(one.uid, one.first_name + " " + one.last_name, ((one.photo_200 == null || one.photo_200.length()<1) ? one.photo_medium_rec : one.photo_200), one.online ? 1 : 0));
-								}
-					        	break;
-					        case Constants.BUNDLE_FRGR_LIST_GROUPS:
-					        	ArrayList<Group> groupList = new ArrayList<Group>();
-					        	groupList = api.getUserGroups(account.user_id);
-								for (Group one : groupList){
-									frGrCollection.add(new FrGrCollection(one.gid, one.name, one.photo_big, -1));
-								}
-					        	break;
-				        }
+						for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID), 0, 100)){
+                	    	albumCollection.add(new AlbumCollection(one.album_id, one.owner_id, one.title));
+                	    }
 						
-				        frGrListAdapter.UpdateList(frGrCollection);
+				        albumListAdapter.UpdateList(albumCollection);
 					} catch (Exception e) {
 						e.printStackTrace();
 						error = true;
@@ -247,7 +216,7 @@ public class FrGrFragment extends BaseFragment {
 				@Override
 		        protected void onPostExecute(Void result) {
                     if (!error){
-                    	frGrListAdapter.notifyDataSetChanged();
+                    	albumListAdapter.notifyDataSetChanged();
                     	//with fly up animation
                     	list.setVisibility(View.VISIBLE);
                     	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);

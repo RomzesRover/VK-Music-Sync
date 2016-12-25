@@ -81,7 +81,7 @@ public class MusicFragment extends BaseFragment {
 	
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
-    	View contentView = inflater.inflate(R.layout.fragment_music_frgr);
+    	View contentView = inflater.inflate(R.layout.fragment_music_frgr_album);
     	
     	//init hide slider menu (hide search)
         try {
@@ -179,6 +179,27 @@ public class MusicFragment extends BaseFragment {
 				((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(musicListFragment);
 			}
 		});
+    	((LinearLayout)header.findViewById(R.id.albumsLayout)).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				//create bundle to m list
+		        Bundle albums  = new Bundle();
+				
+				//set up bundle
+		        albums.putString(Constants.BUNDLE_LIST_TITLE_NAME, bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME)+";"+getResources().getString(R.string.content_activity_albums));
+		        albums.putLong(Constants.BUNDLE_LIST_USRFRGR_ID, bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID));
+		        albums.putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, albumCollection);
+		        
+		        //create music list fragment
+		        AlbumsFragment albumsFragment = new AlbumsFragment();
+		        albumsFragment.setArguments(albums);
+	           	
+	           	//start new music list fragment
+	           	thisFr.onPause();
+				
+				((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(albumsFragment);
+			}
+		});
     	list.addHeaderView(header);
     	list.setAdapter(musicListAdapter);
     	
@@ -203,13 +224,11 @@ public class MusicFragment extends BaseFragment {
 	        	albumCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS);
 	        	musicListAdapter.UpdateList(musicCollection);
 	        	musicListAdapter.notifyDataSetChanged();
-	        	list.setSelection(savedInstanceState.getInt(Constants.EXTRA_LIST_POSX));
         	} else {
 	        	ArrayList<MusicCollection> musicCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
 	        	albumCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS);
 	        	musicListAdapter.UpdateList(musicCollection);
 	        	musicListAdapter.notifyDataSetChanged();
-	        	list.setSelection(bundle.getInt(Constants.EXTRA_LIST_POSX));
         	}
         	setUpHeaderView();
         	list.setVisibility(View.VISIBLE);
@@ -302,7 +321,6 @@ public class MusicFragment extends BaseFragment {
 		super.onPause();
 		if (musicListAdapter != null){
 			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, musicListAdapter.getMusicCollectionNonFiltered());
-			getArguments().putInt(Constants.EXTRA_LIST_POSX,  list.getFirstVisiblePosition());
 			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS, albumCollection);
 		}
 	}
@@ -312,7 +330,6 @@ public class MusicFragment extends BaseFragment {
 		super.onSaveInstanceState(outState);
 		if (musicListAdapter != null){
 			outState.putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, musicListAdapter.getMusicCollectionNonFiltered());
-			outState.putInt(Constants.EXTRA_LIST_POSX,  list.getFirstVisiblePosition());
 			outState.putParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS, albumCollection);
 		}
 	}
@@ -320,7 +337,7 @@ public class MusicFragment extends BaseFragment {
 	public void setUpHeaderView(){
 		if (header == null) return;
         switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
-        case Constants.BUNDLE_MUSIC_LIST_POPULAR: case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS: case Constants.BUNDLE_MUSIC_LIST_SEARCH: case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED: case Constants.BUNDLE_MUSIC_LIST_WALL:
+        case Constants.BUNDLE_MUSIC_LIST_POPULAR: case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS: case Constants.BUNDLE_MUSIC_LIST_SEARCH: case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED: case Constants.BUNDLE_MUSIC_LIST_WALL: case Constants.BUNDLE_MUSIC_LIST_ALBUM:
         	((LinearLayout)header.findViewById(R.id.wallLayout)).setVisibility(View.GONE);
 			((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.GONE);
 			((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
@@ -328,8 +345,10 @@ public class MusicFragment extends BaseFragment {
         case Constants.BUNDLE_MUSIC_LIST_OF_PAGE:
         	if (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id || bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) < 0)
         		((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.GONE);
-        	if (albumCollection.size() <= 0)
+        	if (albumCollection.isEmpty())
         		((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
+        	else 
+        		((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.VISIBLE);
         	break;
     }
 	}
@@ -424,6 +443,9 @@ public class MusicFragment extends BaseFragment {
                 						break;
                 					}
                         		}
+					        	break;
+					        case Constants.BUNDLE_MUSIC_LIST_ALBUM:
+					        	musicList = api.getAudio(bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID), null, bundle.getLong(Constants.BUNDLE_LIST_ALBUM_ID), null, null, null);
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED:
 					        	//TODO

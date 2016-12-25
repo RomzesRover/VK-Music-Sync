@@ -43,7 +43,6 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="0.5dip"
-            android:layout_below="@+id/content"
             android:scaleType="fitXY"
             android:src="@color/gray_four_color" />
     </LinearLayout>
@@ -88,7 +87,6 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="0.5dip"
-            android:layout_below="@+id/content"
             android:scaleType="fitXY"
             android:src="@color/gray_four_color" />
     </LinearLayout>
@@ -133,7 +131,6 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="0.5dip"
-            android:layout_below="@+id/content"
             android:scaleType="fitXY"
             android:src="@color/gray_four_color" />
     </LinearLayout>
