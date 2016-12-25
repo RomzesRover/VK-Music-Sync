@@ -44,7 +44,8 @@ public class FrGrListAdapter extends BaseAdapter {
 	}
 	
 	public void UpdateList(ArrayList<FrGrCollection> _frGrCollection){
-		frGrCollection = _frGrCollection;
+		if (_frGrCollection != null)
+			frGrCollection = _frGrCollection;
 	}
 
 	@Override

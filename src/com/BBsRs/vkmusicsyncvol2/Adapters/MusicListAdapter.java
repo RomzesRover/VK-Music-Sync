@@ -51,7 +51,8 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 	}
 	
 	public void UpdateList(ArrayList<MusicCollection> _musicCollection){
-		musicCollection = _musicCollection;
+		if (_musicCollection != null)
+			musicCollection = _musicCollection;
 		musicCollectionNonFiltered = new ArrayList<MusicCollection>();
 		musicCollectionNonFiltered.addAll(musicCollection);
 	}

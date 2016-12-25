@@ -92,7 +92,7 @@ public class AlbumsFragment extends BaseFragment {
 				}
 	      	}, 100);
         } else {
-        	if (savedInstanceState != null){
+        	if (bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS) == null){
 	        	ArrayList<AlbumCollection> albumCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
 	        	albumListAdapter.UpdateList(albumCollection);
 	        	albumListAdapter.notifyDataSetChanged();

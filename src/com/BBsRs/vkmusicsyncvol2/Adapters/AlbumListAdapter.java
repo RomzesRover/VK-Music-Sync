@@ -29,7 +29,8 @@ public class AlbumListAdapter extends BaseAdapter {
 	}
 	
 	public void UpdateList(ArrayList<AlbumCollection> _albumCollection){
-		albumCollection = _albumCollection;
+		if (_albumCollection != null)
+			albumCollection = _albumCollection;
 	}
 
 	@Override

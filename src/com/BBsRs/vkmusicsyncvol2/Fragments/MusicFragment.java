@@ -219,7 +219,7 @@ public class MusicFragment extends BaseFragment {
     			}
           	}, 100);
         } else {
-        	if (savedInstanceState != null){
+        	if (bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS) == null){
 	        	ArrayList<MusicCollection> musicCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
 	        	albumCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS);
 	        	musicListAdapter.UpdateList(musicCollection);

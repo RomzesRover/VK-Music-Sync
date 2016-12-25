@@ -104,7 +104,7 @@ public class FrGrFragment extends BaseFragment {
 				}
 	      	}, 100);
         } else {
-        	if (savedInstanceState != null){
+        	if (bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS) == null){
 	        	ArrayList<FrGrCollection> frGrCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
 	        	frGrListAdapter.UpdateList(frGrCollection);
 	        	frGrListAdapter.notifyDataSetChanged();
