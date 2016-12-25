@@ -145,8 +145,8 @@ public class MusicFragment extends BaseFragment {
 				
 				//set up bundle
 				wallMusicBundle.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_WALL);
-	        	wallMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID));
-	        	wallMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, bundle.getString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME)+";"+getResources().getString(R.string.content_activity_wall));
+	        	wallMusicBundle.putLong(Constants.BUNDLE_LIST_USRFRGR_ID, bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID));
+	        	wallMusicBundle.putString(Constants.BUNDLE_LIST_TITLE_NAME, bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME)+";"+getResources().getString(R.string.content_activity_wall));
 
 		        //create music list fragment
 		        MusicFragment musicListFragment = new MusicFragment();
@@ -166,8 +166,8 @@ public class MusicFragment extends BaseFragment {
 				
 				//set up bundle
 		        recommendations.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS);
-		        recommendations.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, bundle.getString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME)+";"+getResources().getString(R.string.content_activity_recommendations));
-		        recommendations.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID));
+		        recommendations.putString(Constants.BUNDLE_LIST_TITLE_NAME, bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME)+";"+getResources().getString(R.string.content_activity_recommendations));
+		        recommendations.putLong(Constants.BUNDLE_LIST_USRFRGR_ID, bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID));
 		        
 		        //create music list fragment
 		        MusicFragment musicListFragment = new MusicFragment();
@@ -294,7 +294,7 @@ public class MusicFragment extends BaseFragment {
         //enable menu
     	setHasOptionsMenu(true);
         //set subtitle for a current fragment with custom font
-    	setTitle(bundle.getString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME));
+    	setTitle(bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME));
     }
     
 	@Override
@@ -326,7 +326,7 @@ public class MusicFragment extends BaseFragment {
 			((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
         	break;
         case Constants.BUNDLE_MUSIC_LIST_OF_PAGE:
-        	if (bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID) == account.user_id || bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID) < 0)
+        	if (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id || bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) < 0)
         		((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.GONE);
         	if (albumCollection.size() <= 0)
         		((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
@@ -375,8 +375,8 @@ public class MusicFragment extends BaseFragment {
 						//load nesc music
 				        switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
 					        case Constants.BUNDLE_MUSIC_LIST_OF_PAGE:
-					        	musicList = api.getAudio(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), null, null, null, null, null);
-					        	for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), 0, 100)){
+					        	musicList = api.getAudio(bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID), null, null, null, null, null);
+					        	for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID), 0, 100)){
                         	    	albumCollection.add(new AlbumCollection(one.album_id, one.owner_id, one.title));
                         	    }
 					        	break;
@@ -384,7 +384,7 @@ public class MusicFragment extends BaseFragment {
 					        	musicList = api.getAudioPopular(0, null, null, null);
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS:
-					        	musicList = api.getAudioRecommendations(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), null, null, null);
+					        	musicList = api.getAudioRecommendations(bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID), null, null, null);
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_SEARCH:
 					        	//TODO
@@ -392,7 +392,7 @@ public class MusicFragment extends BaseFragment {
 					        case Constants.BUNDLE_MUSIC_LIST_WALL:
 					        	ArrayList<WallMessage> wallMessageList = new ArrayList<WallMessage>();
 					        	while (true){
-                        			ArrayList<WallMessage> wallMessageListTemp = api.getWallMessages(bundle.getLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID), 100, wallMessageList.size(), null);
+                        			ArrayList<WallMessage> wallMessageListTemp = api.getWallMessages(bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID), 100, wallMessageList.size(), null);
                         			Thread.sleep(250);
                         			wallMessageList.addAll(wallMessageListTemp);
                         			if (wallMessageListTemp.size()<100 || wallMessageList.size()>=300)

@@ -131,14 +131,14 @@ public class FrGrFragment extends BaseFragment {
 				//set up bundle
 		        switch (bundle.getInt(Constants.BUNDLE_FRGR_LIST_TYPE)){
 			        case Constants.BUNDLE_FRGR_LIST_FRIENDS:
-			        	frGrMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, frGrListAdapter.getItem(position).fgid);
+			        	frGrMusicBundle.putLong(Constants.BUNDLE_LIST_USRFRGR_ID, frGrListAdapter.getItem(position).fgid);
 			        	break;
 			        case Constants.BUNDLE_FRGR_LIST_GROUPS:
-			        	frGrMusicBundle.putLong(Constants.BUNDLE_MUSIC_LIST_USRFRGR_ID, -frGrListAdapter.getItem(position).fgid);
+			        	frGrMusicBundle.putLong(Constants.BUNDLE_LIST_USRFRGR_ID, -frGrListAdapter.getItem(position).fgid);
 			        	break;
 		        }
 		        frGrMusicBundle.putInt(Constants.BUNDLE_MUSIC_LIST_TYPE, Constants.BUNDLE_MUSIC_LIST_OF_PAGE);
-		        frGrMusicBundle.putString(Constants.BUNDLE_MUSIC_LIST_TITLE_NAME, frGrListAdapter.getItem(position).friendGroupName);
+		        frGrMusicBundle.putString(Constants.BUNDLE_LIST_TITLE_NAME, frGrListAdapter.getItem(position).friendGroupName);
 		        
 		        //create music list fragment
 		        MusicFragment musicListFragment = new MusicFragment();
@@ -167,14 +167,7 @@ public class FrGrFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         //set subtitle for a current fragment with custom font
-        switch (bundle.getInt(Constants.BUNDLE_FRGR_LIST_TYPE)){
-	        case Constants.BUNDLE_FRGR_LIST_FRIENDS:
-	        	setTitle(getResources().getStringArray(R.array.menu)[5]);
-	        	break;
-	        case Constants.BUNDLE_FRGR_LIST_GROUPS:
-	        	setTitle(getResources().getStringArray(R.array.menu)[6]);
-	        	break;
-        }
+        setTitle(bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME));
     }
     
 	@Override
