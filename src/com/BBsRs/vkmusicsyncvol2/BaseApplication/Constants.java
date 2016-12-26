@@ -23,6 +23,8 @@ public class Constants {
 	public static final int BUNDLE_MUSIC_LIST_WALL = 7;
 	public static final int BUNDLE_MUSIC_LIST_ALBUM = 8;
 	
+	public static final String BUNDLE_MUSIC_LIST_SEARCH_REQUEST = "bundle:music_list_search_request";
+	
 	public static final String BUNDLE_LIST_USRFRGR_ID = "bundle:music_list_usrfrgr_id";
 	public static final String BUNDLE_LIST_TITLE_NAME = "bundle:music_list_title_name";
 	public static final String BUNDLE_LIST_ALBUM_ID = "bundle:music_list_album_id";

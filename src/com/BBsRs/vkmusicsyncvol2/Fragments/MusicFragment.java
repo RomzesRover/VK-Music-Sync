@@ -241,12 +241,21 @@ public class MusicFragment extends BaseFragment {
   				if (searchView != null){
 	  				InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
 	  				imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+	  				if (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_SEARCH){
+	  					bundle.putString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST, query);
+	  					bundle.putString(Constants.BUNDLE_LIST_TITLE_NAME, getResources().getStringArray(R.array.menu)[2] + ": " + query);
+	  					setTitle(bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME));
+	    				//refresh search results
+	    		        mPullToRefreshLayout.setRefreshing(true);
+	    		        customOnRefreshListener.onRefreshStarted(null);
+	  				}
   				}
   				return false;
   			}
   			@Override
   			public boolean onQueryTextChange(String newText) {
-  				if (musicListAdapter != null && musicListAdapter.getCountNonFiltered() !=0){
+  				if (musicListAdapter != null && musicListAdapter.getCountNonFiltered() !=0 && bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) != Constants.BUNDLE_MUSIC_LIST_SEARCH){
+  					bundle.putString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST, newText);
   					musicListAdapter.getFilter().filter(newText);
   					list.setSelection(0);
   				}
@@ -254,6 +263,11 @@ public class MusicFragment extends BaseFragment {
   			}});
   		
   		setSearchStyles();
+  		
+    	//resume search
+    	if (bundle.getString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST) != null && bundle.getString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST).length()>0 && searchView != null){
+    		searchView.setQuery(bundle.getString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST), false);
+    	}
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -391,7 +405,11 @@ public class MusicFragment extends BaseFragment {
 					        	musicList = api.getAudioRecommendations(bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID), null, null, null);
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_SEARCH:
-					        	//TODO
+					        	if (bundle.getString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST) != null && bundle.getString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST).length()>0){
+					        		musicList = api.searchAudio(bundle.getString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST), null, null, (long) 300, null, null, null);
+					        		if (searchView != null)
+						        		searchView.setQuery(bundle.getString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST), false);
+					        	}
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_WALL:
 					        	ArrayList<WallMessage> wallMessageList = new ArrayList<WallMessage>();
