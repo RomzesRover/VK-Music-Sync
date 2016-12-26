@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -156,7 +157,16 @@ public class AlbumsFragment extends BaseFragment {
 								public void run() {
 									Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim);
 			                    	list.startAnimation(flyDownAnimation);
-			                    	list.setVisibility(View.INVISIBLE);
+			                    	flyDownAnimation.setAnimationListener(new AnimationListener(){
+			        					@Override
+			        					public void onAnimationEnd(Animation arg0) {
+			        						list.setVisibility(View.INVISIBLE);
+			        					}
+			        					@Override
+			        					public void onAnimationRepeat(Animation arg0) { }
+			        					@Override
+			        					public void onAnimationStart(Animation arg0) { }
+			                    	});
 								}
 							});
 						}

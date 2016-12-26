@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
@@ -185,8 +186,8 @@ public class MusicFragment extends BaseFragment {
 		        //create music list fragment
 		        AlbumsFragment albumsFragment = new AlbumsFragment();
 		        albumsFragment.setArguments(albums);
-	           	
-	           	//start new music list fragment
+		        
+		        //start new music list fragment
 				((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(albumsFragment);
 			}
 		});
@@ -346,7 +347,16 @@ public class MusicFragment extends BaseFragment {
 								public void run() {
 									Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim);
 			                    	list.startAnimation(flyDownAnimation);
-			                    	list.setVisibility(View.INVISIBLE);
+			                    	flyDownAnimation.setAnimationListener(new AnimationListener(){
+			        					@Override
+			        					public void onAnimationEnd(Animation arg0) {
+			        						list.setVisibility(View.INVISIBLE);
+			        					}
+			        					@Override
+			        					public void onAnimationRepeat(Animation arg0) { }
+			        					@Override
+			        					public void onAnimationStart(Animation arg0) { }
+			                    	});
 			                    	
 			                    	//hide search, keyboard if its opened
 			                    	if (searchView != null){
