@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import org.holoeverywhere.LayoutInflater;
-import org.holoeverywhere.app.Fragment;
 import org.holoeverywhere.preference.PreferenceManager;
 import org.holoeverywhere.preference.SharedPreferences;
 import org.holoeverywhere.widget.LinearLayout;
@@ -123,9 +122,6 @@ public class MusicFragment extends BaseFragment {
         //init adapter with null
     	musicListAdapter = new MusicListAdapter(getActivity(), null, options);
     	
-    	//init this fragment to use in methods
-    	final Fragment thisFr = this;
-    	
         //retrieve bundle
       	bundle = this.getArguments();
     	
@@ -153,8 +149,6 @@ public class MusicFragment extends BaseFragment {
 	           	musicListFragment.setArguments(wallMusicBundle);
 	           	
 	           	//start new music list fragment
-	           	thisFr.onPause();
-				
 				((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(musicListFragment);
 			}
 		});
@@ -174,8 +168,6 @@ public class MusicFragment extends BaseFragment {
 	           	musicListFragment.setArguments(recommendations);
 	           	
 	           	//start new music list fragment
-	           	thisFr.onPause();
-				
 				((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(musicListFragment);
 			}
 		});
@@ -195,8 +187,6 @@ public class MusicFragment extends BaseFragment {
 		        albumsFragment.setArguments(albums);
 	           	
 	           	//start new music list fragment
-	           	thisFr.onPause();
-				
 				((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(albumsFragment);
 			}
 		});
@@ -209,7 +199,7 @@ public class MusicFragment extends BaseFragment {
           .listener(customOnRefreshListener)
           .setup(mPullToRefreshLayout);
         
-        if(savedInstanceState == null &&  bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS) == null) {
+        if(bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS) == null) {
           	handler.postDelayed(new Runnable(){
     			@Override
     			public void run() {
@@ -219,17 +209,11 @@ public class MusicFragment extends BaseFragment {
     			}
           	}, 100);
         } else {
-        	if (bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS) == null){
-	        	ArrayList<MusicCollection> musicCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
-	        	albumCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS);
-	        	musicListAdapter.UpdateList(musicCollection);
-	        	musicListAdapter.notifyDataSetChanged();
-        	} else {
-	        	ArrayList<MusicCollection> musicCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
-	        	albumCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS);
-	        	musicListAdapter.UpdateList(musicCollection);
-	        	musicListAdapter.notifyDataSetChanged();
-        	}
+        	ArrayList<MusicCollection> musicCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
+        	albumCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS);
+        	musicListAdapter.UpdateList(musicCollection);
+        	musicListAdapter.notifyDataSetChanged();
+        	
         	setUpHeaderView();
         	list.setVisibility(View.VISIBLE);
         }
@@ -322,15 +306,6 @@ public class MusicFragment extends BaseFragment {
 		if (musicListAdapter != null){
 			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, musicListAdapter.getMusicCollectionNonFiltered());
 			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS, albumCollection);
-		}
-	}
-    
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		if (musicListAdapter != null){
-			outState.putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, musicListAdapter.getMusicCollectionNonFiltered());
-			outState.putParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS, albumCollection);
 		}
 	}
 	

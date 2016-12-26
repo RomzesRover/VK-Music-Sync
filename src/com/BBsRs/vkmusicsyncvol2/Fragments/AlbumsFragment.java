@@ -3,7 +3,6 @@ package com.BBsRs.vkmusicsyncvol2.Fragments;
 import java.util.ArrayList;
 
 import org.holoeverywhere.LayoutInflater;
-import org.holoeverywhere.app.Fragment;
 import org.holoeverywhere.preference.PreferenceManager;
 import org.holoeverywhere.preference.SharedPreferences;
 import org.holoeverywhere.widget.ListView;
@@ -82,7 +81,7 @@ public class AlbumsFragment extends BaseFragment {
         //retrieve bundle
       	bundle = this.getArguments();
         
-		if(savedInstanceState == null &&  bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS) == null) {
+		if(bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS) == null) {
 	      	handler.postDelayed(new Runnable(){
 				@Override
 				public void run() {
@@ -92,20 +91,12 @@ public class AlbumsFragment extends BaseFragment {
 				}
 	      	}, 100);
         } else {
-        	if (bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS) == null){
-	        	ArrayList<AlbumCollection> albumCollection = savedInstanceState.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
-	        	albumListAdapter.UpdateList(albumCollection);
-	        	albumListAdapter.notifyDataSetChanged();
-        	} else {
-        		ArrayList<AlbumCollection> albumCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
-        		albumListAdapter.UpdateList(albumCollection);
-	        	albumListAdapter.notifyDataSetChanged();
-        	}
+        	ArrayList<AlbumCollection> albumCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
+    		albumListAdapter.UpdateList(albumCollection);
+        	albumListAdapter.notifyDataSetChanged();
+        	
         	list.setVisibility(View.VISIBLE);
         }
-		
-		//init this fragment to use in methods
-		final Fragment thisFr = this;
 		
 		//view job
 		list.setOnItemClickListener(new OnItemClickListener(){
@@ -125,8 +116,6 @@ public class AlbumsFragment extends BaseFragment {
 	           	musicListFragment.setArguments(albumMusicBundle);
 	           	
 	           	//start new music list fragment
-	           	thisFr.onPause();
-				
 				((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(musicListFragment);
 			}
 		});
@@ -148,14 +137,6 @@ public class AlbumsFragment extends BaseFragment {
         //set subtitle for a current fragment with custom font
         setTitle(bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME));
     }
-    
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		if (albumListAdapter != null){
-			outState.putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, albumListAdapter.getAlbumCollection());
-		}
-	}
     
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) 
     public class CustomOnRefreshListener  implements OnRefreshListener{
