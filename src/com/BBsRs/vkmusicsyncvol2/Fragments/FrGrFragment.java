@@ -237,7 +237,7 @@ public class FrGrFragment extends BaseFragment {
 				}
 				@Override
 		        protected void onPostExecute(Void result) {
-                    if (!error){
+                    if (!error && getActivity()!=null){
                     	frGrListAdapter.notifyDataSetChanged();
                     	//with fly up animation
                     	list.setVisibility(View.VISIBLE);

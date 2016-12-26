@@ -468,7 +468,7 @@ public class MusicFragment extends BaseFragment {
 				}
 				@Override
 		        protected void onPostExecute(Void result) {
-                    if (!error){
+                    if (!error && getActivity()!=null){
                     	setUpHeaderView();
                     	musicListAdapter.notifyDataSetChanged();
                     	//with fly up animation

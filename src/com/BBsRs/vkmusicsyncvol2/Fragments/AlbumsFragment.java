@@ -206,7 +206,7 @@ public class AlbumsFragment extends BaseFragment {
 				}
 				@Override
 		        protected void onPostExecute(Void result) {
-                    if (!error){
+                    if (!error && getActivity()!=null){
                     	albumListAdapter.notifyDataSetChanged();
                     	//with fly up animation
                     	list.setVisibility(View.VISIBLE);
