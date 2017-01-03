@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import org.holoeverywhere.LayoutInflater;
 import org.holoeverywhere.preference.PreferenceManager;
 import org.holoeverywhere.preference.SharedPreferences;
+import org.holoeverywhere.widget.LinearLayout;
 import org.holoeverywhere.widget.ListView;
+import org.holoeverywhere.widget.TextView;
 
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
@@ -18,11 +20,12 @@ import android.os.Handler;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
+import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
 import com.BBsRs.vkmusicsyncvol2.ContentActivity;
 import com.BBsRs.vkmusicsyncvol2.R;
 import com.BBsRs.vkmusicsyncvol2.Adapters.FrGrListAdapter;
@@ -50,6 +53,7 @@ public class FrGrFragment extends BaseFragment {
     CustomOnRefreshListener customOnRefreshListener = new CustomOnRefreshListener();
 	PullToRefreshLayout mPullToRefreshLayout;
 	ListView list;
+	View header;
 	
 	//with this options we will load images
     DisplayImageOptions options ;
@@ -83,6 +87,10 @@ public class FrGrFragment extends BaseFragment {
         //init views
     	mPullToRefreshLayout = (PullToRefreshLayout) contentView.findViewById(R.id.ptr_layout);
     	list = (ListView)contentView.findViewById(R.id.list);
+    	//init header buttons
+    	header = inflater.inflate(R.layout.list_music_header);
+    	SFUIFonts.MEDIUM.apply(getActivity(), (TextView)header.findViewById(R.id.errr));
+    	list.addHeaderView(header);
     	list.setAdapter(frGrListAdapter);
     	
         //init pull to refresh module
@@ -108,13 +116,15 @@ public class FrGrFragment extends BaseFragment {
     		frGrListAdapter.UpdateList(frGrCollection);
         	frGrListAdapter.notifyDataSetChanged();
         	
+        	setUpHeaderView();
         	list.setVisibility(View.VISIBLE);
         }
 		
 		//view job
 		list.setOnItemClickListener(new OnItemClickListener(){
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+			public void onItemClick(AdapterView<?> arg0, View arg1, int _position, long arg3) {
+				int position = _position - 1;
 				//create bundle to m list
 				Bundle frGrMusicBundle  = new Bundle();
 				
@@ -157,13 +167,40 @@ public class FrGrFragment extends BaseFragment {
         setTitle(bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME));
     }
     
+	public void setUpHeaderView(){
+		if (header == null) return;
+		((LinearLayout)header.findViewById(R.id.errorLayout)).setVisibility(View.GONE);
+		((LinearLayout)header.findViewById(R.id.wallLayout)).setVisibility(View.GONE);
+		((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.GONE);
+		((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
+		
+        switch (bundle.getInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_NO_ERROR)){
+        case Constants.BUNDLE_LIST_ERROR_CODE_NO_ERROR:
+        	((LinearLayout)header.findViewById(R.id.errorLayout)).setVisibility(View.GONE);
+        	break;
+    	case Constants.BUNDLE_LIST_ERROR_CODE_EMPTY_LIST:
+    		((LinearLayout)header.findViewById(R.id.errorLayout)).setVisibility(View.VISIBLE);
+    		switch (bundle.getInt(Constants.BUNDLE_FRGR_LIST_TYPE)){
+	        case Constants.BUNDLE_FRGR_LIST_FRIENDS:
+	        	((TextView)header.findViewById(R.id.errr)).setText(getActivity().getResources().getString(R.string.content_activity_no_friends));
+	        	break;
+	        case Constants.BUNDLE_FRGR_LIST_GROUPS:
+	        	((TextView)header.findViewById(R.id.errr)).setText(getActivity().getResources().getString(R.string.content_activity_no_groups));
+	        	break;
+    		}
+    		break;
+    	case Constants.BUNDLE_LIST_ERROR_CODE_ANOTHER:
+    		((LinearLayout)header.findViewById(R.id.errorLayout)).setVisibility(View.VISIBLE);
+    		((TextView)header.findViewById(R.id.errr)).setText(getActivity().getResources().getString(R.string.content_activity_error));
+    		break;
+    	}
+	}
+    
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) 
     public class CustomOnRefreshListener  implements OnRefreshListener{
 		@Override
 		public void onRefreshStarted(View view) {
 			AsyncTask<Void, Void, Void> loadM = new AsyncTask<Void, Void, Void>() {
-				
-				boolean error = false;
 				
 				@Override
 				protected Void doInBackground(Void... params) {
@@ -211,11 +248,17 @@ public class FrGrFragment extends BaseFragment {
 								}
 					        	break;
 				        }
+				        
+				        if (frGrCollection.isEmpty()){
+				        	bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_EMPTY_LIST);
+						} else {
+							bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_NO_ERROR);
+						}
 						
 				        frGrListAdapter.UpdateList(frGrCollection);
 					} catch (Exception e) {
+						bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_ANOTHER);
 						e.printStackTrace();
-						error = true;
 					}
 					
 					handler.post(new Runnable(){
@@ -237,16 +280,14 @@ public class FrGrFragment extends BaseFragment {
 				}
 				@Override
 		        protected void onPostExecute(Void result) {
-                    if (!error && getActivity()!=null){
+                    if (getActivity()!=null){
+                    	setUpHeaderView();
                     	frGrListAdapter.notifyDataSetChanged();
                     	//with fly up animation
                     	list.setVisibility(View.VISIBLE);
                     	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);
                     	list.startAnimation(flyUpAnimation);
-                    } else {
-                    	//TODO SHOW error message
-                    }
-					
+                    } 
 				}
 			};
 			

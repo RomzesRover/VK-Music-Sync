@@ -134,6 +134,7 @@ public class MusicFragment extends BaseFragment {
     	SFUIFonts.MEDIUM.apply(getActivity(), (TextView)header.findViewById(R.id.albums));
     	SFUIFonts.MEDIUM.apply(getActivity(), (TextView)header.findViewById(R.id.wall));
     	SFUIFonts.MEDIUM.apply(getActivity(), (TextView)header.findViewById(R.id.recc));
+    	SFUIFonts.MEDIUM.apply(getActivity(), (TextView)header.findViewById(R.id.errr));
     	((LinearLayout)header.findViewById(R.id.wallLayout)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
@@ -326,6 +327,11 @@ public class MusicFragment extends BaseFragment {
 	
 	public void setUpHeaderView(){
 		if (header == null) return;
+		((LinearLayout)header.findViewById(R.id.errorLayout)).setVisibility(View.GONE);
+		((LinearLayout)header.findViewById(R.id.wallLayout)).setVisibility(View.VISIBLE);
+		((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.VISIBLE);
+		((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.VISIBLE);
+		
         switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
         case Constants.BUNDLE_MUSIC_LIST_POPULAR: case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS: case Constants.BUNDLE_MUSIC_LIST_SEARCH: case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED: case Constants.BUNDLE_MUSIC_LIST_WALL: case Constants.BUNDLE_MUSIC_LIST_ALBUM:
         	((LinearLayout)header.findViewById(R.id.wallLayout)).setVisibility(View.GONE);
@@ -337,10 +343,45 @@ public class MusicFragment extends BaseFragment {
         		((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.GONE);
         	if (albumCollection.isEmpty())
         		((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
-        	else 
-        		((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.VISIBLE);
         	break;
-    }
+        }
+        
+        switch (bundle.getInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_NO_ERROR)){
+        case Constants.BUNDLE_LIST_ERROR_CODE_NO_ERROR:
+        	((LinearLayout)header.findViewById(R.id.errorLayout)).setVisibility(View.GONE);
+        	break;
+    	case Constants.BUNDLE_LIST_ERROR_CODE_ACCESS_TO_USER_AUDIO_DENIED:
+    		((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.GONE);
+    		((LinearLayout)header.findViewById(R.id.errorLayout)).setVisibility(View.VISIBLE);
+    		((TextView)header.findViewById(R.id.errr)).setText(getActivity().getResources().getString(R.string.content_activity_access_to_users_audio_denied));
+    		break;
+    	case Constants.BUNDLE_LIST_ERROR_CODE_GROUP_AUDIO_DISABLED:
+    		((LinearLayout)header.findViewById(R.id.errorLayout)).setVisibility(View.VISIBLE);
+    		((TextView)header.findViewById(R.id.errr)).setText(getActivity().getResources().getString(R.string.content_activity_group_audio_is_disabled));
+    		break;
+    	case Constants.BUNDLE_LIST_ERROR_CODE_EMPTY_LIST:
+    		((LinearLayout)header.findViewById(R.id.errorLayout)).setVisibility(View.VISIBLE);
+    		((TextView)header.findViewById(R.id.errr)).setText(getActivity().getResources().getString(R.string.content_activity_empty_audio_list));
+    		break;
+    	case Constants.BUNDLE_LIST_ERROR_CODE_ANOTHER:
+    		((LinearLayout)header.findViewById(R.id.wallLayout)).setVisibility(View.GONE);
+			((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.GONE);
+			((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
+    		((LinearLayout)header.findViewById(R.id.errorLayout)).setVisibility(View.VISIBLE);
+    		((TextView)header.findViewById(R.id.errr)).setText(getActivity().getResources().getString(R.string.content_activity_error));
+    		break;
+    	case Constants.BUNDLE_LIST_ERROR_CODE_NO_SEARCH_REQUEST:
+    		((LinearLayout)header.findViewById(R.id.errorLayout)).setVisibility(View.VISIBLE);
+    		((TextView)header.findViewById(R.id.errr)).setText(getActivity().getResources().getString(R.string.content_activity_no_search_request));
+    		break;
+    	case Constants.BUNDLE_LIST_ERROR_CODE_PAGE_DEACTIVATED:
+    		((LinearLayout)header.findViewById(R.id.wallLayout)).setVisibility(View.GONE);
+			((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.GONE);
+			((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
+    		((LinearLayout)header.findViewById(R.id.errorLayout)).setVisibility(View.VISIBLE);
+    		((TextView)header.findViewById(R.id.errr)).setText(getActivity().getResources().getString(R.string.content_activity_page_deactivated));
+    		break;
+    	}
 	}
     
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) 
@@ -348,8 +389,6 @@ public class MusicFragment extends BaseFragment {
 		@Override
 		public void onRefreshStarted(View view) {
 			AsyncTask<Void, Void, Void> loadM = new AsyncTask<Void, Void, Void>() {
-				
-				boolean error = false;
 				
 				@Override
 				protected Void doInBackground(Void... params) {
@@ -388,7 +427,9 @@ public class MusicFragment extends BaseFragment {
 						
 						ArrayList<Audio> musicList = new ArrayList<Audio>();
 						ArrayList<MusicCollection> musicCollection = new ArrayList<MusicCollection>();
+						//null lists
 						albumCollection = new ArrayList<AlbumCollection>();
+						musicListAdapter.UpdateList(musicCollection);
 						
 						//load nesc music
 				        switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
@@ -459,11 +500,30 @@ public class MusicFragment extends BaseFragment {
 							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, one.url, one.lyrics_id));
 						}
 						
+						if (musicCollection.isEmpty()){
+							if (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_SEARCH && (bundle.getString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST) == null || bundle.getString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST).length()<=0))
+								bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_NO_SEARCH_REQUEST);
+							else
+								bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_EMPTY_LIST);
+						} else {
+							bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_NO_ERROR);
+						}
+						
 						musicListAdapter.UpdateList(musicCollection);
 					} catch (Exception e) {
-						if (!(e.getMessage().contains("Access denied: access to users audio is denied") || e.getMessage().contains("Access denied: group audio is disabled"))){
-							error = true;
-							e.printStackTrace();
+						if (e.getMessage().contains("Access denied: access to users audio is denied")){
+							bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_ACCESS_TO_USER_AUDIO_DENIED);
+						} else {
+							if (e.getMessage().contains("Access denied: group audio is disabled")){
+								bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_GROUP_AUDIO_DISABLED);
+							} else {
+								if (e.getMessage().contains("Access denied: user deactivated")){
+									bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_PAGE_DEACTIVATED);
+								} else {
+									bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_ANOTHER);
+									e.printStackTrace();
+								}
+							}
 						}
 					}
 					
@@ -474,6 +534,7 @@ public class MusicFragment extends BaseFragment {
 		                    mPullToRefreshLayout.setRefreshComplete();
 						}
 					});
+					
 					//slep to prevent laggy animations
 					try {
 						Thread.sleep(150);
@@ -486,17 +547,14 @@ public class MusicFragment extends BaseFragment {
 				}
 				@Override
 		        protected void onPostExecute(Void result) {
-                    if (!error && getActivity()!=null){
+                    if (getActivity()!=null){
                     	setUpHeaderView();
                     	musicListAdapter.notifyDataSetChanged();
                     	//with fly up animation
                     	list.setVisibility(View.VISIBLE);
                     	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);
                     	list.startAnimation(flyUpAnimation);
-                    } else {
-                    	//TODO SHOW error message
                     }
-					
 				}
 			};
 			

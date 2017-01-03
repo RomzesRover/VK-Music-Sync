@@ -21,6 +21,16 @@
     <string name="content_activity_albums">Albums</string>
     <string name="content_activity_recommendations">Recommendations</string>
     
+    <string name="content_activity_access_to_users_audio_denied">User has restricted access to this page.\nTry to check wall.</string>
+    <string name="content_activity_group_audio_is_disabled">Group audio is disabled.\nTry to check wall.</string>
+    <string name="content_activity_empty_audio_list">There is no audio.</string>
+    <string name="content_activity_error">An error occurred.\nTry to check your connection to vk.com.</string>
+    <string name="content_activity_no_search_request">Enter search request.</string>
+    <string name="content_activity_page_deactivated">Unfortunately this page is unavailable.</string>
+    <string name="content_activity_no_friends">You have no friends.</string>
+    <string name="content_activity_no_groups">You are not a member of any group.</string>
+    <string name="content_activity_no_albums">There is no albums.</string>
+    
     <string-array name="menu">
         <item >Chapters</item>
         <item >My music</item>

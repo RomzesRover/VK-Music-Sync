@@ -33,4 +33,13 @@ public class Constants {
 	public static final int BUNDLE_FRGR_LIST_FRIENDS = 0;
 	public static final int BUNDLE_FRGR_LIST_GROUPS = 1;
 	
+	public static final String BUNDLE_LIST_ERROR_CODE = "list:error_code";
+	public static final int BUNDLE_LIST_ERROR_CODE_NO_ERROR = -1;
+	public static final int BUNDLE_LIST_ERROR_CODE_ACCESS_TO_USER_AUDIO_DENIED = 0;
+	public static final int BUNDLE_LIST_ERROR_CODE_GROUP_AUDIO_DISABLED = 1;
+	public static final int BUNDLE_LIST_ERROR_CODE_EMPTY_LIST = 2;
+	public static final int BUNDLE_LIST_ERROR_CODE_NO_SEARCH_REQUEST = 4;
+	public static final int BUNDLE_LIST_ERROR_CODE_PAGE_DEACTIVATED = 5;
+	public static final int BUNDLE_LIST_ERROR_CODE_ANOTHER = 3;
+	
 }

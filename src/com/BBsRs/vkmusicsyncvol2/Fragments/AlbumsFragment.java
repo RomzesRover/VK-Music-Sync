@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import org.holoeverywhere.LayoutInflater;
 import org.holoeverywhere.preference.PreferenceManager;
 import org.holoeverywhere.preference.SharedPreferences;
+import org.holoeverywhere.widget.LinearLayout;
 import org.holoeverywhere.widget.ListView;
+import org.holoeverywhere.widget.TextView;
 
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
@@ -23,6 +25,7 @@ import android.view.animation.Animation.AnimationListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
+import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
 import com.BBsRs.vkmusicsyncvol2.ContentActivity;
 import com.BBsRs.vkmusicsyncvol2.R;
 import com.BBsRs.vkmusicsyncvol2.Adapters.AlbumListAdapter;
@@ -48,6 +51,7 @@ public class AlbumsFragment extends BaseFragment {
     CustomOnRefreshListener customOnRefreshListener = new CustomOnRefreshListener();
 	PullToRefreshLayout mPullToRefreshLayout;
 	ListView list;
+	View header;
 	
     AlbumListAdapter albumListAdapter;
     
@@ -71,6 +75,10 @@ public class AlbumsFragment extends BaseFragment {
         //init views
     	mPullToRefreshLayout = (PullToRefreshLayout) contentView.findViewById(R.id.ptr_layout);
     	list = (ListView)contentView.findViewById(R.id.list);
+    	//init header buttons
+    	header = inflater.inflate(R.layout.list_music_header);
+    	SFUIFonts.MEDIUM.apply(getActivity(), (TextView)header.findViewById(R.id.errr));
+    	list.addHeaderView(header);
     	list.setAdapter(albumListAdapter);
     	
         //init pull to refresh module
@@ -96,13 +104,15 @@ public class AlbumsFragment extends BaseFragment {
     		albumListAdapter.UpdateList(albumCollection);
         	albumListAdapter.notifyDataSetChanged();
         	
+        	setUpHeaderView();
         	list.setVisibility(View.VISIBLE);
         }
 		
 		//view job
 		list.setOnItemClickListener(new OnItemClickListener(){
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+			public void onItemClick(AdapterView<?> arg0, View arg1, int _position, long arg3) {
+				int position = _position - 1;
 				//create bundle to m list
 				Bundle albumMusicBundle  = new Bundle();
 				
@@ -139,13 +149,33 @@ public class AlbumsFragment extends BaseFragment {
         setTitle(bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME));
     }
     
+	public void setUpHeaderView(){
+		if (header == null) return;
+		((LinearLayout)header.findViewById(R.id.errorLayout)).setVisibility(View.GONE);
+		((LinearLayout)header.findViewById(R.id.wallLayout)).setVisibility(View.GONE);
+		((LinearLayout)header.findViewById(R.id.recommendationsLayout)).setVisibility(View.GONE);
+		((LinearLayout)header.findViewById(R.id.albumsLayout)).setVisibility(View.GONE);
+		
+        switch (bundle.getInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_NO_ERROR)){
+        case Constants.BUNDLE_LIST_ERROR_CODE_NO_ERROR:
+        	((LinearLayout)header.findViewById(R.id.errorLayout)).setVisibility(View.GONE);
+        	break;
+    	case Constants.BUNDLE_LIST_ERROR_CODE_EMPTY_LIST:
+    		((LinearLayout)header.findViewById(R.id.errorLayout)).setVisibility(View.VISIBLE);
+    		((TextView)header.findViewById(R.id.errr)).setText(getActivity().getResources().getString(R.string.content_activity_no_albums));
+    		break;
+    	case Constants.BUNDLE_LIST_ERROR_CODE_ANOTHER:
+    		((LinearLayout)header.findViewById(R.id.errorLayout)).setVisibility(View.VISIBLE);
+    		((TextView)header.findViewById(R.id.errr)).setText(getActivity().getResources().getString(R.string.content_activity_error));
+    		break;
+    	}
+	}
+    
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) 
     public class CustomOnRefreshListener  implements OnRefreshListener{
 		@Override
 		public void onRefreshStarted(View view) {
 			AsyncTask<Void, Void, Void> loadM = new AsyncTask<Void, Void, Void>() {
-				
-				boolean error = false;
 				
 				@Override
 				protected Void doInBackground(Void... params) {
@@ -176,15 +206,21 @@ public class AlbumsFragment extends BaseFragment {
 						
 						ArrayList<AlbumCollection> albumCollection = new ArrayList<AlbumCollection>();
 						
-						//load nesc frgr list
+						//load nesc album list
 						for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID), 0, 100)){
                 	    	albumCollection.add(new AlbumCollection(one.album_id, one.owner_id, one.title));
                 	    }
 						
+						if (albumCollection.isEmpty()){
+					       	bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_EMPTY_LIST);
+						} else {
+							bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_NO_ERROR);
+						}
+						
 				        albumListAdapter.UpdateList(albumCollection);
 					} catch (Exception e) {
+						bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_ANOTHER);
 						e.printStackTrace();
-						error = true;
 					}
 					
 					handler.post(new Runnable(){
@@ -206,16 +242,14 @@ public class AlbumsFragment extends BaseFragment {
 				}
 				@Override
 		        protected void onPostExecute(Void result) {
-                    if (!error && getActivity()!=null){
+                    if (getActivity()!=null){
+                    	setUpHeaderView();
                     	albumListAdapter.notifyDataSetChanged();
                     	//with fly up animation
                     	list.setVisibility(View.VISIBLE);
                     	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);
                     	list.startAnimation(flyUpAnimation);
-                    } else {
-                    	//TODO SHOW error message
                     }
-					
 				}
 			};
 			
