@@ -268,6 +268,9 @@ public class MusicFragment extends BaseFragment {
     	//resume search
     	if (bundle.getString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST) != null && bundle.getString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST).length()>0 && searchView != null){
     		searchView.setQuery(bundle.getString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST), false);
+    	} else {
+    		if (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_SEARCH)
+    			searchView.setIconified(false);
     	}
 	}
 	
@@ -299,7 +302,8 @@ public class MusicFragment extends BaseFragment {
             mQueryTextView.setLayoutParams(layoutParams);
             //set text font
             SFUIFonts.ULTRALIGHT.apply(getActivity(), mQueryTextView);
-            mQueryTextView.setHint("");
+            mQueryTextView.setHint(getString(R.string.content_activity_search_hint));
+            mQueryTextView.setHintTextColor(getActivity().getResources().getColor(R.color.gray_three_color));
             mQueryTextView.setTextColor(getActivity().getResources().getColor(R.color.white_color));
             mQueryTextView.setTextSize((float)17);
 		} catch (Exception e) {
