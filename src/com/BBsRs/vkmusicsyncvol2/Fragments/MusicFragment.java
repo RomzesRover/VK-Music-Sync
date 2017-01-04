@@ -35,6 +35,7 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Filter.FilterListener;
 import android.widget.ImageView;
 
 import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
@@ -255,10 +256,20 @@ public class MusicFragment extends BaseFragment {
   			}
   			@Override
   			public boolean onQueryTextChange(String newText) {
-  				if (musicListAdapter != null && musicListAdapter.getCountNonFiltered() !=0 && bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) != Constants.BUNDLE_MUSIC_LIST_SEARCH){
+  				if (musicListAdapter != null && !musicListAdapter.getMusicCollectionNonFiltered().isEmpty() && bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) != Constants.BUNDLE_MUSIC_LIST_SEARCH){
   					bundle.putString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST, newText);
-  					musicListAdapter.getFilter().filter(newText);
-  					list.setSelection(0);
+  					musicListAdapter.getFilter().filter(newText, new FilterListener(){
+						@Override
+						public void onFilterComplete(int arg0) {
+							if (musicListAdapter.getMusicCollection().isEmpty()){
+		  						bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_EMPTY_LIST);
+							} else {
+								bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_NO_ERROR);
+							}
+		  					setUpHeaderView();
+		  					list.setSelection(0);
+						}
+  					});
   				}
   				return false;
   			}});

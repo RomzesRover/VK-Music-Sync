@@ -61,6 +61,10 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 	public int getCount() {
 		return musicCollection.size();
 	}
+	
+	public ArrayList<MusicCollection> getMusicCollection() {
+		return musicCollection;
+	}
 
 	@Override
 	public MusicCollection getItem(int position) {
