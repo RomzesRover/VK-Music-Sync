@@ -21,6 +21,16 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:scaleType="centerCrop" />
+    
+    <ImageView
+        android:id="@+id/albumArtMask"
+        android:layout_width="63dp"
+        android:layout_height="63dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:visibility="invisible"
+        android:src="@color/gray_four_alpha_color"
+        android:scaleType="centerCrop" />
 
     <LinearLayout
         android:id="@+id/linearLayout1"

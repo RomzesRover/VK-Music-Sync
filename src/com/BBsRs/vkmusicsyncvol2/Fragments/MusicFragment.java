@@ -349,6 +349,7 @@ public class MusicFragment extends BaseFragment {
     	setTitle(bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME));
     	//enable receivers
     	getActivity().registerReceiver(addSongToOwnerList, new IntentFilter(Constants.INTENT_ADD_SONG_TO_OWNER_LIST));
+    	getActivity().registerReceiver(removeSongFromOwnerList, new IntentFilter(Constants.INTENT_REMOVE_SONG_FROM_OWNER_LIST));
     }
     
 	@Override
@@ -360,6 +361,7 @@ public class MusicFragment extends BaseFragment {
 		}
 		//disable receivers
 		getActivity().unregisterReceiver(addSongToOwnerList);
+		getActivity().unregisterReceiver(removeSongFromOwnerList);
 	}
 	
 	private BroadcastReceiver addSongToOwnerList = new BroadcastReceiver(){
@@ -372,13 +374,19 @@ public class MusicFragment extends BaseFragment {
 				public void run() {
 					try {
 						long oid = audioToAdd.owner_id != -1 ? audioToAdd.owner_id : account.user_id;
-						api.addAudio(audioToAdd.aid, oid, null, null, null);
+						if (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id)
+							api.restoreAudio(audioToAdd.aid, oid, null, null);
+						else
+							api.addAudio(audioToAdd.aid, oid, null, null, null);
 						//notify list with v sign
 						handler.post(new Runnable(){
 							@Override
 							public void run() {
 								if (musicListAdapter != null){
-									musicListAdapter.getItem(position).isInOwnerList = 1;
+									if (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id)
+										musicListAdapter.getItem(position).isInOwnerList = Constants.LIST_REMOVE;
+									else 
+										musicListAdapter.getItem(position).isInOwnerList = Constants.LIST_ADDED;
 									musicListAdapter.updateIsInOwnerListState(position);
 								}
 							}
@@ -391,6 +399,43 @@ public class MusicFragment extends BaseFragment {
 							@Override
 							public void run() {
 								Toast.makeText(getActivity(), String.format(getString(R.string.content_activity_error_on_adding_to_owner_list), audioToAdd.artist + " - " + audioToAdd.title), Toast.LENGTH_LONG).show();
+							}
+						});
+					}
+				}
+			}).start();
+		}
+	};
+	
+	private BroadcastReceiver removeSongFromOwnerList = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, Intent arg1) {
+			final MusicCollection audioToRemove = arg1.getParcelableExtra(Constants.INTENT_EXTRA_ONE_AUDIO);
+			final int position = arg1.getIntExtra(Constants.INTENT_EXTRA_ONE_AUDIO_POSITION_IN_LIST, 0);
+			new Thread (new Runnable(){
+				@Override
+				public void run() {
+					try {
+						long oid = audioToRemove.owner_id != -1 ? audioToRemove.owner_id : account.user_id;
+						api.deleteAudio(audioToRemove.aid, oid);
+						//notify list with + sign
+						handler.post(new Runnable(){
+							@Override
+							public void run() {
+								if (musicListAdapter != null){
+									musicListAdapter.getItem(position).isInOwnerList = Constants.LIST_RESTORE;
+									musicListAdapter.updateIsInOwnerListState(position);
+								}
+							}
+						});
+						//force update owner list
+						sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, true).commit();
+					} catch (Exception e){
+						e.printStackTrace();
+						handler.post(new Runnable(){
+							@Override
+							public void run() {
+								Toast.makeText(getActivity(), String.format(getString(R.string.content_activity_error_on_remove_from_owner_list), audioToRemove.artist + " - " + audioToRemove.title), Toast.LENGTH_LONG).show();
 							}
 						});
 					}
@@ -571,7 +616,7 @@ public class MusicFragment extends BaseFragment {
 				        }
 						
 						for (Audio one : musicList){
-							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, one.url, one.lyrics_id, 0));
+							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, one.url, one.lyrics_id, bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id ? Constants.LIST_REMOVE : Constants.LIST_ADD));
 						}
 						
 						if (musicCollection.isEmpty()){

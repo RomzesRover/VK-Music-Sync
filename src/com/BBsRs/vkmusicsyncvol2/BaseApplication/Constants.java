@@ -45,7 +45,13 @@ public class Constants {
 	public static final int BUNDLE_LIST_ERROR_CODE_ANOTHER = 3;
 	
 	public static final String INTENT_ADD_SONG_TO_OWNER_LIST = "intent:add_song_to_owner_list";
+	public static final String INTENT_REMOVE_SONG_FROM_OWNER_LIST = "intent:remove_song_from_owner_list";
 	public static final String INTENT_EXTRA_ONE_AUDIO = "intent_extra:one_audio";
 	public static final String INTENT_EXTRA_ONE_AUDIO_POSITION_IN_LIST = "intent_extra:one_audio_position_in_list";
+	
+	public static final int LIST_ADD = 0;
+	public static final int LIST_ADDED = 1;
+	public static final int LIST_REMOVE = 2;
+	public static final int LIST_RESTORE = 3;
 	
 }

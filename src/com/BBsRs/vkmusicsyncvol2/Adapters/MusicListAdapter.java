@@ -11,15 +11,21 @@ import org.holoeverywhere.widget.ListView;
 import org.holoeverywhere.widget.TextView;
 import org.holoeverywhere.widget.Toast;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
@@ -103,6 +109,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
         public TextView title;
         public TextView subtitle;
         public ImageView albumArt;
+        public ImageView albumArtMask;
         public ImageView isInOwnerList;
     }
     
@@ -112,11 +119,13 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		holder.title = (TextView) rowView.findViewById(R.id.title);
 		holder.subtitle = (TextView) rowView.findViewById(R.id.subtitle);
 		holder.albumArt = (ImageView)rowView.findViewById(R.id.albumArt);
+		holder.albumArtMask = (ImageView)rowView.findViewById(R.id.albumArtMask);
 		holder.isInOwnerList = (ImageView)rowView.findViewById(R.id.isInOwnerListAction);
 		holder.needInflate = false;
 		rowView.setTag(holder);
 	}
 	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB) 
 	public void updateIsInOwnerListState(final int position){
 		View v;
 		try {
@@ -143,13 +152,17 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 				holder.isInOwnerList.setVisibility(View.INVISIBLE);
 				
 				switch (musicCollection.get(position).isInOwnerList){
-				case 0:
+				case Constants.LIST_ADD:
 					holder.isInOwnerList.setImageResource(R.drawable.ic_add_normal);
 					break;
-				case 1:
+				case Constants.LIST_RESTORE:
+					holder.isInOwnerList.setImageResource(R.drawable.ic_add_normal);
+					break;
+				case Constants.LIST_ADDED:
 					holder.isInOwnerList.setImageResource(R.drawable.ic_added_normal);
 					break;
-				case 2:
+				case Constants.LIST_REMOVE:
+					holder.isInOwnerList.setImageResource(R.drawable.ic_remove_normal);
 					break;
 				}
 				
@@ -163,6 +176,83 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 			@Override
 			public void onAnimationStart(Animation arg0) { }
     	});
+    	
+		switch (musicCollection.get(position).isInOwnerList){
+		case Constants.LIST_RESTORE:
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+				ObjectAnimator colorAnim = ObjectAnimator.ofInt(holder.title, "textColor", context.getResources().getColor(R.color.black_color), context.getResources().getColor(R.color.gray_four_color));
+			    colorAnim.setEvaluator(new ArgbEvaluator());
+			    colorAnim.setDuration(250);
+			    
+			    ObjectAnimator colorAnim2 = ObjectAnimator.ofInt(holder.subtitle, "textColor", context.getResources().getColor(R.color.gray_two_color), context.getResources().getColor(R.color.gray_four_color));
+			    colorAnim2.setEvaluator(new ArgbEvaluator());
+			    colorAnim2.setDuration(250);
+			    
+			    ObjectAnimator colorAnim3 = ObjectAnimator.ofInt(holder.length, "textColor", context.getResources().getColor(R.color.black_color), context.getResources().getColor(R.color.gray_four_color));
+			    colorAnim3.setEvaluator(new ArgbEvaluator());
+			    colorAnim3.setDuration(250);
+			    
+			    if (holder.albumArtMask.getVisibility() == View.INVISIBLE){
+			    	holder.albumArtMask.setVisibility(View.VISIBLE);
+			    	FadeInBitmapDisplayer.animate(holder.albumArtMask, 250);
+			    }
+			    
+			    colorAnim3.start();
+			    colorAnim2.start();
+			    colorAnim.start();
+			    
+			} else {
+				holder.albumArtMask.setVisibility(View.VISIBLE);
+				holder.title.setTextColor(context.getResources().getColor(R.color.gray_four_color));
+				holder.subtitle.setTextColor(context.getResources().getColor(R.color.gray_four_color));
+				holder.length.setTextColor(context.getResources().getColor(R.color.gray_four_color));
+			}
+			break;
+		case Constants.LIST_REMOVE:
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+				ObjectAnimator colorAnim = ObjectAnimator.ofInt(holder.title, "textColor", context.getResources().getColor(R.color.gray_four_color), context.getResources().getColor(R.color.black_color));
+			    colorAnim.setEvaluator(new ArgbEvaluator());
+			    colorAnim.setDuration(250);
+			    
+			    ObjectAnimator colorAnim2 = ObjectAnimator.ofInt(holder.subtitle, "textColor", context.getResources().getColor(R.color.gray_four_color), context.getResources().getColor(R.color.gray_two_color));
+			    colorAnim2.setEvaluator(new ArgbEvaluator());
+			    colorAnim2.setDuration(250);
+			    
+			    ObjectAnimator colorAnim3 = ObjectAnimator.ofInt(holder.length, "textColor", context.getResources().getColor(R.color.gray_four_color), context.getResources().getColor(R.color.black_color));
+			    colorAnim3.setEvaluator(new ArgbEvaluator());
+			    colorAnim3.setDuration(250);
+			    
+			    if (holder.albumArtMask.getVisibility() == View.VISIBLE){
+			    	AlphaAnimation fadeImage = new AlphaAnimation(1, 0);
+					fadeImage.setDuration(250);
+					fadeImage.setInterpolator(new DecelerateInterpolator());
+					
+					fadeImage.setAnimationListener(new AnimationListener(){
+						@Override
+						public void onAnimationEnd(Animation arg0) {
+							holder.albumArtMask.setVisibility(View.INVISIBLE);
+						}
+						@Override
+						public void onAnimationRepeat(Animation arg0) { }
+						@Override
+						public void onAnimationStart(Animation arg0) { }
+					});
+					
+					holder.albumArtMask.startAnimation(fadeImage);
+			    }
+			    
+			    colorAnim3.start();
+			    colorAnim2.start();
+			    colorAnim.start();
+			    
+			} else {
+				holder.albumArtMask.setVisibility(View.INVISIBLE);
+				holder.title.setTextColor(context.getResources().getColor(R.color.black_color));
+				holder.subtitle.setTextColor(context.getResources().getColor(R.color.gray_two_color));
+				holder.length.setTextColor(context.getResources().getColor(R.color.black_color));
+			}
+			break;
+		}
 	}
 
 	@Override
@@ -201,24 +291,41 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		}
 		
 		switch (musicCollection.get(position).isInOwnerList){
-		case 0:
+		case Constants.LIST_ADD:
 			holder.isInOwnerList.setImageResource(R.drawable.ic_add_normal);
 			break;
-		case 1:
+		case Constants.LIST_ADDED:
 			holder.isInOwnerList.setImageResource(R.drawable.ic_added_normal);
 			break;
-		case 2:
+		case Constants.LIST_REMOVE:
+			holder.isInOwnerList.setImageResource(R.drawable.ic_remove_normal);
+			holder.title.setTextColor(context.getResources().getColor(R.color.black_color));
+			holder.subtitle.setTextColor(context.getResources().getColor(R.color.gray_two_color));
+			holder.length.setTextColor(context.getResources().getColor(R.color.black_color));
+			holder.albumArtMask.setVisibility(View.INVISIBLE);
+			break;
+		case Constants.LIST_RESTORE:
+			holder.title.setTextColor(context.getResources().getColor(R.color.gray_four_color));
+			holder.subtitle.setTextColor(context.getResources().getColor(R.color.gray_four_color));
+			holder.length.setTextColor(context.getResources().getColor(R.color.gray_four_color));
+			holder.albumArtMask.setVisibility(View.VISIBLE);
 			break;
 		}
 		
 		holder.isInOwnerList.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				if (musicCollection.get(position).isInOwnerList == 0){
+				if (musicCollection.get(position).isInOwnerList == Constants.LIST_ADD || musicCollection.get(position).isInOwnerList == Constants.LIST_RESTORE){
 					Intent sendAddSongRequest = new Intent(Constants.INTENT_ADD_SONG_TO_OWNER_LIST);
 					sendAddSongRequest.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO, (Parcelable)musicCollection.get(position));
 					sendAddSongRequest.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO_POSITION_IN_LIST, position);
 					context.sendBroadcast(sendAddSongRequest);
+				}
+				if (musicCollection.get(position).isInOwnerList == Constants.LIST_REMOVE){
+					Intent sendRemoveSongRequest = new Intent(Constants.INTENT_REMOVE_SONG_FROM_OWNER_LIST);
+					sendRemoveSongRequest.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO, (Parcelable)musicCollection.get(position));
+					sendRemoveSongRequest.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO_POSITION_IN_LIST, position);
+					context.sendBroadcast(sendRemoveSongRequest);
 				}
 			}
 		});
