@@ -9,13 +9,17 @@ import org.holoeverywhere.preference.SharedPreferences;
 import org.holoeverywhere.widget.LinearLayout;
 import org.holoeverywhere.widget.ListView;
 import org.holoeverywhere.widget.TextView;
+import org.holoeverywhere.widget.Toast;
 
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 import android.annotation.TargetApi;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -195,6 +199,7 @@ public class MusicFragment extends BaseFragment {
 		});
     	list.addHeaderView(header);
     	list.setAdapter(musicListAdapter);
+    	musicListAdapter.bindListView(list);
     	
         //init pull to refresh module
         ActionBarPullToRefresh.from(getActivity())
@@ -212,13 +217,26 @@ public class MusicFragment extends BaseFragment {
     			}
           	}, 100);
         } else {
-        	ArrayList<MusicCollection> musicCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
-        	albumCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS);
-        	musicListAdapter.UpdateList(musicCollection);
-        	musicListAdapter.notifyDataSetChanged();
-        	
-        	setUpHeaderView();
-        	list.setVisibility(View.VISIBLE);
+        	if (sPref.getBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, false) && bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id){
+        		//stop force update owner list
+				sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, false).commit();
+	          	handler.postDelayed(new Runnable(){
+	    			@Override
+	    			public void run() {
+	    				//refresh on open to load data when app first time started
+	    		        mPullToRefreshLayout.setRefreshing(true);
+	    		        customOnRefreshListener.onRefreshStarted(null);
+	    			}
+	          	}, 100);
+        	} else {
+	        	ArrayList<MusicCollection> musicCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
+	        	albumCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS);
+	        	musicListAdapter.UpdateList(musicCollection);
+	        	musicListAdapter.notifyDataSetChanged();
+	        	
+	        	setUpHeaderView();
+	        	list.setVisibility(View.VISIBLE);
+        	}
         }
         
     	return contentView;
@@ -329,6 +347,8 @@ public class MusicFragment extends BaseFragment {
     	setHasOptionsMenu(true);
         //set subtitle for a current fragment with custom font
     	setTitle(bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME));
+    	//enable receivers
+    	getActivity().registerReceiver(addSongToOwnerList, new IntentFilter(Constants.INTENT_ADD_SONG_TO_OWNER_LIST));
     }
     
 	@Override
@@ -338,7 +358,46 @@ public class MusicFragment extends BaseFragment {
 			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, musicListAdapter.getMusicCollectionNonFiltered());
 			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS, albumCollection);
 		}
+		//disable receivers
+		getActivity().unregisterReceiver(addSongToOwnerList);
 	}
+	
+	private BroadcastReceiver addSongToOwnerList = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, Intent arg1) {
+			final MusicCollection audioToAdd = arg1.getParcelableExtra(Constants.INTENT_EXTRA_ONE_AUDIO);
+			final int position = arg1.getIntExtra(Constants.INTENT_EXTRA_ONE_AUDIO_POSITION_IN_LIST, 0);
+			new Thread (new Runnable(){
+				@Override
+				public void run() {
+					try {
+						long oid = audioToAdd.owner_id != -1 ? audioToAdd.owner_id : account.user_id;
+						api.addAudio(audioToAdd.aid, oid, null, null, null);
+						//notify list with v sign
+						handler.post(new Runnable(){
+							@Override
+							public void run() {
+								if (musicListAdapter != null){
+									musicListAdapter.getItem(position).isInOwnerList = 1;
+									musicListAdapter.updateIsInOwnerListState(position);
+								}
+							}
+						});
+						//force update owner list
+						sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, true).commit();
+					} catch (Exception e){
+						e.printStackTrace();
+						handler.post(new Runnable(){
+							@Override
+							public void run() {
+								Toast.makeText(getActivity(), String.format(getString(R.string.content_activity_error_on_adding_to_owner_list), audioToAdd.artist + " - " + audioToAdd.title), Toast.LENGTH_LONG).show();
+							}
+						});
+					}
+				}
+			}).start();
+		}
+	};
 	
 	public void setUpHeaderView(){
 		if (header == null) return;
@@ -512,7 +571,7 @@ public class MusicFragment extends BaseFragment {
 				        }
 						
 						for (Audio one : musicList){
-							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, one.url, one.lyrics_id));
+							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, one.url, one.lyrics_id, 0));
 						}
 						
 						if (musicCollection.isEmpty()){

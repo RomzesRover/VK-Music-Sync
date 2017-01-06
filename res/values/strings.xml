@@ -32,6 +32,8 @@
     <string name="content_activity_no_groups">You are not a member of any group.</string>
     <string name="content_activity_no_albums">There is no albums.</string>
     
+    <string name="content_activity_error_on_adding_to_owner_list">An error occurred on adding: %s, to your own list.</string>
+    
     <string-array name="menu">
         <item >Chapters</item>
         <item >My music</item>

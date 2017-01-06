@@ -7,13 +7,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.holoeverywhere.LayoutInflater;
+import org.holoeverywhere.widget.ListView;
 import org.holoeverywhere.widget.TextView;
+import org.holoeverywhere.widget.Toast;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -38,6 +45,8 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 	ArrayList<MusicCollection> musicCollectionNonFiltered = new ArrayList<MusicCollection>();
 	//with this options we will load images
     DisplayImageOptions options ;
+    
+    ListView list;
 	
 	public MusicListAdapter(Context _context, ArrayList<MusicCollection> _musicCollection, DisplayImageOptions _options){
 		if (_musicCollection != null)
@@ -48,6 +57,10 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		
+	}
+	
+	public void bindListView(ListView _list){
+		list = _list;
 	}
 	
 	public void UpdateList(ArrayList<MusicCollection> _musicCollection){
@@ -90,6 +103,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
         public TextView title;
         public TextView subtitle;
         public ImageView albumArt;
+        public ImageView isInOwnerList;
     }
     
 	private void setViewHolder(View rowView) {
@@ -98,12 +112,61 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		holder.title = (TextView) rowView.findViewById(R.id.title);
 		holder.subtitle = (TextView) rowView.findViewById(R.id.subtitle);
 		holder.albumArt = (ImageView)rowView.findViewById(R.id.albumArt);
+		holder.isInOwnerList = (ImageView)rowView.findViewById(R.id.isInOwnerListAction);
 		holder.needInflate = false;
 		rowView.setTag(holder);
 	}
+	
+	public void updateIsInOwnerListState(final int position){
+		View v;
+		try {
+			//+1 cuz we have header in list view
+			v = list.getChildAt(position + 1 - list.getFirstVisiblePosition());
+		} catch(Exception e) {
+			v = null;
+		}
+
+	    if(v == null)
+	       return;
+	    
+	    if (position >= musicCollection.size())
+	    	return;
+	    
+	    setViewHolder(v);
+	    final ViewHolder holder = (ViewHolder)v.getTag();
+	    
+	    Animation flyDownAnimation = AnimationUtils.loadAnimation(context, R.anim.fly_up_anim);
+	    holder.isInOwnerList.startAnimation(flyDownAnimation);
+    	flyDownAnimation.setAnimationListener(new AnimationListener(){
+			@Override
+			public void onAnimationEnd(Animation arg0) {
+				holder.isInOwnerList.setVisibility(View.INVISIBLE);
+				
+				switch (musicCollection.get(position).isInOwnerList){
+				case 0:
+					holder.isInOwnerList.setImageResource(R.drawable.ic_add_normal);
+					break;
+				case 1:
+					holder.isInOwnerList.setImageResource(R.drawable.ic_added_normal);
+					break;
+				case 2:
+					break;
+				}
+				
+				holder.isInOwnerList.setVisibility(View.VISIBLE);
+				
+				Animation flyDownAnimation = AnimationUtils.loadAnimation(context, R.anim.fly_down_anim);
+			    holder.isInOwnerList.startAnimation(flyDownAnimation);
+			}
+			@Override
+			public void onAnimationRepeat(Animation arg0) { }
+			@Override
+			public void onAnimationStart(Animation arg0) { }
+    	});
+	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(final int position, View convertView, ViewGroup parent) {
 		final ViewHolder holder;
         final View rowView;
 		if (convertView==null) {
@@ -136,6 +199,29 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		switch (musicCollection.get(position).isInOwnerList){
+		case 0:
+			holder.isInOwnerList.setImageResource(R.drawable.ic_add_normal);
+			break;
+		case 1:
+			holder.isInOwnerList.setImageResource(R.drawable.ic_added_normal);
+			break;
+		case 2:
+			break;
+		}
+		
+		holder.isInOwnerList.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				if (musicCollection.get(position).isInOwnerList == 0){
+					Intent sendAddSongRequest = new Intent(Constants.INTENT_ADD_SONG_TO_OWNER_LIST);
+					sendAddSongRequest.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO, (Parcelable)musicCollection.get(position));
+					sendAddSongRequest.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO_POSITION_IN_LIST, position);
+					context.sendBroadcast(sendAddSongRequest);
+				}
+			}
+		});
 		
 		return rowView;
 	}
