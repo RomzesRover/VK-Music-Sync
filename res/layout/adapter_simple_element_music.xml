@@ -25,10 +25,10 @@
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/albumArt"
-        android:layout_alignParentRight="true"
+        android:layout_height="63dp"
         android:layout_alignParentTop="true"
+        android:layout_marginRight="8dp"
+        android:layout_toLeftOf="@+id/linearLayout3"
         android:gravity="center_vertical" >
 
         <TextView
@@ -42,12 +42,41 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="63dp"
+        android:layout_height="63dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true" >
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:padding="7dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_add_normal" />
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:padding="7dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_download_normal" />
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/albumArt"
         android:layout_alignParentTop="true"
-        android:layout_margin="9dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="6dp"
+        android:layout_marginTop="8dp"
         android:layout_toLeftOf="@+id/linearLayout1"
         android:layout_toRightOf="@+id/albumArt"
         android:gravity="center_vertical"
@@ -84,7 +113,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_alignLeft="@+id/linearLayout2"
-        android:layout_alignRight="@+id/linearLayout2"
+        android:layout_alignRight="@id/linearLayout1"
         android:layout_below="@+id/albumArt"
         android:layout_marginTop="13dp"
         android:scaleType="fitXY"
