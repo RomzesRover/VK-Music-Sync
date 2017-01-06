@@ -29,7 +29,6 @@ import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.support.v7.widget.SearchView.SearchAutoComplete;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
@@ -217,7 +216,7 @@ public class MusicFragment extends BaseFragment {
     			}
           	}, 100);
         } else {
-        	if (sPref.getBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, false) && bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id){
+        	if (sPref.getBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, false) && (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE)){
         		//stop force update owner list
 				sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, false).commit();
 	          	handler.postDelayed(new Runnable(){
@@ -274,7 +273,7 @@ public class MusicFragment extends BaseFragment {
   			}
   			@Override
   			public boolean onQueryTextChange(String newText) {
-  				if (musicListAdapter != null && !musicListAdapter.getMusicCollectionNonFiltered().isEmpty() && bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) != Constants.BUNDLE_MUSIC_LIST_SEARCH){
+  				if (musicListAdapter != null && musicListAdapter.getMusicCollectionNonFiltered()!=null && !musicListAdapter.getMusicCollectionNonFiltered().isEmpty() && bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) != Constants.BUNDLE_MUSIC_LIST_SEARCH){
   					bundle.putString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST, newText);
   					musicListAdapter.getFilter().filter(newText, new FilterListener(){
 						@Override
@@ -336,7 +335,7 @@ public class MusicFragment extends BaseFragment {
             mQueryTextView.setTextColor(getActivity().getResources().getColor(R.color.white_color));
             mQueryTextView.setTextSize((float)17);
 		} catch (Exception e) {
-			Log.e("SearchView", e.getMessage(), e);
+			e.printStackTrace();
 		}
 	}
 	
@@ -374,7 +373,7 @@ public class MusicFragment extends BaseFragment {
 				public void run() {
 					try {
 						long oid = audioToAdd.owner_id != -1 ? audioToAdd.owner_id : account.user_id;
-						if (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id)
+						if ((bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE || bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM)))
 							api.restoreAudio(audioToAdd.aid, oid, null, null);
 						else
 							api.addAudio(audioToAdd.aid, oid, null, null, null);
@@ -383,16 +382,17 @@ public class MusicFragment extends BaseFragment {
 							@Override
 							public void run() {
 								if (musicListAdapter != null){
-									if (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id)
+									if ((bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE || bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM)))
 										musicListAdapter.getItem(position).isInOwnerList = Constants.LIST_REMOVE;
-									else 
+									else {
 										musicListAdapter.getItem(position).isInOwnerList = Constants.LIST_ADDED;
+										//force update owner list
+										sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, true).commit();
+									}
 									musicListAdapter.updateIsInOwnerListState(position);
 								}
 							}
 						});
-						//force update owner list
-						sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, true).commit();
 					} catch (Exception e){
 						e.printStackTrace();
 						handler.post(new Runnable(){
@@ -426,10 +426,12 @@ public class MusicFragment extends BaseFragment {
 									musicListAdapter.getItem(position).isInOwnerList = Constants.LIST_RESTORE;
 									musicListAdapter.updateIsInOwnerListState(position);
 								}
+								if ((bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM))){
+									//force update owner list
+									sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, true).commit();
+								}
 							}
 						});
-						//force update owner list
-						sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, true).commit();
 					} catch (Exception e){
 						e.printStackTrace();
 						handler.post(new Runnable(){
@@ -616,7 +618,7 @@ public class MusicFragment extends BaseFragment {
 				        }
 						
 						for (Audio one : musicList){
-							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, one.url, one.lyrics_id, bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id ? Constants.LIST_REMOVE : Constants.LIST_ADD));
+							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, one.url, one.lyrics_id, (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE || bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM)) ? Constants.LIST_REMOVE : Constants.LIST_ADD));
 						}
 						
 						if (musicCollection.isEmpty()){
@@ -686,6 +688,4 @@ public class MusicFragment extends BaseFragment {
 		}
 		
     }
-    
-    
 }

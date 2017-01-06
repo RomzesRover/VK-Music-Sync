@@ -9,7 +9,6 @@ import java.util.List;
 import org.holoeverywhere.LayoutInflater;
 import org.holoeverywhere.widget.ListView;
 import org.holoeverywhere.widget.TextView;
-import org.holoeverywhere.widget.Toast;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
@@ -24,9 +23,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Animation.AnimationListener;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -48,16 +47,18 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 
 	Context context;
 	ArrayList<MusicCollection> musicCollection = new ArrayList<MusicCollection>();
-	ArrayList<MusicCollection> musicCollectionNonFiltered = new ArrayList<MusicCollection>();
+	ArrayList<MusicCollection> musicCollectionNonFiltered = null;
 	//with this options we will load images
     DisplayImageOptions options ;
     
     ListView list;
 	
 	public MusicListAdapter(Context _context, ArrayList<MusicCollection> _musicCollection, DisplayImageOptions _options){
-		if (_musicCollection != null)
+		if (_musicCollection != null){
 			musicCollection = _musicCollection;
-		musicCollectionNonFiltered.addAll(musicCollection);
+			musicCollectionNonFiltered = new ArrayList<MusicCollection>();
+			musicCollectionNonFiltered.addAll(musicCollection);
+		}
 		context = _context;
 		options = _options;
 		
@@ -70,10 +71,11 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 	}
 	
 	public void UpdateList(ArrayList<MusicCollection> _musicCollection){
-		if (_musicCollection != null)
+		if (_musicCollection != null){
 			musicCollection = _musicCollection;
-		musicCollectionNonFiltered = new ArrayList<MusicCollection>();
-		musicCollectionNonFiltered.addAll(musicCollection);
+			musicCollectionNonFiltered = new ArrayList<MusicCollection>();
+			musicCollectionNonFiltered.addAll(musicCollection);
+		}
 	}
 
 	@Override
