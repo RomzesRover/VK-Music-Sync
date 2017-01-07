@@ -205,6 +205,8 @@ public class AlbumsFragment extends BaseFragment {
 						Thread.sleep(100);
 						
 						ArrayList<AlbumCollection> albumCollection = new ArrayList<AlbumCollection>();
+						//null lists
+						albumListAdapter.UpdateList(albumCollection);
 						
 						//load nesc album list
 						for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID), 0, 100)){

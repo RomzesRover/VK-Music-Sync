@@ -230,6 +230,8 @@ public class FrGrFragment extends BaseFragment {
 						Thread.sleep(100);
 						
 						ArrayList<FrGrCollection> frGrCollection = new ArrayList<FrGrCollection>();
+						//null lists
+						frGrListAdapter.UpdateList(frGrCollection);
 						
 						//load nesc frgr list
 				        switch (bundle.getInt(Constants.BUNDLE_FRGR_LIST_TYPE)){
