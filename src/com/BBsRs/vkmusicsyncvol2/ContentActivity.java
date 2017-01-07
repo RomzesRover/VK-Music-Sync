@@ -28,7 +28,6 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-import com.perm.kate.api.Api;
 
 @Addons(AddonSlider.class)
 public class ContentActivity extends BaseActivity {
@@ -114,7 +113,6 @@ public class ContentActivity extends BaseActivity {
         sliderMenu.add(getResources().getStringArray(R.array.menu)[7], MusicFragment.class, downloaded, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_downloads).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
         sliderMenu.add(getResources().getStringArray(R.array.menu)[8].toUpperCase()).setCustomLayout(R.layout.custom_slider_menu_item).clickable(false).setTextAppereance(1);
         sliderMenu.add(getResources().getStringArray(R.array.menu)[9], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_settings).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
-        sliderMenu.add(getResources().getStringArray(R.array.menu)[10], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_premium).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
         
         if(savedInstanceState == null)
         	sliderMenu.setCurrentPage(1);
