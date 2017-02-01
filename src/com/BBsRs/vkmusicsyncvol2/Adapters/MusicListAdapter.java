@@ -380,6 +380,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 			holder.albumArtMask.setVisibility(View.INVISIBLE);
 			break;
 		case Constants.LIST_ACTION_RESTORE:
+			holder.isInOwnerList.setImageResource(R.drawable.ic_add_normal);
 			holder.title.setTextColor(context.getResources().getColor(R.color.gray_four_color));
 			holder.subtitle.setTextColor(context.getResources().getColor(R.color.gray_four_color));
 			holder.length.setTextColor(context.getResources().getColor(R.color.gray_four_color));
