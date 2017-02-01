@@ -113,6 +113,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
         public ImageView albumArt;
         public ImageView albumArtMask;
         public ImageView isInOwnerList;
+        public ImageView isDownloadedAction;
     }
     
 	private void setViewHolder(View rowView) {
@@ -123,8 +124,80 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		holder.albumArt = (ImageView)rowView.findViewById(R.id.albumArt);
 		holder.albumArtMask = (ImageView)rowView.findViewById(R.id.albumArtMask);
 		holder.isInOwnerList = (ImageView)rowView.findViewById(R.id.isInOwnerListAction);
+		holder.isDownloadedAction = (ImageView)rowView.findViewById(R.id.isDownloadedAction);
 		holder.needInflate = false;
 		rowView.setTag(holder);
+	}
+	
+	public void updateIsDownloaded(final int position){
+		View v;
+		try {
+			//+1 cuz we have header in list view
+			v = list.getChildAt(position + 1 - list.getFirstVisiblePosition());
+		} catch(Exception e) {
+			v = null;
+		}
+
+	    if(v == null)
+	       return;
+	    
+	    if (position >= musicCollection.size())
+	    	return;
+	    
+	    setViewHolder(v);
+	    final ViewHolder holder = (ViewHolder)v.getTag();
+	    
+	    //determine which amimation should show this time
+	    int animationIn  = R.anim.fly_up_anim;
+	    switch (musicCollection.get(position).isDownloaded){
+		case Constants.LIST_ACTION_DOWNLOAD: case Constants.LIST_ACTION_DOWNLOAD_STARTED: case Constants.LIST_ACTION_DELETE: case Constants.LIST_ACTION_DOWNLOADED:
+			break;
+		default:
+			animationIn = R.anim.null_anim;
+			break;
+		}
+	    
+	    Animation flyUpAnimation = AnimationUtils.loadAnimation(context, animationIn);
+	    flyUpAnimation.setAnimationListener(new AnimationListener(){
+
+			@Override
+			public void onAnimationEnd(Animation arg0) {
+				holder.isDownloadedAction.setVisibility(View.INVISIBLE);
+				
+				//determine which amimation should show this time
+				int animationOut = R.anim.fly_down_anim;
+				
+				switch (musicCollection.get(position).isDownloaded){
+				case Constants.LIST_ACTION_DOWNLOAD:
+					holder.isDownloadedAction.setImageResource(R.drawable.ic_download_normal);
+					break;
+				case Constants.LIST_ACTION_DOWNLOAD_STARTED:
+					holder.isDownloadedAction.setImageResource(R.drawable.ic_download_stop_normal);
+					break;
+				case Constants.LIST_ACTION_DELETE:
+					holder.isDownloadedAction.setImageResource(R.drawable.ic_delete_normal);
+					break;
+				case Constants.LIST_ACTION_DOWNLOADED:
+					holder.isDownloadedAction.setImageResource(R.drawable.ic_added_normal);
+					break;
+				default:
+					holder.isDownloadedAction.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_downloading));
+		        	holder.isDownloadedAction.setImageLevel(musicCollection.get(position).isDownloaded);
+		        	animationOut = R.anim.null_anim;
+					break;
+				}
+				
+				holder.isDownloadedAction.setVisibility(View.VISIBLE);
+				
+				Animation flyDownAnimation = AnimationUtils.loadAnimation(context, animationOut);
+			    holder.isDownloadedAction.startAnimation(flyDownAnimation);
+			}
+			@Override
+			public void onAnimationRepeat(Animation arg0) { }
+			@Override
+			public void onAnimationStart(Animation arg0) { }
+	    });
+	    holder.isDownloadedAction.startAnimation(flyUpAnimation);
 	}
 	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB) 
@@ -146,24 +219,23 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 	    setViewHolder(v);
 	    final ViewHolder holder = (ViewHolder)v.getTag();
 	    
-	    Animation flyDownAnimation = AnimationUtils.loadAnimation(context, R.anim.fly_up_anim);
-	    holder.isInOwnerList.startAnimation(flyDownAnimation);
-    	flyDownAnimation.setAnimationListener(new AnimationListener(){
+	    Animation flyUpAnimation = AnimationUtils.loadAnimation(context, R.anim.fly_up_anim);
+	    flyUpAnimation.setAnimationListener(new AnimationListener(){
 			@Override
 			public void onAnimationEnd(Animation arg0) {
 				holder.isInOwnerList.setVisibility(View.INVISIBLE);
 				
 				switch (musicCollection.get(position).isInOwnerList){
-				case Constants.LIST_ADD:
+				case Constants.LIST_ACTION_ADD:
 					holder.isInOwnerList.setImageResource(R.drawable.ic_add_normal);
 					break;
-				case Constants.LIST_RESTORE:
+				case Constants.LIST_ACTION_RESTORE:
 					holder.isInOwnerList.setImageResource(R.drawable.ic_add_normal);
 					break;
-				case Constants.LIST_ADDED:
+				case Constants.LIST_ACTION_ADDED:
 					holder.isInOwnerList.setImageResource(R.drawable.ic_added_normal);
 					break;
-				case Constants.LIST_REMOVE:
+				case Constants.LIST_ACTION_REMOVE:
 					holder.isInOwnerList.setImageResource(R.drawable.ic_remove_normal);
 					break;
 				}
@@ -178,9 +250,10 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 			@Override
 			public void onAnimationStart(Animation arg0) { }
     	});
+	    holder.isInOwnerList.startAnimation(flyUpAnimation);
     	
 		switch (musicCollection.get(position).isInOwnerList){
-		case Constants.LIST_RESTORE:
+		case Constants.LIST_ACTION_RESTORE:
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
 				ObjectAnimator colorAnim = ObjectAnimator.ofInt(holder.title, "textColor", context.getResources().getColor(R.color.black_color), context.getResources().getColor(R.color.gray_four_color));
 			    colorAnim.setEvaluator(new ArgbEvaluator());
@@ -210,7 +283,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 				holder.length.setTextColor(context.getResources().getColor(R.color.gray_four_color));
 			}
 			break;
-		case Constants.LIST_REMOVE:
+		case Constants.LIST_ACTION_REMOVE:
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
 				ObjectAnimator colorAnim = ObjectAnimator.ofInt(holder.title, "textColor", context.getResources().getColor(R.color.gray_four_color), context.getResources().getColor(R.color.black_color));
 			    colorAnim.setEvaluator(new ArgbEvaluator());
@@ -293,20 +366,20 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		}
 		
 		switch (musicCollection.get(position).isInOwnerList){
-		case Constants.LIST_ADD:
+		case Constants.LIST_ACTION_ADD:
 			holder.isInOwnerList.setImageResource(R.drawable.ic_add_normal);
 			break;
-		case Constants.LIST_ADDED:
+		case Constants.LIST_ACTION_ADDED:
 			holder.isInOwnerList.setImageResource(R.drawable.ic_added_normal);
 			break;
-		case Constants.LIST_REMOVE:
+		case Constants.LIST_ACTION_REMOVE:
 			holder.isInOwnerList.setImageResource(R.drawable.ic_remove_normal);
 			holder.title.setTextColor(context.getResources().getColor(R.color.black_color));
 			holder.subtitle.setTextColor(context.getResources().getColor(R.color.gray_two_color));
 			holder.length.setTextColor(context.getResources().getColor(R.color.black_color));
 			holder.albumArtMask.setVisibility(View.INVISIBLE);
 			break;
-		case Constants.LIST_RESTORE:
+		case Constants.LIST_ACTION_RESTORE:
 			holder.title.setTextColor(context.getResources().getColor(R.color.gray_four_color));
 			holder.subtitle.setTextColor(context.getResources().getColor(R.color.gray_four_color));
 			holder.length.setTextColor(context.getResources().getColor(R.color.gray_four_color));
@@ -314,20 +387,66 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 			break;
 		}
 		
+		switch (musicCollection.get(position).isDownloaded){
+		case Constants.LIST_ACTION_DOWNLOAD:
+			holder.isDownloadedAction.setImageResource(R.drawable.ic_download_normal);
+			break;
+		case Constants.LIST_ACTION_DOWNLOAD_STARTED:
+			holder.isDownloadedAction.setImageResource(R.drawable.ic_download_stop_normal);
+			break;
+		case Constants.LIST_ACTION_DELETE:
+			holder.isDownloadedAction.setImageResource(R.drawable.ic_delete_normal);
+			break;
+		case Constants.LIST_ACTION_DOWNLOADED:
+			holder.isDownloadedAction.setImageResource(R.drawable.ic_added_normal);
+			break;
+		default:
+			holder.isDownloadedAction.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_downloading));
+        	holder.isDownloadedAction.setImageLevel(musicCollection.get(position).isDownloaded);
+			break;
+		}
+		
 		holder.isInOwnerList.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				if (musicCollection.get(position).isInOwnerList == Constants.LIST_ADD || musicCollection.get(position).isInOwnerList == Constants.LIST_RESTORE){
+				switch (musicCollection.get(position).isInOwnerList){
+				case Constants.LIST_ACTION_ADD: case Constants.LIST_ACTION_RESTORE:
 					Intent sendAddSongRequest = new Intent(Constants.INTENT_ADD_SONG_TO_OWNER_LIST);
-					sendAddSongRequest.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO, (Parcelable)musicCollection.get(position));
 					sendAddSongRequest.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO_POSITION_IN_LIST, position);
 					context.sendBroadcast(sendAddSongRequest);
-				}
-				if (musicCollection.get(position).isInOwnerList == Constants.LIST_REMOVE){
+					break;
+				case Constants.LIST_ACTION_REMOVE:
 					Intent sendRemoveSongRequest = new Intent(Constants.INTENT_REMOVE_SONG_FROM_OWNER_LIST);
-					sendRemoveSongRequest.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO, (Parcelable)musicCollection.get(position));
 					sendRemoveSongRequest.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO_POSITION_IN_LIST, position);
 					context.sendBroadcast(sendRemoveSongRequest);
+					break;
+				}
+			}
+		});
+		
+		holder.isDownloadedAction.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				switch (musicCollection.get(position).isDownloaded){
+				case Constants.LIST_ACTION_DOWNLOAD:
+					Intent startDownload = new Intent(Constants.INTENT_DOWNLOAD_SONG_TO_STORAGE);
+					startDownload.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO_POSITION_IN_LIST, position);
+					context.sendBroadcast(startDownload);
+					break;
+				case Constants.LIST_ACTION_DELETE:
+					Intent sendDeleteSongFromStorageRequest = new Intent(Constants.INTENT_DELETE_SONG_FROM_STORAGE);
+					sendDeleteSongFromStorageRequest.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO_POSITION_IN_LIST, position);
+					context.sendBroadcast(sendDeleteSongFromStorageRequest);
+					break;
+				default:
+					//update here, cuz we won't use fragment 
+					musicCollection.get(position).isDownloaded = Constants.LIST_ACTION_DOWNLOAD;
+					updateIsDownloaded(position);
+					
+					Intent removeSongFromDownloadQueue = new Intent(Constants.INTENT_REMOVE_SONG_FROM_DOWNLOAD_QUEUE);
+					removeSongFromDownloadQueue.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO, (Parcelable)musicCollection.get(position));
+					context.sendBroadcast(removeSongFromDownloadQueue);
+					break;
 				}
 			}
 		});

@@ -15,6 +15,8 @@ import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLa
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 import android.annotation.TargetApi;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -24,11 +26,13 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.support.v7.widget.SearchView.SearchAutoComplete;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
@@ -48,6 +52,7 @@ import com.BBsRs.vkmusicsyncvol2.Adapters.MusicListAdapter;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseFragment;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
+import com.BBsRs.vkmusicsyncvol2.Services.DownloadService;
 import com.BBsRs.vkmusicsyncvol2.collections.AlbumCollection;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -349,6 +354,9 @@ public class MusicFragment extends BaseFragment {
     	//enable receivers
     	getActivity().registerReceiver(addSongToOwnerList, new IntentFilter(Constants.INTENT_ADD_SONG_TO_OWNER_LIST));
     	getActivity().registerReceiver(removeSongFromOwnerList, new IntentFilter(Constants.INTENT_REMOVE_SONG_FROM_OWNER_LIST));
+    	getActivity().registerReceiver(downloadSongToStorage, new IntentFilter(Constants.INTENT_DOWNLOAD_SONG_TO_STORAGE));
+    	getActivity().registerReceiver(changeSongDownloadPercentage, new IntentFilter(Constants.INTENT_CHANGE_SONG_DOWNLOAD_PERCENTAGE));
+    	getActivity().registerReceiver(deleteSongFromStorage, new IntentFilter(Constants.INTENT_DELETE_SONG_FROM_STORAGE));
     }
     
 	@Override
@@ -361,13 +369,20 @@ public class MusicFragment extends BaseFragment {
 		//disable receivers
 		getActivity().unregisterReceiver(addSongToOwnerList);
 		getActivity().unregisterReceiver(removeSongFromOwnerList);
+		getActivity().unregisterReceiver(downloadSongToStorage);
+		getActivity().unregisterReceiver(changeSongDownloadPercentage);
+		getActivity().unregisterReceiver(deleteSongFromStorage);
 	}
 	
 	private BroadcastReceiver addSongToOwnerList = new BroadcastReceiver(){
 		@Override
 		public void onReceive(Context arg0, Intent arg1) {
-			final MusicCollection audioToAdd = arg1.getParcelableExtra(Constants.INTENT_EXTRA_ONE_AUDIO);
+			
+			if (musicListAdapter == null) return;
+
 			final int position = arg1.getIntExtra(Constants.INTENT_EXTRA_ONE_AUDIO_POSITION_IN_LIST, 0);
+			final MusicCollection audioToAdd = musicListAdapter.getItem(position);
+			
 			new Thread (new Runnable(){
 				@Override
 				public void run() {
@@ -383,9 +398,9 @@ public class MusicFragment extends BaseFragment {
 							public void run() {
 								if (musicListAdapter != null){
 									if ((bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE || bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM)))
-										musicListAdapter.getItem(position).isInOwnerList = Constants.LIST_REMOVE;
+										musicListAdapter.getItem(position).isInOwnerList = Constants.LIST_ACTION_REMOVE;
 									else {
-										musicListAdapter.getItem(position).isInOwnerList = Constants.LIST_ADDED;
+										musicListAdapter.getItem(position).isInOwnerList = Constants.LIST_ACTION_ADDED;
 										//force update owner list
 										sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, true).commit();
 									}
@@ -410,8 +425,12 @@ public class MusicFragment extends BaseFragment {
 	private BroadcastReceiver removeSongFromOwnerList = new BroadcastReceiver(){
 		@Override
 		public void onReceive(Context arg0, Intent arg1) {
-			final MusicCollection audioToRemove = arg1.getParcelableExtra(Constants.INTENT_EXTRA_ONE_AUDIO);
+			
+			if (musicListAdapter == null) return;
+
 			final int position = arg1.getIntExtra(Constants.INTENT_EXTRA_ONE_AUDIO_POSITION_IN_LIST, 0);
+			final MusicCollection audioToRemove = musicListAdapter.getItem(position);
+			
 			new Thread (new Runnable(){
 				@Override
 				public void run() {
@@ -423,7 +442,7 @@ public class MusicFragment extends BaseFragment {
 							@Override
 							public void run() {
 								if (musicListAdapter != null){
-									musicListAdapter.getItem(position).isInOwnerList = Constants.LIST_RESTORE;
+									musicListAdapter.getItem(position).isInOwnerList = Constants.LIST_ACTION_RESTORE;
 									musicListAdapter.updateIsInOwnerListState(position);
 								}
 								if ((bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM))){
@@ -443,6 +462,70 @@ public class MusicFragment extends BaseFragment {
 					}
 				}
 			}).start();
+		}
+	};
+	
+	private BroadcastReceiver downloadSongToStorage = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, Intent arg1) {
+			
+			if (musicListAdapter == null) return;
+			
+			final int position = arg1.getIntExtra(Constants.INTENT_EXTRA_ONE_AUDIO_POSITION_IN_LIST, 0);
+			MusicCollection AudioToDownloadToStorage = musicListAdapter.getItem(position);
+			AudioToDownloadToStorage.isDownloaded = Constants.LIST_ACTION_DOWNLOAD_STARTED;
+			
+			try {
+				if (!isMyServiceRunning(DownloadService.class)){
+					//start service with audio in Intent
+					Intent startDownload = new Intent(getActivity(), DownloadService.class);
+					startDownload.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO, (Parcelable)AudioToDownloadToStorage);
+					getActivity().startService(startDownload);
+				} else {
+					Intent addSongToDownloadQueue = new Intent(Constants.INTENT_ADD_SONG_TO_DOWNLOAD_QUEUE);
+					addSongToDownloadQueue.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO, (Parcelable)AudioToDownloadToStorage);
+					getActivity().sendBroadcast(addSongToDownloadQueue);
+				}
+			} finally{
+				if (musicListAdapter != null){
+					musicListAdapter.updateIsDownloaded(position);
+				}
+			}
+		}
+	};
+	
+	private BroadcastReceiver deleteSongFromStorage = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, Intent arg1) {
+			
+			if (musicListAdapter == null) return;
+			
+			final int position = arg1.getIntExtra(Constants.INTENT_EXTRA_ONE_AUDIO_POSITION_IN_LIST, 0);
+			MusicCollection AudioToDownloadToStorage = musicListAdapter.getItem(position);
+			AudioToDownloadToStorage.isDownloaded = Constants.LIST_ACTION_DOWNLOAD;
+			
+			//TODO Delete Song file from starage
+			
+			musicListAdapter.updateIsDownloaded(position);
+		}
+	};
+	
+	private BroadcastReceiver changeSongDownloadPercentage = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, Intent arg1) {
+			final MusicCollection audioToChangeDownloadPercentage = arg1.getParcelableExtra(Constants.INTENT_EXTRA_ONE_AUDIO);
+			Log.v("here", audioToChangeDownloadPercentage.isDownloaded+"");
+			
+			if (musicListAdapter != null && musicListAdapter.getMusicCollection() != null){
+				int position = 0;
+				for (MusicCollection one : musicListAdapter.getMusicCollection()){
+					if (one.aid == audioToChangeDownloadPercentage.aid && one.owner_id == audioToChangeDownloadPercentage.owner_id && one.artist.equals(audioToChangeDownloadPercentage.artist) && one.title.equals(audioToChangeDownloadPercentage.title) && one.url.contains(audioToChangeDownloadPercentage.url)){
+						one.isDownloaded = audioToChangeDownloadPercentage.isDownloaded;
+						musicListAdapter.updateIsDownloaded(position);
+					}
+					position++;
+				}
+			}
 		}
 	};
 	
@@ -618,7 +701,7 @@ public class MusicFragment extends BaseFragment {
 				        }
 						
 						for (Audio one : musicList){
-							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, one.url, one.lyrics_id, (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE || bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM)) ? Constants.LIST_REMOVE : Constants.LIST_ADD));
+							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, one.url, one.lyrics_id, (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE || bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM)) ? Constants.LIST_ACTION_REMOVE : Constants.LIST_ACTION_ADD, Constants.LIST_ACTION_DOWNLOAD));
 						}
 						
 						if (musicCollection.isEmpty()){
@@ -660,7 +743,6 @@ public class MusicFragment extends BaseFragment {
 					try {
 						Thread.sleep(150);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					
@@ -687,5 +769,15 @@ public class MusicFragment extends BaseFragment {
 	        }
 		}
 		
+    }
+    
+	private boolean isMyServiceRunning(Class<?> serviceClass) {			//returns true is service running
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

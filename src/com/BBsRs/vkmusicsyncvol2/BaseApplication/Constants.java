@@ -46,12 +46,25 @@ public class Constants {
 	
 	public static final String INTENT_ADD_SONG_TO_OWNER_LIST = "intent:add_song_to_owner_list";
 	public static final String INTENT_REMOVE_SONG_FROM_OWNER_LIST = "intent:remove_song_from_owner_list";
+	public static final String INTENT_DOWNLOAD_SONG_TO_STORAGE = "intent:download_song_to_storage";
+	public static final String INTENT_DELETE_SONG_FROM_STORAGE = "intent:delete_song_from_storage";
+	/*--*/
 	public static final String INTENT_EXTRA_ONE_AUDIO = "intent_extra:one_audio";
 	public static final String INTENT_EXTRA_ONE_AUDIO_POSITION_IN_LIST = "intent_extra:one_audio_position_in_list";
+	/*--*/
+	public static final String INTENT_ADD_SONG_TO_DOWNLOAD_QUEUE = "intent:add_song_to_download_queue";
+	public static final String INTENT_REMOVE_SONG_FROM_DOWNLOAD_QUEUE = "intent:remove_song_from_download_queue";
+	public static final String INTENT_CHANGE_SONG_DOWNLOAD_PERCENTAGE = "intent:change_song_download_percentage";
 	
-	public static final int LIST_ADD = 0;
-	public static final int LIST_ADDED = 1;
-	public static final int LIST_REMOVE = 2;
-	public static final int LIST_RESTORE = 3;
+	public static final int LIST_ACTION_ADD = 0;
+	public static final int LIST_ACTION_ADDED = 1;
+	public static final int LIST_ACTION_REMOVE = 2;
+	public static final int LIST_ACTION_RESTORE = 3;
+
+	public static final int LIST_ACTION_DOWNLOAD = -1;
+	public static final int LIST_ACTION_DOWNLOAD_STARTED = 0;
+	public static final int LIST_ACTION_DOWNLOADED = 100;
+	public static final int LIST_ACTION_DELETE = 101;
+	
 	
 }
