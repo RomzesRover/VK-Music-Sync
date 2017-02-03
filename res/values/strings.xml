@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    
+    <string name="default_folder_name">VK_Music_Sync</string>
+    <string name="download_folder_is_unavailable">Download folder is unavailable, check your sdcard.</string>
 
     <string name="app_name">VK Music Sync</string>
     <string name="hello_world">Hello world!</string>

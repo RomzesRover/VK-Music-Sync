@@ -12,6 +12,7 @@ public class Constants {
 	public static final String PREFERENCES_USER_LAST_NAME = "preferences:user_last_name";
 	
 	public static final String PREFERENCES_UPDATE_OWNER_LIST = "preferences:update_owner_list";
+	public static final String PREFERENCES_DOWNLOAD_DIRECTORY = "preferences:download_directory";
 	
 	public static final String EXTRA_LIST_COLLECTIONS = "extra:list_collections";
 	public static final String EXTRA_LIST_SECOND_COLLECTIONS = "extra:list_second_collections_2";
