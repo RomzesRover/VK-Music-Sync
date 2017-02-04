@@ -519,7 +519,8 @@ public class MusicFragment extends BaseFragment {
 			if (musicListAdapter != null && musicListAdapter.getMusicCollection() != null){
 				int position = 0;
 				for (MusicCollection one : musicListAdapter.getMusicCollection()){
-					if (one.aid == audioToChangeDownloadPercentage.aid && one.owner_id == audioToChangeDownloadPercentage.owner_id && one.artist.equals(audioToChangeDownloadPercentage.artist) && one.title.equals(audioToChangeDownloadPercentage.title) && one.url.contains(audioToChangeDownloadPercentage.url)){
+					if (one.aid == audioToChangeDownloadPercentage.aid && one.owner_id == audioToChangeDownloadPercentage.owner_id && one.artist.equals(audioToChangeDownloadPercentage.artist) && one.title.equals(audioToChangeDownloadPercentage.title)){
+						one.url = audioToChangeDownloadPercentage.url;
 						one.isDownloaded = audioToChangeDownloadPercentage.isDownloaded;
 						musicListAdapter.updateIsDownloaded(position);
 					}

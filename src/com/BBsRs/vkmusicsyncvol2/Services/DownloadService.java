@@ -391,7 +391,6 @@ public class DownloadService extends Service {
 	       	   
 	       	   Log.d("DownloadService", "download ready in " + ((System.currentTimeMillis() - startTime) / 1000) + " sec");
 	       	   
-	   	    
 	       	   //sleep to show success icon
 	       	   try {
 	       		   Thread.sleep(1000);
