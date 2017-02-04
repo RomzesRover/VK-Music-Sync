@@ -187,6 +187,7 @@ public class DownloadService extends Service {
 		       		
 		       		//send that song is downloaded
 		       		musicToDownload.isDownloaded = Constants.LIST_ACTION_DELETE;
+		       		musicToDownload.url = downloadFile.getAbsolutePath();
 		       		
 		       		sendChangeSongDownloadPercentage = new Intent(Constants.INTENT_CHANGE_SONG_DOWNLOAD_PERCENTAGE);
 		       		sendChangeSongDownloadPercentage.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO, (Parcelable)musicToDownload);
@@ -267,10 +268,10 @@ public class DownloadService extends Service {
 	       			   return;
 	       		   }
 	       		   total += count;
-	       		   if (((int)((total*100)/lenghtOfFile))-last >= 10){
-	       			   last = ((int)((total*100)/lenghtOfFile));
+	       		   if (((int)((total*90)/lenghtOfFile))-last >= 10){
+	       			   last = ((int)((total*90)/lenghtOfFile));
 	       			   
-	       			   musicToDownload.isDownloaded = last*90/100;
+	       			   musicToDownload.isDownloaded = last;
 	       			   //send percentage to fragment
 	       			   Intent sendChangeSongDownloadPercentage = new Intent(Constants.INTENT_CHANGE_SONG_DOWNLOAD_PERCENTAGE);
 	       			   sendChangeSongDownloadPercentage.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO, (Parcelable)musicToDownload);
@@ -400,7 +401,7 @@ public class DownloadService extends Service {
 	       	   
 	       	   //sleep to show success icon
 	       	   try {
-	       		   Thread.sleep(1000);
+	       		   Thread.sleep(750);
 	       	   } catch (InterruptedException e) {
 	       		   e.printStackTrace();
 	       	   }
