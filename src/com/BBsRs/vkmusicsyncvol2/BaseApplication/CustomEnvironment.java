@@ -17,8 +17,8 @@ public class CustomEnvironment {
 	
 	public CustomEnvironment(Context context){
 		this.context = context;
-		androidDataPackageDeffolderTest = "/Android/data/"+context.getPackageName()+"/"+context.getString(R.string.default_folder_name)+"/";
-    	musicDeffolderTest = "/Music/"+context.getString(R.string.default_folder_name)+"/";
+		androidDataPackageDeffolderTest = "/Android/data/"+context.getPackageName()+"/"+context.getString(R.string.download_default_folder_name)+"/";
+    	musicDeffolderTest = "/Music/"+context.getString(R.string.download_default_folder_name)+"/";
 	}
 	
 	public String getExternalStorageDirectory(){
@@ -104,6 +104,6 @@ public class CustomEnvironment {
     	} catch (Exception e){}
     	
     	//otherwise return default using path (CONNECT WITH DEVELOPER IF DOWNLOADING IS UNAVAILABLE)
-		return android.os.Environment.getExternalStorageDirectory()+"/Music/"+context.getString(R.string.default_folder_name)+"/";
+		return android.os.Environment.getExternalStorageDirectory()+"/Music/"+context.getString(R.string.download_default_folder_name)+"/";
     }
 }

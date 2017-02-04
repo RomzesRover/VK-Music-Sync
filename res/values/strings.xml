@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
-    <string name="default_folder_name">VK_Music_Sync</string>
+    <string name="download_default_folder_name">VK_Music_Sync</string>
     <string name="download_folder_is_unavailable">Download folder is unavailable, check your sdcard.</string>
+    <string name="download_rightholders_error">VK has deleted %s from public access</string>
+    <string name="download_unhangled_error">Unhandled error with downloading</string>
+    <string name="download_no_free_space">Not enough space to download</string>
 
     <string name="app_name">VK Music Sync</string>
     <string name="hello_world">Hello world!</string>
