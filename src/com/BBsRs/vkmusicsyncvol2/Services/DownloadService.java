@@ -180,7 +180,7 @@ public class DownloadService extends Service {
 	        	   
 		       		//sleep to show success icon
 		       		try {
-		       			Thread.sleep(1000);
+		       			Thread.sleep(750);
 		       		} catch (InterruptedException e) {
 		       			e.printStackTrace();
 		       		}
@@ -355,11 +355,17 @@ public class DownloadService extends Service {
 			       id3v2Tag.setArtist(id3v2Tag.getArtist()==null ? musicToDownload.artist : id3v2Tag.getArtist());
 			       id3v2Tag.setTitle(id3v2Tag.getTitle()==null ? musicToDownload.title : id3v2Tag.getTitle());
 			       id3v2Tag.setAlbum(id3v2Tag.getAlbum()==null ? musicToDownload.title : id3v2Tag.getAlbum());
-						
+			       
 			       //fix tags error when try to save (remove unsupported old tags)
-//			       mp3file.removeCustomTag();
-			       mp3file.removeId3v1Tag();
-			       mp3file.removeId3v2Tag();
+			       if (mp3file.hasId3v1Tag()) {
+			    	   mp3file.removeId3v1Tag();
+			       }
+			       if (mp3file.hasId3v2Tag()) {
+			    	   mp3file.removeId3v2Tag();
+			       }
+			       if (mp3file.hasCustomTag()) {
+			    	   mp3file.removeCustomTag();
+			       }
 					
 			       //setting up new tags
 			       mp3file.setId3v2Tag(id3v2Tag);
