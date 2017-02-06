@@ -28,6 +28,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
+import android.os.PowerManager;
 import android.os.StatFs;
 import android.util.Log;
 
@@ -47,6 +48,9 @@ public class DownloadService extends Service {
 	
 	ArrayList<MusicCollection> musicCollection = new ArrayList<MusicCollection>();
 	boolean stopCurrent = false;
+	
+	PowerManager pm;
+	PowerManager.WakeLock wl;
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -60,6 +64,11 @@ public class DownloadService extends Service {
 	}
 	
 	public int onStartCommand(Intent intent, int flags, int startId) {
+        pm = (PowerManager) getSystemService(POWER_SERVICE);
+        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getApplicationContext().getPackageName());
+        wl.setReferenceCounted(false);
+		wl.acquire();
+		
 		sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		if (sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, null) == null){
     		sPref.edit().putString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, (new CustomEnvironment(this)).DownloadDirectoryDecide()).commit();
@@ -76,6 +85,9 @@ public class DownloadService extends Service {
 		super.onDestroy();
 		getApplicationContext().unregisterReceiver(addSongToDownloadQueue);
 		getApplicationContext().unregisterReceiver(removeSongFromDownloadQueue);
+		
+		if (wl !=null )
+			wl.release();
 	}
 	
 	private BroadcastReceiver addSongToDownloadQueue = new BroadcastReceiver(){
