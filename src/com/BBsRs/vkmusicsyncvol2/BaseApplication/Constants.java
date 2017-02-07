@@ -56,6 +56,8 @@ public class Constants {
 	public static final String INTENT_ADD_SONG_TO_DOWNLOAD_QUEUE = "intent:add_song_to_download_queue";
 	public static final String INTENT_REMOVE_SONG_FROM_DOWNLOAD_QUEUE = "intent:remove_song_from_download_queue";
 	public static final String INTENT_CHANGE_SONG_DOWNLOAD_PERCENTAGE = "intent:change_song_download_percentage";
+	/*--*/
+	public static final String INTENT_STOP_DOWNLOAD = "intent:stop_download";
 	
 	public static final int LIST_ACTION_ADD = 0;
 	public static final int LIST_ACTION_ADDED = 1;
@@ -66,6 +68,9 @@ public class Constants {
 	public static final int LIST_ACTION_DOWNLOAD_STARTED = 0;
 	public static final int LIST_ACTION_DOWNLOADED = 100;
 	public static final int LIST_ACTION_DELETE = 101;
+	
+	public static final int NOTIFICATION_DOWNLOAD = 13;
+	public static final int NOTIFICATION_MESSAGE = 14;
 	
 	
 }

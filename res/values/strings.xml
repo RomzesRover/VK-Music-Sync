@@ -6,6 +6,8 @@
     <string name="download_rightholders_error">VK has deleted %s from public access</string>
     <string name="download_unhangled_error">Unhandled error with downloading</string>
     <string name="download_no_free_space">Not enough space to download</string>
+    <string name="download_downloading">Downloading…, left [%s]</string>
+    <string name="download_stop">Stop download</string>
 
     <string name="app_name">VK Music Sync</string>
     <string name="hello_world">Hello world!</string>
@@ -14,7 +16,7 @@
     <string name="login_activity_username">email or phone number</string>
     <string name="login_activity_password">password</string>
     <string name="login_activity_login">Log in</string>
-    <string name="login_activity_wait">Logining in...</string>
+    <string name="login_activity_wait">Logining in…</string>
     <string name="login_activity_error">Error. Check your connection to vk.com.</string>
     <string name="login_activity_wrong">Username or password is incorrect.</string>
     <string name="login_activity_captcha">Please enter captcha.</string>
@@ -23,7 +25,7 @@
     <string name="login_activity_cancel">Cancel</string>
     
     <string name="content_activity_search">Search</string>
-    <string name="content_activity_search_hint">artist, title, year, ost ...</string>
+    <string name="content_activity_search_hint">artist, title, year, ost …</string>
     <string name="content_activity_wall">From wall</string>
     <string name="content_activity_albums">Albums</string>
     <string name="content_activity_recommendations">Recommendations</string>

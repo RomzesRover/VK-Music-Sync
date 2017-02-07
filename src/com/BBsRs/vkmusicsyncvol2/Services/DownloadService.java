@@ -16,6 +16,9 @@ import org.holoeverywhere.preference.SharedPreferences;
 import org.holoeverywhere.widget.Toast;
 
 import android.annotation.TargetApi;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -30,8 +33,10 @@ import android.os.IBinder;
 import android.os.Parcelable;
 import android.os.PowerManager;
 import android.os.StatFs;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.BBsRs.vkmusicsyncvol2.ContentActivity;
 import com.BBsRs.vkmusicsyncvol2.R;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.CustomEnvironment;
@@ -51,6 +56,11 @@ public class DownloadService extends Service {
 	
 	PowerManager pm;
 	PowerManager.WakeLock wl;
+	
+	NotificationManager mNotificationManager;
+	PendingIntent contentIntent, stopDownloadIntent;
+	NotificationCompat.Builder mBuilder, mBuilder2;
+	int message_ids = Constants.NOTIFICATION_MESSAGE;
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -59,16 +69,35 @@ public class DownloadService extends Service {
 	
 	public void onCreate() {
 		super.onCreate();
-		getApplicationContext().registerReceiver(addSongToDownloadQueue, new IntentFilter(Constants.INTENT_ADD_SONG_TO_DOWNLOAD_QUEUE));
-		getApplicationContext().registerReceiver(removeSongFromDownloadQueue, new IntentFilter(Constants.INTENT_REMOVE_SONG_FROM_DOWNLOAD_QUEUE));
-	}
-	
-	public int onStartCommand(Intent intent, int flags, int startId) {
+		
+		//wake lock
         pm = (PowerManager) getSystemService(POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getApplicationContext().getPackageName());
         wl.setReferenceCounted(false);
 		wl.acquire();
 		
+		//init notifications
+		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		stopDownloadIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(Constants.INTENT_STOP_DOWNLOAD), 0);        
+		contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(this, ContentActivity.class), Notification.FLAG_ONGOING_EVENT);
+		mBuilder = new NotificationCompat.Builder(getApplicationContext());
+		mBuilder2 = new NotificationCompat.Builder(getApplicationContext());
+		//set up notification
+		mBuilder.setSmallIcon(R.drawable.ic_download_normal)
+		.setContentIntent(contentIntent)
+		.addAction(R.drawable.ic_remove_normal, getApplicationContext().getString(R.string.download_stop), stopDownloadIntent)
+		.setOngoing(true);
+		mBuilder2.setSmallIcon(R.drawable.ic_download_stop_normal_100)
+		.setContentIntent(contentIntent)
+		.setOngoing(false);
+
+		
+		getApplicationContext().registerReceiver(addSongToDownloadQueue, new IntentFilter(Constants.INTENT_ADD_SONG_TO_DOWNLOAD_QUEUE));
+		getApplicationContext().registerReceiver(removeSongFromDownloadQueue, new IntentFilter(Constants.INTENT_REMOVE_SONG_FROM_DOWNLOAD_QUEUE));
+		getApplicationContext().registerReceiver(stopDownloading, new IntentFilter(Constants.INTENT_STOP_DOWNLOAD));
+	}
+	
+	public int onStartCommand(Intent intent, int flags, int startId) {
 		sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		if (sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, null) == null){
     		sPref.edit().putString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, (new CustomEnvironment(this)).DownloadDirectoryDecide()).commit();
@@ -85,15 +114,39 @@ public class DownloadService extends Service {
 		super.onDestroy();
 		getApplicationContext().unregisterReceiver(addSongToDownloadQueue);
 		getApplicationContext().unregisterReceiver(removeSongFromDownloadQueue);
+		getApplicationContext().unregisterReceiver(stopDownloading);
+		
+		if (mNotificationManager != null)
+			mNotificationManager.cancel(Constants.NOTIFICATION_DOWNLOAD);
 		
 		if (wl !=null )
 			wl.release();
 	}
 	
+	private BroadcastReceiver stopDownloading = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	    	//user or service itself decide to kill the service, send to all songs new state
+	    	for (MusicCollection one : musicCollection){
+	    		one.isDownloaded = Constants.LIST_ACTION_DOWNLOAD;
+	    		//send percentage to fragment
+	    		Intent sendChangeSongDownloadPercentage = new Intent(Constants.INTENT_CHANGE_SONG_DOWNLOAD_PERCENTAGE);
+	    		sendChangeSongDownloadPercentage.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO, (Parcelable)one);
+	    		getApplicationContext().sendBroadcast(sendChangeSongDownloadPercentage);
+	    	}
+	    	//null download list
+	    	musicCollection = new ArrayList<MusicCollection>();
+	    	stopCurrent = true;
+	    }
+	};
+	
 	private BroadcastReceiver addSongToDownloadQueue = new BroadcastReceiver(){
 		@Override
 		public void onReceive(Context arg0, Intent arg1) {
 			musicCollection.add((MusicCollection)arg1.getParcelableExtra(Constants.INTENT_EXTRA_ONE_AUDIO));
+			//update notification
+			mBuilder.setContentText(String.format(getResources().getString(R.string.download_downloading), ""+(musicCollection.size()-1)));
+			mNotificationManager.notify(Constants.NOTIFICATION_DOWNLOAD, mBuilder.build());
 		}
 	};
 	
@@ -109,6 +162,9 @@ public class DownloadService extends Service {
 					if (position == 0){
 						stopCurrent = true;
 					}
+					//update notification
+					mBuilder.setContentText(String.format(getResources().getString(R.string.download_downloading), ""+(musicCollection.size()-1)));
+					mNotificationManager.notify(Constants.NOTIFICATION_DOWNLOAD, mBuilder.build());
 					break;
 				}
 				position++;
@@ -128,6 +184,13 @@ public class DownloadService extends Service {
 					stopCurrent = false;
 					
 					MusicCollection currentDownload = musicCollection.get(0);
+					
+					//update notification
+					mBuilder.setContentTitle(currentDownload.artist+" - "+currentDownload.title)
+					.setContentText(String.format(getResources().getString(R.string.download_downloading), ""+(musicCollection.size()-1)))
+					.setProgress(100, 0, false);
+					mNotificationManager.notify(Constants.NOTIFICATION_DOWNLOAD, mBuilder.build());
+					
 					downloadFileFromOneMusicCollection(currentDownload);
 					
 					//remove from download queue
@@ -156,14 +219,22 @@ public class DownloadService extends Service {
 	    	handler.post(new Runnable(){
 				@Override
 				public void run() {
+					//update notification
+					mBuilder2.setContentTitle(musicToDownload.artist+" - "+musicToDownload.title)
+					.setContentText(getApplicationContext().getString(R.string.download_folder_is_unavailable));
+					mNotificationManager.notify(message_ids, mBuilder2.build());
+					message_ids++;
+					
 					Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.download_folder_is_unavailable), Toast.LENGTH_LONG).show();
 				}
 	    	});
-	    	musicToDownload.isDownloaded = Constants.LIST_ACTION_DOWNLOAD;
-			Intent sendChangeSongDownloadPercentage = new Intent(Constants.INTENT_CHANGE_SONG_DOWNLOAD_PERCENTAGE);
-			sendChangeSongDownloadPercentage.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO, (Parcelable)musicToDownload);
-			getApplicationContext().sendBroadcast(sendChangeSongDownloadPercentage);
-    		stopSelf();
+			Intent stopDownload = new Intent(Constants.INTENT_STOP_DOWNLOAD);
+			getApplicationContext().sendBroadcast(stopDownload);
+			try {
+				Thread.sleep(250);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
     		return;
     	}
 		
@@ -212,6 +283,12 @@ public class DownloadService extends Service {
 		   	    	handler.post(new Runnable(){
 						@Override
 						public void run() {
+							//update notification
+							mBuilder2.setContentTitle(musicToDownload.artist+" - "+musicToDownload.title)
+							.setContentText(String.format(getApplicationContext().getString(R.string.download_rightholders_error), ""));
+							mNotificationManager.notify(message_ids, mBuilder2.build());
+							message_ids++;
+							
 							Toast.makeText(getApplicationContext(), String.format(getApplicationContext().getString(R.string.download_rightholders_error), musicToDownload.artist + " - " +musicToDownload.title), Toast.LENGTH_LONG).show();
 						}
 			    	});
@@ -247,6 +324,12 @@ public class DownloadService extends Service {
 		   	    	handler.post(new Runnable(){
 						@Override
 						public void run() {
+							//update notification
+							mBuilder2.setContentTitle(musicToDownload.artist+" - "+musicToDownload.title)
+							.setContentText(getApplicationContext().getString(R.string.download_no_free_space));
+							mNotificationManager.notify(message_ids, mBuilder2.build());
+							message_ids++;
+							
 							Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.download_no_free_space) + " " + musicToDownload.artist + " - " +musicToDownload.title, Toast.LENGTH_LONG).show();
 						}
 			    	});
@@ -282,6 +365,10 @@ public class DownloadService extends Service {
 	       		   total += count;
 	       		   if (((int)((total*90)/lenghtOfFile))-last >= 10){
 	       			   last = ((int)((total*90)/lenghtOfFile));
+	       			   
+	       			   //update notification
+	       			   mBuilder.setProgress(100, last, false);
+	       			   mNotificationManager.notify(Constants.NOTIFICATION_DOWNLOAD, mBuilder.build());
 	       			   
 	       			   musicToDownload.isDownloaded = last;
 	       			   //send percentage to fragment
@@ -436,6 +523,12 @@ public class DownloadService extends Service {
 	    	handler.post(new Runnable(){
 				@Override
 				public void run() {
+					//update notification
+					mBuilder2.setContentTitle(musicToDownload.artist+" - "+musicToDownload.title)
+					.setContentText(getApplicationContext().getString(R.string.download_unhangled_error));
+					mNotificationManager.notify(message_ids, mBuilder2.build());
+					message_ids++;
+					
 					Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.download_unhangled_error) + " " + musicToDownload.artist + " - " +musicToDownload.title, Toast.LENGTH_LONG).show();
 				}
 	    	});
