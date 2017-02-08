@@ -3,6 +3,8 @@ package com.BBsRs.vkmusicsyncvol2.Fragments;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import org.holoeverywhere.LayoutInflater;
 import org.holoeverywhere.preference.PreferenceManager;
@@ -699,7 +701,33 @@ public class MusicFragment extends BaseFragment {
 					        	musicList = api.getAudio(bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID), null, bundle.getLong(Constants.BUNDLE_LIST_ALBUM_ID), null, null, null);
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED:
-					        	//TODO
+					        	ArrayList<File> files = new ArrayList<File>();
+                    			listf(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/", files);
+                    			//sort by old date
+                    			Collections.sort(files, new Comparator<File>() {
+									@Override
+									public int compare(File f1, File f2) {
+										if (f1.lastModified() > f2.lastModified()) return 1;
+										if (f1.lastModified() < f2.lastModified()) return -1;
+										return 0;
+									}
+                    			});
+                    			String name = "", subname="";
+                    			for (File oneMusicFile : files){
+                    				if (oneMusicFile.getName().contains(" - ")){
+                    					name = oneMusicFile.getName().substring(0, oneMusicFile.getName().indexOf(" - "));
+                    					subname = oneMusicFile.getName().substring(oneMusicFile.getName().indexOf(" - ")+3, oneMusicFile.getName().length()-4);
+                    				} else {
+                        				if (oneMusicFile.getName().contains(" ")){
+                        					name = oneMusicFile.getName().substring(0, oneMusicFile.getName().indexOf(" "));
+                        					subname = oneMusicFile.getName().substring(oneMusicFile.getName().indexOf(" ")+1, oneMusicFile.getName().length()-4);
+                        				} else {
+                        					name = oneMusicFile.getName().substring(0, oneMusicFile.getName().length()-4);
+                        					subname = "noname";
+                        				}
+                    				}
+                    				musicList.add(new Audio((long)0, account.user_id, name, subname, -1, oneMusicFile.getAbsolutePath(), null));
+                    			}
 					        	break;
 				        }
 						
@@ -780,6 +808,20 @@ public class MusicFragment extends BaseFragment {
 		}
 		
     }
+    
+    //get the list of files in directory
+    public void listf(String directoryName, ArrayList<File> files) {
+    	File directory = new File(directoryName);
+    	// get all the files from a directory
+    	File[] fList = directory.listFiles();
+    	for (File file : fList) {
+    	    if (file.isFile() && file.getName().endsWith(".mp3")) {
+    	        files.add(file);
+    	    } else if (file.isDirectory()) {
+    	        listf(file.getAbsolutePath(), files);
+    	    }
+    	}
+	}
     
 	private boolean isMyServiceRunning(Class<?> serviceClass) {			//returns true is service running
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
