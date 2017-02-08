@@ -502,10 +502,11 @@ public class MusicFragment extends BaseFragment {
 			if (musicListAdapter == null) return;
 			
 			final int position = arg1.getIntExtra(Constants.INTENT_EXTRA_ONE_AUDIO_POSITION_IN_LIST, 0);
-			MusicCollection AudioToDownloadToStorage = musicListAdapter.getItem(position);
-			AudioToDownloadToStorage.isDownloaded = Constants.LIST_ACTION_DOWNLOAD;
+			MusicCollection AudioToDeleteFromStorage = musicListAdapter.getItem(position);
+			AudioToDeleteFromStorage.isDownloaded = Constants.LIST_ACTION_DOWNLOAD;
 			
-			//TODO Delete Song file from starage
+			File f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+".mp3").replaceAll("[\\/:*?\"<>|]", ""));
+			if (f.exists()) f.delete();
 			
 			musicListAdapter.updateIsDownloaded(position);
 		}
