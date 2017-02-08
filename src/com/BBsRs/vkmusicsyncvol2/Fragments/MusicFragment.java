@@ -762,6 +762,11 @@ public class MusicFragment extends BaseFragment {
                     	list.setVisibility(View.VISIBLE);
                     	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);
                     	list.startAnimation(flyUpAnimation);
+                    	//update songs percentage
+        				if (isMyServiceRunning(DownloadService.class)){
+        					Intent requestDownloadStatus = new Intent(Constants.INTENT_REQUEST_DOWNLOAD_STATUS);
+        					getActivity().sendBroadcast(requestDownloadStatus);
+        				}
                     }
 				}
 			};

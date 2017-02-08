@@ -95,6 +95,7 @@ public class DownloadService extends Service {
 		getApplicationContext().registerReceiver(addSongToDownloadQueue, new IntentFilter(Constants.INTENT_ADD_SONG_TO_DOWNLOAD_QUEUE));
 		getApplicationContext().registerReceiver(removeSongFromDownloadQueue, new IntentFilter(Constants.INTENT_REMOVE_SONG_FROM_DOWNLOAD_QUEUE));
 		getApplicationContext().registerReceiver(stopDownloading, new IntentFilter(Constants.INTENT_STOP_DOWNLOAD));
+		getApplicationContext().registerReceiver(requestDownloadStatus, new IntentFilter(Constants.INTENT_REQUEST_DOWNLOAD_STATUS));
 	}
 	
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -115,6 +116,7 @@ public class DownloadService extends Service {
 		getApplicationContext().unregisterReceiver(addSongToDownloadQueue);
 		getApplicationContext().unregisterReceiver(removeSongFromDownloadQueue);
 		getApplicationContext().unregisterReceiver(stopDownloading);
+		getApplicationContext().unregisterReceiver(requestDownloadStatus);
 		
 		if (mNotificationManager != null)
 			mNotificationManager.cancel(Constants.NOTIFICATION_DOWNLOAD);
@@ -122,6 +124,18 @@ public class DownloadService extends Service {
 		if (wl !=null )
 			wl.release();
 	}
+	
+	private BroadcastReceiver requestDownloadStatus = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	    	for (MusicCollection one : musicCollection){
+	    		//send percentage to fragment
+	    		Intent sendChangeSongDownloadPercentage = new Intent(Constants.INTENT_CHANGE_SONG_DOWNLOAD_PERCENTAGE);
+	    		sendChangeSongDownloadPercentage.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO, (Parcelable)one);
+	    		getApplicationContext().sendBroadcast(sendChangeSongDownloadPercentage);
+	    	}
+	    }
+	};
 	
 	private BroadcastReceiver stopDownloading = new BroadcastReceiver() {
 	    @Override

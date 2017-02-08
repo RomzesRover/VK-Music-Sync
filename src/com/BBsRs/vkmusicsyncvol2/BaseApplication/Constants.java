@@ -58,6 +58,7 @@ public class Constants {
 	public static final String INTENT_CHANGE_SONG_DOWNLOAD_PERCENTAGE = "intent:change_song_download_percentage";
 	/*--*/
 	public static final String INTENT_STOP_DOWNLOAD = "intent:stop_download";
+	public static final String INTENT_REQUEST_DOWNLOAD_STATUS = "intent:request_download_status";
 	
 	public static final int LIST_ACTION_ADD = 0;
 	public static final int LIST_ACTION_ADDED = 1;
