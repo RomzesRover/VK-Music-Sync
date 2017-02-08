@@ -211,7 +211,7 @@ public class DownloadService extends Service {
 		//check current download directory to availability 
 	    File checker = null;
 	    try {
-    		checker = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, null)+"/1.txt");
+    		checker = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/1.txt");
     		checker.mkdirs();
     		checker.createNewFile();
     		checker.delete();
@@ -240,7 +240,7 @@ public class DownloadService extends Service {
 		
 	    //start download
 	    try {
-	           File dir = new File (sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, null)+"/");               
+	           File dir = new File (sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/");               
 
 	           if(dir.exists()==false) {
 	                dir.mkdirs();
@@ -302,7 +302,7 @@ public class DownloadService extends Service {
 	           //Start download Logging
 	           Log.d("DownloadService", "Start Download song: " + musicToDownload.artist + " - " +musicToDownload.title);
 	           Log.d("DownloadService", "From: " + musicToDownload.url);
-	           Log.d("DownloadService", "To: " + sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, null));
+	           Log.d("DownloadService", "To: " + sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, ""));
 	           
 	           //create a connection and determine file size
 	           URL url = new URL(musicToDownload.url);
