@@ -21,16 +21,16 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:scaleType="centerCrop" />
-    
+
     <ImageView
         android:id="@+id/albumArtMask"
         android:layout_width="63dp"
         android:layout_height="63dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:visibility="invisible"
+        android:scaleType="centerCrop"
         android:src="@color/gray_four_alpha_color"
-        android:scaleType="centerCrop" />
+        android:visibility="invisible" />
 
     <LinearLayout
         android:id="@+id/linearLayout1"
@@ -53,25 +53,23 @@
 
     <LinearLayout
         android:id="@+id/linearLayout3"
-        android:layout_width="63dp"
+        android:layout_width="wrap_content"
         android:layout_height="63dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true" >
 
         <ImageView
             android:id="@+id/isInOwnerListAction"
-            android:layout_width="0dp"
+            android:layout_width="31.5dip"
             android:layout_height="match_parent"
-            android:layout_weight="0.5"
             android:padding="7dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_add_normal" />
 
         <ImageView
             android:id="@+id/isDownloadedAction"
-            android:layout_width="0dp"
+            android:layout_width="31.5dip"
             android:layout_height="match_parent"
-            android:layout_weight="0.5"
             android:padding="7dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_download_normal" />
@@ -116,6 +114,19 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/gray_two_color"
             android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/quality"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-3dp"
+            android:ellipsize="end"
+            android:lines="1"
+            android:singleLine="true"
+            android:text="Small Text"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/gray_two_color"
+            android:textSize="8sp" />
     </LinearLayout>
 
     <ImageView

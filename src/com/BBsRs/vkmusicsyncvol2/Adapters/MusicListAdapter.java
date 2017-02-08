@@ -1,6 +1,10 @@
 package com.BBsRs.vkmusicsyncvol2.Adapters;
 
+import java.io.File;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -17,8 +21,10 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -35,6 +41,7 @@ import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
 import com.BBsRs.vkmusicsyncvol2.R;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
+import com.mpatric.mp3agic.Mp3File;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
@@ -52,7 +59,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
     DisplayImageOptions options ;
     
     ListView list;
-	
+    
 	public MusicListAdapter(Context _context, ArrayList<MusicCollection> _musicCollection, DisplayImageOptions _options){
 		if (_musicCollection != null){
 			musicCollection = _musicCollection;
@@ -105,9 +112,112 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		return position;
 	}
 	
+	public View getViewByPosition(int position){
+		try {
+			//plus one cuz we have header view
+			return list.getChildAt(position + 1 - list.getFirstVisiblePosition());
+		} catch(Exception e) {
+			return null;
+		}
+	}
+	
+	public boolean updateQuality = true;
+	class Result {
+		int position;
+
+		Result(int position) {
+			this.position = position;
+		}
+	}
+	
+	class updateSongQality extends AsyncTask<Integer, Void, Result> {
+	    
+	    @Override
+	    protected Result doInBackground(Integer... position) {
+	    	if (!updateQuality){
+	    		return new Result(-1);
+	    	}
+	    	
+	    	try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+	    	
+	    	if (getViewByPosition(position[0])==null){
+	    		return new Result(-1);
+	    	}
+	    	
+	    	try {
+		    	if (position[0]==musicCollection.size())
+		    		position[0]=musicCollection.size()-1;
+		    	musicCollection.get(position[0]).quality = Constants.LIST_APAR_IN_PROCESS;
+		    	
+		    	if (musicCollection.get(position[0]).duration == Constants.LIST_APAR_NaN){
+		    		musicCollection.get(position[0]).duration = Constants.LIST_APAR_IN_PROCESS;
+		    		try {
+		    			musicCollection.get(position[0]).duration = new Mp3File(musicCollection.get(position[0]).url).getLengthInSeconds();
+		    		} catch (Exception e3) {}
+		    	}
+		    	
+		    	if (musicCollection.get(position[0]).isDownloaded == Constants.LIST_ACTION_DOWNLOAD){
+		    		URLConnection conexion = new URL(musicCollection.get(position[0]).url).openConnection();
+		    		conexion.setConnectTimeout(3000);
+		    		conexion.connect();
+		    		long lenght = conexion.getContentLength();
+		    		musicCollection.get(position[0]).size = new DecimalFormat("##.#").format((double)lenght/1024/1024);
+		    		musicCollection.get(position[0]).quality = (int) (lenght*8/1000/musicCollection.get(position[0]).duration);
+					return new Result(position[0]);
+				} else {
+					File f = new File(musicCollection.get(position[0]).url);
+					long lenght = f.length();
+					musicCollection.get(position[0]).size = new DecimalFormat("##.#").format((double)lenght/1024/1024);
+					musicCollection.get(position[0]).quality = (int) (lenght*8/1000/musicCollection.get(position[0]).duration);
+					return new Result(position[0]);
+				}
+			} catch (Exception e2){
+				e2.printStackTrace();
+				//file not found or timedout exception
+				return new Result(-1);
+			}
+	    }
+
+	    @Override
+	    protected void onPostExecute(Result result) {
+	    	if (result.position!=-1){
+	    		showQuality(result.position);
+	    	} else {
+	    		Log.d("Error", "error with load song quality or declined by policy");
+	    	}
+	    	super.onPostExecute(result);
+	    }
+	}
+	
+	  public void showQuality(final int position) {
+		  
+		  final View v = getViewByPosition(position);
+		  
+		  if (v == null)
+			  return;
+		  
+		  setViewHolder(v);
+		  final ViewHolder holder = (ViewHolder)v.getTag();
+		  
+		  Animation fadeInAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_in_anim);
+		  
+		  holder.quality.setText(musicCollection.get(position).quality == Constants.LIST_APAR_NaN || musicCollection.get(position).quality == Constants.LIST_APAR_IN_PROCESS ? "" : musicCollection.get(position).size+" MB | " + musicCollection.get(position).quality+"kbps");
+		  holder.quality.startAnimation(fadeInAnimation);
+		  
+		  if (musicCollection.get(position).aid == 0){
+			  holder.length.setText(musicCollection.get(position).duration == Constants.LIST_APAR_NaN || musicCollection.get(position).duration == Constants.LIST_APAR_IN_PROCESS ? "" : stringPlusZero(String.valueOf((int)(musicCollection.get(position).duration)/60))+":"+stringPlusZero(String.valueOf((int)(musicCollection.get(position).duration)%60)));
+			  holder.length.startAnimation(fadeInAnimation);
+		  }
+	  }
+	
     static class ViewHolder {
     	public boolean needInflate;
         public TextView length;
+        public TextView quality;
         public TextView title;
         public TextView subtitle;
         public ImageView albumArt;
@@ -119,6 +229,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 	private void setViewHolder(View rowView) {
 		ViewHolder holder = new ViewHolder();
 		holder.length = (TextView) rowView.findViewById(R.id.length);
+		holder.quality = (TextView) rowView.findViewById(R.id.quality);
 		holder.title = (TextView) rowView.findViewById(R.id.title);
 		holder.subtitle = (TextView) rowView.findViewById(R.id.subtitle);
 		holder.albumArt = (ImageView)rowView.findViewById(R.id.albumArt);
@@ -130,13 +241,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 	}
 	
 	public void updateIsDownloaded(final int position){
-		View v;
-		try {
-			//+1 cuz we have header in list view
-			v = list.getChildAt(position + 1 - list.getFirstVisiblePosition());
-		} catch(Exception e) {
-			v = null;
-		}
+		View v = getViewByPosition(position);
 
 	    if(v == null)
 	       return;
@@ -202,13 +307,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB) 
 	public void updateIsInOwnerListState(final int position){
-		View v;
-		try {
-			//+1 cuz we have header in list view
-			v = list.getChildAt(position + 1 - list.getFirstVisiblePosition());
-		} catch(Exception e) {
-			v = null;
-		}
+		View v = getViewByPosition(position);
 
 	    if(v == null)
 	       return;
@@ -267,17 +366,23 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 			    colorAnim3.setEvaluator(new ArgbEvaluator());
 			    colorAnim3.setDuration(250);
 			    
+			    ObjectAnimator colorAnim4 = ObjectAnimator.ofInt(holder.quality, "textColor", context.getResources().getColor(R.color.gray_two_color), context.getResources().getColor(R.color.gray_four_color));
+			    colorAnim4.setEvaluator(new ArgbEvaluator());
+			    colorAnim4.setDuration(250);
+			    
 			    if (holder.albumArtMask.getVisibility() == View.INVISIBLE){
 			    	holder.albumArtMask.setVisibility(View.VISIBLE);
 			    	FadeInBitmapDisplayer.animate(holder.albumArtMask, 250);
 			    }
 			    
+			    colorAnim4.start();
 			    colorAnim3.start();
 			    colorAnim2.start();
 			    colorAnim.start();
 			    
 			} else {
 				holder.albumArtMask.setVisibility(View.VISIBLE);
+				holder.quality.setTextColor(context.getResources().getColor(R.color.gray_four_color));
 				holder.title.setTextColor(context.getResources().getColor(R.color.gray_four_color));
 				holder.subtitle.setTextColor(context.getResources().getColor(R.color.gray_four_color));
 				holder.length.setTextColor(context.getResources().getColor(R.color.gray_four_color));
@@ -296,6 +401,10 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 			    ObjectAnimator colorAnim3 = ObjectAnimator.ofInt(holder.length, "textColor", context.getResources().getColor(R.color.gray_four_color), context.getResources().getColor(R.color.black_color));
 			    colorAnim3.setEvaluator(new ArgbEvaluator());
 			    colorAnim3.setDuration(250);
+			    
+			    ObjectAnimator colorAnim4 = ObjectAnimator.ofInt(holder.quality, "textColor", context.getResources().getColor(R.color.gray_four_color), context.getResources().getColor(R.color.gray_two_color));
+			    colorAnim4.setEvaluator(new ArgbEvaluator());
+			    colorAnim4.setDuration(250);
 			    
 			    if (holder.albumArtMask.getVisibility() == View.VISIBLE){
 			    	AlphaAnimation fadeImage = new AlphaAnimation(1, 0);
@@ -316,12 +425,14 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 					holder.albumArtMask.startAnimation(fadeImage);
 			    }
 			    
+			    colorAnim4.start();
 			    colorAnim3.start();
 			    colorAnim2.start();
 			    colorAnim.start();
 			    
 			} else {
 				holder.albumArtMask.setVisibility(View.INVISIBLE);
+				holder.quality.setTextColor(context.getResources().getColor(R.color.gray_two_color));
 				holder.title.setTextColor(context.getResources().getColor(R.color.black_color));
 				holder.subtitle.setTextColor(context.getResources().getColor(R.color.gray_two_color));
 				holder.length.setTextColor(context.getResources().getColor(R.color.black_color));
@@ -330,6 +441,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		}
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB) 
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
 		final ViewHolder holder;
@@ -352,18 +464,35 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		SFUIFonts.LIGHT.apply(context, holder.subtitle);
 		SFUIFonts.MEDIUM.apply(context, holder.title);
 		SFUIFonts.MEDIUM.apply(context, holder.length);
+		SFUIFonts.LIGHT.apply(context, holder.quality);
 		
 		//view job
 		holder.title.setText(musicCollection.get(position).artist);
 		holder.subtitle.setText(musicCollection.get(position).title);
-		holder.length.setText(musicCollection.get(position).duration == -1 || musicCollection.get(position).duration == 0 ? "" : stringPlusZero(String.valueOf((int)(musicCollection.get(position).duration)/60))+":"+stringPlusZero(String.valueOf((int)(musicCollection.get(position).duration)%60)));
+		holder.length.setText(musicCollection.get(position).duration == Constants.LIST_APAR_NaN || musicCollection.get(position).duration == Constants.LIST_APAR_IN_PROCESS ? "" : stringPlusZero(String.valueOf((int)(musicCollection.get(position).duration)/60))+":"+stringPlusZero(String.valueOf((int)(musicCollection.get(position).duration)%60)));
+		holder.quality.setText(musicCollection.get(position).quality == Constants.LIST_APAR_NaN || musicCollection.get(position).quality == Constants.LIST_APAR_IN_PROCESS ? "" : musicCollection.get(position).size+" MB | " + musicCollection.get(position).quality+"kbps");
 		
+		//set up quality 
+		if (musicCollection.get(position).quality == Constants.LIST_APAR_NaN){
+			//start async
+	        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+	        	new updateSongQality().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, position);
+	        } else {
+	        	new updateSongQality().execute(position);
+	        }
+		}
 		
 		try {
-			ImageLoader.getInstance().displayImage(Constants.GOOGLE_IMAGE_REQUEST_URL + URLEncoder.encode(musicCollection.get(position).artist+ " - "+musicCollection.get(position).title, "UTF-8"), holder.albumArt, options, 1, animateFirstListener);
+			if (musicCollection.get(position).isDownloaded == Constants.LIST_ACTION_DELETE)
+				ImageLoader.getInstance().displayImage(musicCollection.get(position).url, holder.albumArt, options, 2, animateFirstListener);
+			else 
+				ImageLoader.getInstance().displayImage(Constants.GOOGLE_IMAGE_REQUEST_URL + URLEncoder.encode(musicCollection.get(position).artist+ " - "+musicCollection.get(position).title, "UTF-8"), holder.albumArt, options, 1, animateFirstListener);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		if (musicCollection.get(position).aid == 0)
+			holder.isInOwnerList.setVisibility(View.GONE);
 		
 		switch (musicCollection.get(position).isInOwnerList){
 		case Constants.LIST_ACTION_ADD:
@@ -375,6 +504,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		case Constants.LIST_ACTION_REMOVE:
 			holder.isInOwnerList.setImageResource(R.drawable.ic_remove_normal);
 			holder.title.setTextColor(context.getResources().getColor(R.color.black_color));
+			holder.quality.setTextColor(context.getResources().getColor(R.color.gray_two_color));
 			holder.subtitle.setTextColor(context.getResources().getColor(R.color.gray_two_color));
 			holder.length.setTextColor(context.getResources().getColor(R.color.black_color));
 			holder.albumArtMask.setVisibility(View.INVISIBLE);
@@ -382,6 +512,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		case Constants.LIST_ACTION_RESTORE:
 			holder.isInOwnerList.setImageResource(R.drawable.ic_add_normal);
 			holder.title.setTextColor(context.getResources().getColor(R.color.gray_four_color));
+			holder.quality.setTextColor(context.getResources().getColor(R.color.gray_four_color));
 			holder.subtitle.setTextColor(context.getResources().getColor(R.color.gray_four_color));
 			holder.length.setTextColor(context.getResources().getColor(R.color.gray_four_color));
 			holder.albumArtMask.setVisibility(View.VISIBLE);

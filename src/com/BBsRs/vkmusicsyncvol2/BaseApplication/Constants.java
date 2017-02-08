@@ -70,6 +70,9 @@ public class Constants {
 	public static final int LIST_ACTION_DOWNLOADED = 100;
 	public static final int LIST_ACTION_DELETE = 101;
 	
+	public static final int LIST_APAR_NaN = -1;
+	public static final int LIST_APAR_IN_PROCESS = 0;
+	
 	public static final int NOTIFICATION_DOWNLOAD = 13;
 	public static final int NOTIFICATION_MESSAGE = 14;
 	

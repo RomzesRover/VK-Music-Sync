@@ -707,8 +707,8 @@ public class MusicFragment extends BaseFragment {
                     			Collections.sort(files, new Comparator<File>() {
 									@Override
 									public int compare(File f1, File f2) {
-										if (f1.lastModified() > f2.lastModified()) return 1;
-										if (f1.lastModified() < f2.lastModified()) return -1;
+										if (f1.lastModified() > f2.lastModified()) return -1;
+										if (f1.lastModified() < f2.lastModified()) return 1;
 										return 0;
 									}
                     			});
@@ -726,7 +726,7 @@ public class MusicFragment extends BaseFragment {
                         					subname = "noname";
                         				}
                     				}
-                    				musicList.add(new Audio((long)0, account.user_id, name, subname, -1, oneMusicFile.getAbsolutePath(), null));
+                    				musicList.add(new Audio((long)0, account.user_id, name, subname, Constants.LIST_APAR_NaN, oneMusicFile.getAbsolutePath(), null));
                     			}
 					        	break;
 				        }
@@ -734,7 +734,7 @@ public class MusicFragment extends BaseFragment {
 				        File f;
 						for (Audio one : musicList){
 							f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(one.artist+" - "+one.title+".mp3").replaceAll("[\\/:*?\"<>|]", ""));
-							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, one.url, one.lyrics_id, (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE || bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM)) ? Constants.LIST_ACTION_REMOVE : Constants.LIST_ACTION_ADD, f.exists() ? Constants.LIST_ACTION_DELETE : Constants.LIST_ACTION_DOWNLOAD));
+							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, f.exists() ? f.getAbsolutePath() : one.url, one.lyrics_id, (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE || bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM)) ? Constants.LIST_ACTION_REMOVE : Constants.LIST_ACTION_ADD, f.exists() ? Constants.LIST_ACTION_DELETE : Constants.LIST_ACTION_DOWNLOAD, Constants.LIST_APAR_NaN, null));
 						}
 						
 						if (musicCollection.isEmpty()){
