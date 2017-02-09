@@ -88,6 +88,8 @@ public class MusicFragment extends BaseFragment {
     MusicListAdapter musicListAdapter;
     ArrayList<AlbumCollection> albumCollection = new ArrayList<AlbumCollection>();
     
+    ArrayList<MusicCollection> musicCollectionToDelete = new ArrayList<MusicCollection>();
+    
     //for retrieve data from activity
     Bundle bundle;
 	
@@ -236,13 +238,25 @@ public class MusicFragment extends BaseFragment {
 	    			}
 	          	}, 100);
         	} else {
-	        	ArrayList<MusicCollection> musicCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
-	        	albumCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS);
-	        	musicListAdapter.UpdateList(musicCollection);
-	        	musicListAdapter.notifyDataSetChanged();
-	        	
-	        	setUpHeaderView();
-	        	list.setVisibility(View.VISIBLE);
+        		if (sPref.getBoolean(Constants.PREFERENCES_UPDATE_ALL_MUSIC_LIST, false)){
+        			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_ALL_MUSIC_LIST, false).commit();
+        			handler.postDelayed(new Runnable(){
+    	    			@Override
+    	    			public void run() {
+    	    				//refresh on open to load data when app first time started
+    	    		        mPullToRefreshLayout.setRefreshing(true);
+    	    		        customOnRefreshListener.onRefreshStarted(null);
+    	    			}
+    	          	}, 100);
+        		} else {
+		        	ArrayList<MusicCollection> musicCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
+		        	albumCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS);
+		        	musicListAdapter.UpdateList(musicCollection);
+		        	musicListAdapter.notifyDataSetChanged();
+		        	
+		        	setUpHeaderView();
+		        	list.setVisibility(View.VISIBLE);
+        		}
         	}
         }
         
@@ -360,6 +374,9 @@ public class MusicFragment extends BaseFragment {
     	getActivity().registerReceiver(downloadSongToStorage, new IntentFilter(Constants.INTENT_DOWNLOAD_SONG_TO_STORAGE));
     	getActivity().registerReceiver(changeSongDownloadPercentage, new IntentFilter(Constants.INTENT_CHANGE_SONG_DOWNLOAD_PERCENTAGE));
     	getActivity().registerReceiver(deleteSongFromStorage, new IntentFilter(Constants.INTENT_DELETE_SONG_FROM_STORAGE));
+    	
+    	//null list of music to delete
+    	musicCollectionToDelete = new ArrayList<MusicCollection>();
     }
     
 	@Override
@@ -375,6 +392,19 @@ public class MusicFragment extends BaseFragment {
 		getActivity().unregisterReceiver(downloadSongToStorage);
 		getActivity().unregisterReceiver(changeSongDownloadPercentage);
 		getActivity().unregisterReceiver(deleteSongFromStorage);
+		
+		//call update for current list for second open
+		if (!musicCollectionToDelete.isEmpty()){
+			//update all music lists
+			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, null);
+			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS, null);
+	       	sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_ALL_MUSIC_LIST, true).commit();
+			//delete music wich user decided
+			for (MusicCollection AudioToDeleteFromStorage : musicCollectionToDelete){
+				File f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+".mp3").replaceAll("[\\/:*?\"<>|]", ""));
+				if (f.exists()) f.delete();
+			}
+		}
 	}
 	
 	private BroadcastReceiver addSongToOwnerList = new BroadcastReceiver(){
@@ -507,8 +537,7 @@ public class MusicFragment extends BaseFragment {
 			MusicCollection AudioToDeleteFromStorage = musicListAdapter.getItem(position);
 			AudioToDeleteFromStorage.isDownloaded = Constants.LIST_ACTION_DOWNLOAD;
 			
-			File f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+".mp3").replaceAll("[\\/:*?\"<>|]", ""));
-			if (f.exists()) f.delete();
+			musicCollectionToDelete.add(AudioToDeleteFromStorage);
 			
 			musicListAdapter.updateIsDownloaded(position);
 		}

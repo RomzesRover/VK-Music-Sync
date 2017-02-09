@@ -511,6 +511,9 @@ public class DownloadService extends Service {
 	       	   
 	       	   Log.d("DownloadService", "download ready in " + ((System.currentTimeMillis() - startTime) / 1000) + " sec");
 	       	   
+	       	   //update all music lists
+	       	   sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_ALL_MUSIC_LIST, true).commit();
+	       	   
 	       	   //show success
 	       	   musicToDownload.isDownloaded = Constants.LIST_ACTION_DOWNLOADED;
 	   		
