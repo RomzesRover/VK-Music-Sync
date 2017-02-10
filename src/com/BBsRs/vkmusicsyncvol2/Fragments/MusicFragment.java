@@ -239,7 +239,7 @@ public class MusicFragment extends BaseFragment {
 	          	}, 100);
         	} else {
         		if (sPref.getBoolean(Constants.PREFERENCES_UPDATE_ALL_MUSIC_LIST, false)){
-        			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_ALL_MUSIC_LIST, false).commit();
+        			
         			handler.postDelayed(new Runnable(){
     	    			@Override
     	    			public void run() {
@@ -259,6 +259,8 @@ public class MusicFragment extends BaseFragment {
         		}
         	}
         }
+        
+        sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_ALL_MUSIC_LIST, false).commit();
         
     	return contentView;
 	}
@@ -382,10 +384,6 @@ public class MusicFragment extends BaseFragment {
 	@Override
 	public void onPause() {
 		super.onPause();
-		if (musicListAdapter != null){
-			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, musicListAdapter.getMusicCollectionNonFiltered());
-			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS, albumCollection);
-		}
 		//disable receivers
 		getActivity().unregisterReceiver(addSongToOwnerList);
 		getActivity().unregisterReceiver(removeSongFromOwnerList);
@@ -403,6 +401,11 @@ public class MusicFragment extends BaseFragment {
 			for (MusicCollection AudioToDeleteFromStorage : musicCollectionToDelete){
 				File f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+".mp3").replaceAll("[\\/:*?\"<>|]", ""));
 				if (f.exists()) f.delete();
+			}
+		} else {
+			if (musicListAdapter != null){
+				getArguments().putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, musicListAdapter.getMusicCollectionNonFiltered());
+				getArguments().putParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS, albumCollection);
 			}
 		}
 	}
@@ -761,9 +764,16 @@ public class MusicFragment extends BaseFragment {
 				        }
 						
 				        File f;
+				        boolean inDeleteList = false;
 						for (Audio one : musicList){
 							f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(one.artist+" - "+one.title+".mp3").replaceAll("[\\/:*?\"<>|]", ""));
-							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, f.exists() ? f.getAbsolutePath() : one.url, one.lyrics_id, (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE || bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM)) ? Constants.LIST_ACTION_REMOVE : Constants.LIST_ACTION_ADD, f.exists() ? Constants.LIST_ACTION_DELETE : Constants.LIST_ACTION_DOWNLOAD, Constants.LIST_APAR_NaN, null));
+							for (MusicCollection AudioToDeleteFromStorage : musicCollectionToDelete){
+								if (one.aid == AudioToDeleteFromStorage.aid && one.owner_id == AudioToDeleteFromStorage.owner_id && one.artist.equals(AudioToDeleteFromStorage.artist) && one.title.equals(AudioToDeleteFromStorage.title)){
+									inDeleteList = true;
+									break;
+								}
+							}
+							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, f.exists() ? f.getAbsolutePath() : one.url, one.lyrics_id, (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE || bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM)) ? Constants.LIST_ACTION_REMOVE : Constants.LIST_ACTION_ADD, !f.exists() || inDeleteList ? Constants.LIST_ACTION_DOWNLOAD : Constants.LIST_ACTION_DELETE, Constants.LIST_APAR_NaN, null));
 						}
 						
 						if (musicCollection.isEmpty()){

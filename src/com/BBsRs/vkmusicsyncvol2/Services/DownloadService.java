@@ -171,7 +171,7 @@ public class DownloadService extends Service {
 			
 			int position = 0;
 			for (MusicCollection one : musicCollection){
-				if (one.aid == songToRemoveFromDownloadQueue.aid && one.owner_id == songToRemoveFromDownloadQueue.owner_id && one.artist.equals(songToRemoveFromDownloadQueue.artist) && one.title.equals(songToRemoveFromDownloadQueue.title) && one.url.contains(songToRemoveFromDownloadQueue.url)){
+				if (one.aid == songToRemoveFromDownloadQueue.aid && one.owner_id == songToRemoveFromDownloadQueue.owner_id && one.artist.equals(songToRemoveFromDownloadQueue.artist) && one.title.equals(songToRemoveFromDownloadQueue.title)){
 					musicCollection.remove(position);
 					if (position == 0){
 						stopCurrent = true;
