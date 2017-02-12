@@ -173,13 +173,6 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		    		position[0]=musicCollection.size()-1;
 		    	musicCollection.get(position[0]).quality = Constants.LIST_APAR_IN_PROCESS;
 		    	
-		    	if (musicCollection.get(position[0]).duration == Constants.LIST_APAR_NaN){
-		    		musicCollection.get(position[0]).duration = Constants.LIST_APAR_IN_PROCESS;
-		    		try {
-		    			musicCollection.get(position[0]).duration = new Mp3File(musicCollection.get(position[0]).url).getLengthInSeconds();
-		    		} catch (Exception e3) {}
-		    	}
-		    	
 		    	if (musicCollection.get(position[0]).isDownloaded == Constants.LIST_ACTION_DOWNLOAD){
 		    		URLConnection conexion = new URL(musicCollection.get(position[0]).url).openConnection();
 		    		conexion.setConnectTimeout(3000);
@@ -189,10 +182,16 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		    		musicCollection.get(position[0]).quality = (int) (lenght*8/1000/musicCollection.get(position[0]).duration);
 					return new Result(position[0]);
 				} else {
-					File f = new File(musicCollection.get(position[0]).url);
-					long lenght = f.length();
-					musicCollection.get(position[0]).size = new DecimalFormat("##.#").format((double)lenght/1024/1024);
-					musicCollection.get(position[0]).quality = (int) (lenght*8/1000/musicCollection.get(position[0]).duration);
+					Mp3File mp3file = new Mp3File(musicCollection.get(position[0]).url);
+					musicCollection.get(position[0]).size = new DecimalFormat("##.#").format((double)mp3file.getLength()/1024/1024);
+					musicCollection.get(position[0]).quality = mp3file.getBitrate();
+					
+			    	if (musicCollection.get(position[0]).duration == Constants.LIST_APAR_NaN){
+			    		musicCollection.get(position[0]).duration = Constants.LIST_APAR_IN_PROCESS;
+			    		try {
+			    			musicCollection.get(position[0]).duration = mp3file.getLengthInSeconds();
+			    		} catch (Exception e3) {}
+			    	}
 					return new Result(position[0]);
 				}
 			} catch (Exception e2){
