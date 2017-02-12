@@ -344,6 +344,13 @@ public class MusicFragment extends BaseFragment {
   			@Override
   			public boolean onQueryTextChange(String newText) {
   				if (musicListAdapter != null && musicListAdapter.getMusicCollectionNonFiltered()!=null && !musicListAdapter.getMusicCollectionNonFiltered().isEmpty() && bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) != Constants.BUNDLE_MUSIC_LIST_SEARCH){
+  					//pause image loads
+  					handler.removeCallbacks(resuming);
+  					ImageLoader.getInstance().pause();
+  					if (musicListAdapter != null){
+  						musicListAdapter.updateQuality = false;
+  					}
+  					
   					bundle.putString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST, newText);
   					musicListAdapter.getFilter().filter(newText, new FilterListener(){
 						@Override
@@ -357,6 +364,9 @@ public class MusicFragment extends BaseFragment {
 		  					list.setSelection(0);
 						}
   					});
+  					
+  					handler.removeCallbacks(resuming);
+  					handler.postDelayed(resuming, 1000);
   				}
   				return false;
   			}});
