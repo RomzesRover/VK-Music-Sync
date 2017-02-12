@@ -3,6 +3,7 @@ package com.BBsRs.vkmusicsyncvol2.Fragments;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -66,6 +67,7 @@ import com.perm.kate.api.Api;
 import com.perm.kate.api.Attachment;
 import com.perm.kate.api.Audio;
 import com.perm.kate.api.AudioAlbum;
+import com.perm.kate.api.User;
 import com.perm.kate.api.WallMessage;
 
 public class MusicFragment extends BaseFragment {
@@ -720,6 +722,19 @@ public class MusicFragment extends BaseFragment {
 					        	for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID), 0, 100)){
                         	    	albumCollection.add(new AlbumCollection(one.album_id, one.owner_id, one.title));
                         	    }
+					        	if (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id){
+					        		//update avatar and user name
+					        		Thread.sleep(100);
+					        		Collection<Long> u = new ArrayList<Long>();
+						            u.add(account.user_id);
+						            Collection<String> d = new ArrayList<String>();
+						            d.add("");
+						            
+						            User userOne = api.getProfiles(u, d, "photo_200,photo_100", "", "", "").get(0);
+						            sPref.edit().putString(Constants.PREFERENCES_USER_AVATAR_URL, ((userOne.photo_200 == null || userOne.photo_200.length()<1) ? userOne.photo_medium_rec : userOne.photo_200)).commit();
+									sPref.edit().putString(Constants.PREFERENCES_USER_FIRST_NAME, userOne.first_name).commit();
+									sPref.edit().putString(Constants.PREFERENCES_USER_LAST_NAME, userOne.last_name).commit();
+					        	}
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_POPULAR:
 					        	musicList = api.getAudioPopular(0, null, null, null);
