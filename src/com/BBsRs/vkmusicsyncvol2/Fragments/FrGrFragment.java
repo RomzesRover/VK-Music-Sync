@@ -22,6 +22,8 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -34,6 +36,7 @@ import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseFragment;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 import com.BBsRs.vkmusicsyncvol2.collections.FrGrCollection;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.perm.kate.api.Api;
 import com.perm.kate.api.Group;
 import com.perm.kate.api.User;
@@ -148,13 +151,46 @@ public class FrGrFragment extends BaseFragment {
 				((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(musicListFragment);
 			}
 		});
+		list.setOnScrollListener(new OnScrollListener(){
+			@Override
+			public void onScroll(AbsListView arg0, int arg1, int arg2, int arg3) { }
+			@Override
+			public void onScrollStateChanged(AbsListView arg0, int scrollState) {
+				switch (scrollState){
+				case OnScrollListener.SCROLL_STATE_IDLE:
+					handler.removeCallbacks(resuming);
+					handler.postDelayed(resuming, 500);
+					break;
+				case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
+					handler.removeCallbacks(resuming);
+					ImageLoader.getInstance().pause();
+					break;
+				case OnScrollListener.SCROLL_STATE_FLING:
+					handler.removeCallbacks(resuming);
+					ImageLoader.getInstance().pause();
+					break;
+				}
+			}
+		});
 		
     	return contentView;
 	}
 	
+	final Runnable resuming = new Runnable(){
+		@Override
+		public void run() {
+			//resume update image
+			ImageLoader.getInstance().resume();
+		}
+	};
+	
     @Override
     public void onPause() {
         super.onPause();
+		//pause image loads
+		handler.removeCallbacks(resuming);
+		ImageLoader.getInstance().stop();
+		
 		if (frGrListAdapter != null){
 			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, frGrListAdapter.getFrGrCollection());
 		}
@@ -163,6 +199,10 @@ public class FrGrFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        //resume loads images
+		handler.removeCallbacks(resuming);
+		handler.postDelayed(resuming, 500);
+		
         //set subtitle for a current fragment with custom font
         setTitle(bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME));
     }

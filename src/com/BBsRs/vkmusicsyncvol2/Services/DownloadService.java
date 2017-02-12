@@ -403,6 +403,8 @@ public class DownloadService extends Service {
 			        
 			       Log.d("DownloadService", "download cover art");
 			       //download bitmap from web
+			       //resume update image
+			       ImageLoader.getInstance().resume();
 			       Bitmap bmp = ImageLoader.getInstance().loadImageSync(Constants.GOOGLE_IMAGE_REQUEST_URL + URLEncoder.encode(musicToDownload.artist+" - "+musicToDownload.title, "UTF-8"), 1);
 			       if (bmp==null) 
 			    	   bmp = BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.music_stub_source);

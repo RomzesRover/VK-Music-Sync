@@ -45,7 +45,9 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.Filter.FilterListener;
+import android.widget.AbsListView;
 import android.widget.ImageView;
 
 import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
@@ -59,6 +61,7 @@ import com.BBsRs.vkmusicsyncvol2.Services.DownloadService;
 import com.BBsRs.vkmusicsyncvol2.collections.AlbumCollection;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.perm.kate.api.Api;
 import com.perm.kate.api.Attachment;
 import com.perm.kate.api.Audio;
@@ -260,10 +263,40 @@ public class MusicFragment extends BaseFragment {
         	}
         }
         
+		list.setOnScrollListener(new OnScrollListener(){
+			@Override
+			public void onScroll(AbsListView arg0, int arg1, int arg2, int arg3) { }
+			@Override
+			public void onScrollStateChanged(AbsListView arg0, int scrollState) {
+				switch (scrollState){
+				case OnScrollListener.SCROLL_STATE_IDLE:
+					handler.removeCallbacks(resuming);
+					handler.postDelayed(resuming, 500);
+					break;
+				case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
+					handler.removeCallbacks(resuming);
+					ImageLoader.getInstance().pause();
+					break;
+				case OnScrollListener.SCROLL_STATE_FLING:
+					handler.removeCallbacks(resuming);
+					ImageLoader.getInstance().pause();
+					break;
+				}
+			}
+		});
+        
         sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_ALL_MUSIC_LIST, false).commit();
         
     	return contentView;
 	}
+	
+	final Runnable resuming = new Runnable(){
+		@Override
+		public void run() {
+			//resume update image
+			ImageLoader.getInstance().resume();
+		}
+	};
 	
 	//init search
 	SearchView searchView;
@@ -366,6 +399,10 @@ public class MusicFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        //resume loads images
+		handler.removeCallbacks(resuming);
+		handler.postDelayed(resuming, 500);
+		
         //enable menu
     	setHasOptionsMenu(true);
         //set subtitle for a current fragment with custom font
@@ -384,6 +421,10 @@ public class MusicFragment extends BaseFragment {
 	@Override
 	public void onPause() {
 		super.onPause();
+		//pause image loads
+		handler.removeCallbacks(resuming);
+		ImageLoader.getInstance().stop();
+		
 		//disable receivers
 		getActivity().unregisterReceiver(addSongToOwnerList);
 		getActivity().unregisterReceiver(removeSongFromOwnerList);
