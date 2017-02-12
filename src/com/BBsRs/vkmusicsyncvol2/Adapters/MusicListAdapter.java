@@ -130,6 +130,26 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		}
 	}
 	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB) 
+	public void updateQualities(){
+		try {
+			for (int position = list.getFirstVisiblePosition(); position<=list.getLastVisiblePosition(); position++){
+				int tmppos = position-1;
+				if (tmppos<0) tmppos = 0;
+				if (musicCollection.size()!=0 && musicCollection.get(tmppos).quality == -1 && musicCollection.get(tmppos).quality != 0){
+					//start async
+			        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+			        	new updateSongQality().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tmppos);
+			        } else {
+			        	new updateSongQality().execute(tmppos);
+			        }
+				}
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+	
 	class updateSongQality extends AsyncTask<Integer, Void, Result> {
 	    
 	    @Override
@@ -177,6 +197,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 				}
 			} catch (Exception e2){
 				e2.printStackTrace();
+				musicCollection.get(position[0]).quality = Constants.LIST_APAR_NaN;
 				//file not found or timedout exception
 				return new Result(-1);
 			}

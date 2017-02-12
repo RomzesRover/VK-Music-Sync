@@ -278,10 +278,16 @@ public class MusicFragment extends BaseFragment {
 				case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
 					handler.removeCallbacks(resuming);
 					ImageLoader.getInstance().pause();
+					if (musicListAdapter != null){
+						musicListAdapter.updateQuality = false;
+					}
 					break;
 				case OnScrollListener.SCROLL_STATE_FLING:
 					handler.removeCallbacks(resuming);
 					ImageLoader.getInstance().pause();
+					if (musicListAdapter != null){
+						musicListAdapter.updateQuality = false;
+					}
 					break;
 				}
 			}
@@ -297,6 +303,11 @@ public class MusicFragment extends BaseFragment {
 		public void run() {
 			//resume update image
 			ImageLoader.getInstance().resume();
+			
+			if (musicListAdapter != null){
+				musicListAdapter.updateQuality = true;
+				musicListAdapter.updateQualities();
+			}
 		}
 	};
 	
@@ -426,6 +437,9 @@ public class MusicFragment extends BaseFragment {
 		//pause image loads
 		handler.removeCallbacks(resuming);
 		ImageLoader.getInstance().stop();
+		if (musicListAdapter != null){
+			musicListAdapter.updateQuality = false;
+		}
 		
 		//disable receivers
 		getActivity().unregisterReceiver(addSongToOwnerList);
