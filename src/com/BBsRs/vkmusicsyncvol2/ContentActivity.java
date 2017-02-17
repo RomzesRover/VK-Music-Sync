@@ -23,6 +23,7 @@ import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseActivity;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 import com.BBsRs.vkmusicsyncvol2.Fragments.FrGrFragment;
 import com.BBsRs.vkmusicsyncvol2.Fragments.MusicFragment;
+import com.BBsRs.vkmusicsyncvol2.Fragments.SettingsFragment;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
@@ -102,6 +103,9 @@ public class ContentActivity extends BaseActivity {
         groups.putInt(Constants.BUNDLE_FRGR_LIST_TYPE, Constants.BUNDLE_FRGR_LIST_GROUPS);
         groups.putString(Constants.BUNDLE_LIST_TITLE_NAME, getResources().getStringArray(R.array.menu)[6]);
         
+        Bundle settings = new Bundle();
+        settings.putString(Constants.BUNDLE_LIST_TITLE_NAME, getResources().getStringArray(R.array.menu)[9]);
+        
         //init slider menu with spec bundles
         sliderMenu.add(getResources().getStringArray(R.array.menu)[0].toUpperCase()).setCustomLayout(R.layout.custom_slider_menu_item).clickable(false).setTextAppereance(1);
         sliderMenu.add(getResources().getStringArray(R.array.menu)[1], MusicFragment.class, myMusic, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_my_music).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
@@ -112,7 +116,7 @@ public class ContentActivity extends BaseActivity {
         sliderMenu.add(getResources().getStringArray(R.array.menu)[6], FrGrFragment.class, groups, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_groups).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
         sliderMenu.add(getResources().getStringArray(R.array.menu)[7], MusicFragment.class, downloaded, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_downloads).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
         sliderMenu.add(getResources().getStringArray(R.array.menu)[8].toUpperCase()).setCustomLayout(R.layout.custom_slider_menu_item).clickable(false).setTextAppereance(1);
-        sliderMenu.add(getResources().getStringArray(R.array.menu)[9], MusicFragment.class, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_settings).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
+        sliderMenu.add(getResources().getStringArray(R.array.menu)[9], SettingsFragment.class, settings, new int[]{R.color.menu_selected_color, R.color.menu_selected_color}).setIcon(R.drawable.ic_slider_settings).setCustomLayout(R.layout.custom_slider_menu_item_selectable).setTextAppereance(1);
         
         if(savedInstanceState == null)
         	sliderMenu.setCurrentPage(1);

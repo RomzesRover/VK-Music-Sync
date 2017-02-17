@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:holo="http://schemas.android.com/apk/res-auto" >
+    <PreferenceCategory android:title="BASE" >
+        <Preference
+            android:id="@+id/preference_ad_disabler"
+            android:key="preference_ad_disabler"
+            android:icon="@drawable/ic_launcher"
+            android:summary="@string/app_version"
+            android:title="@string/app_name" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
