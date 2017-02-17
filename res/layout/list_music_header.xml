@@ -11,7 +11,7 @@
         android:orientation="vertical"
         android:paddingLeft="13dp"
         android:paddingRight="13dp"
-        android:paddingTop="13dp" >
+        android:paddingTop="11dp" >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -29,7 +29,7 @@
                 android:text="@string/content_activity_albums"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/gray_two_color"
-                android:textSize="14sp" />
+                android:textSize="15sp" />
 
             <ImageView
                 android:id="@+id/imageView1"
@@ -55,12 +55,12 @@
         android:orientation="vertical"
         android:paddingLeft="13dp"
         android:paddingRight="13dp"
-        android:paddingTop="13dp" >
+        android:paddingTop="11dp" >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="13dp" >
+            android:layout_marginBottom="11dp" >
 
             <TextView
                 android:id="@+id/wall"
@@ -73,7 +73,7 @@
                 android:text="@string/content_activity_wall"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/gray_two_color"
-                android:textSize="14sp" />
+                android:textSize="15sp" />
 
             <ImageView
                 android:id="@+id/imageView2"
@@ -99,12 +99,12 @@
         android:orientation="vertical"
         android:paddingLeft="13dp"
         android:paddingRight="13dp"
-        android:paddingTop="13dp" >
+        android:paddingTop="11dp" >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="13dp" >
+            android:layout_marginBottom="11dp" >
 
             <TextView
                 android:id="@+id/recc"
@@ -117,7 +117,7 @@
                 android:text="@string/content_activity_recommendations"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/gray_two_color"
-                android:textSize="14sp" />
+                android:textSize="15sp" />
 
             <ImageView
                 android:id="@+id/imageView3"
@@ -143,12 +143,12 @@
         android:orientation="vertical"
         android:paddingLeft="13dp"
         android:paddingRight="13dp"
-        android:paddingTop="13dp" >
+        android:paddingTop="11dp" >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="13dp" >
+            android:layout_marginBottom="11dp" >
 
             <TextView
                 android:id="@+id/errr"
@@ -162,7 +162,7 @@
                 android:text="@string/content_activity_access_to_users_audio_denied"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/black_color"
-                android:textSize="14sp" />
+                android:textSize="15sp" />
 
         </LinearLayout>
     </LinearLayout>

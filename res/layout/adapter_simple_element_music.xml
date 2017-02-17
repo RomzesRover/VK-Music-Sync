@@ -48,7 +48,7 @@
             android:text="03:25"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/black_color"
-            android:textSize="12sp" />
+            android:textSize="13sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -100,7 +100,7 @@
             android:text="Medium Text"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/black_color"
-            android:textSize="14sp" />
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/subtitle"
@@ -113,20 +113,20 @@
             android:text="Small Text"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/gray_two_color"
-            android:textSize="12sp" />
+            android:textSize="13sp" />
 
         <TextView
             android:id="@+id/quality"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="-4dp"
+            android:layout_marginTop="-5dp"
             android:ellipsize="end"
             android:lines="1"
             android:singleLine="true"
             android:text="Small Text"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/gray_two_color"
-            android:textSize="8sp" />
+            android:textSize="10sp" />
     </LinearLayout>
 
     <ImageView

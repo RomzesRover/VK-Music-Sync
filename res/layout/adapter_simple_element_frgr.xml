@@ -60,7 +60,7 @@
             android:singleLine="true"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/black_color"
-            android:textSize="14sp" />
+            android:textSize="15sp" />
     </RelativeLayout>
 
     <ImageView
