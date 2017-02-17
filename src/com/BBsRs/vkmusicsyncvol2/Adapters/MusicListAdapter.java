@@ -1,6 +1,5 @@
 package com.BBsRs.vkmusicsyncvol2.Adapters;
 
-import java.io.File;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
