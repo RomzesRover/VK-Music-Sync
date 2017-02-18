@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
+    <string name="preferences_base">Base</string>
+    <string name="preferences_download_directory">Download directory</string>
+    <string name="preferences_download_directory_unavailable">This download directory is unavailable for this app.</string>
+    <string name="preferences_stop_download">Stop downloading</string>
+    <string name="preferences_stop_download_success">Download service has been successfully stoped.</string>
+    <string name="preferences_account">Account</string>
+    <string name="preferences_account_logout">Log out</string>
+    
     <string name="download_default_folder_name">VK_Music_Sync</string>
     <string name="download_folder_is_unavailable">Download folder is unavailable, check your sdcard.</string>
     <string name="download_rightholders_error">VK has deleted %s from public access</string>

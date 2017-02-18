@@ -1,13 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:holo="http://schemas.android.com/apk/res-auto" >
-    <PreferenceCategory android:title="BASE" >
+
+    <Preference
+        android:icon="@drawable/ic_launcher"
+        android:summary="@string/app_version"
+        android:selectable="false"
+        android:title="@string/app_name" />
+
+    <PreferenceCategory android:title="@string/preferences_base" >
+        <EditTextPreference
+            android:key="preferences:download_directory"
+            android:title="@string/preferences_download_directory" /> 
         <Preference
-            android:id="@+id/preference_ad_disabler"
-            android:key="preference_ad_disabler"
-            android:icon="@drawable/ic_launcher"
-            android:summary="@string/app_version"
-            android:title="@string/app_name" />
+            android:key="preference:stop_download"
+            android:title="@string/preferences_stop_download" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/preferences_account" >
+        <Preference
+            android:key="preference:logout"
+            android:title="@string/preferences_account_logout" />
     </PreferenceCategory>
 
 </PreferenceScreen>
