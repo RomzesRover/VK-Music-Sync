@@ -52,6 +52,7 @@ import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseActivity;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
+import com.BBsRs.vkmusicsyncvol2.BaseApplication.CustomEnvironment;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.perm.kate.api.Api;
@@ -482,6 +483,11 @@ public class LoginActivity extends BaseActivity {
 			            sPref.edit().putString(Constants.PREFERENCES_USER_AVATAR_URL, ((userOne.photo_200 == null || userOne.photo_200.length()<1) ? userOne.photo_medium_rec : userOne.photo_200)).commit();
 						sPref.edit().putString(Constants.PREFERENCES_USER_FIRST_NAME, userOne.first_name).commit();
 						sPref.edit().putString(Constants.PREFERENCES_USER_LAST_NAME, userOne.last_name).commit();
+						
+						//set default download folder:
+						if (sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, null) == null){
+							sPref.edit().putString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, (new CustomEnvironment(getApplicationContext())).DownloadDirectoryDecide()).commit();
+						}
 						
 						handler.post(new Runnable(){
 							@Override
