@@ -803,11 +803,28 @@ public class MusicFragment extends BaseFragment {
 						//slep to prevent laggy animations
 						Thread.sleep(100);
 						
+						//delete music to delete
+						if (!musicCollectionToDelete.isEmpty()){
+							//update all music lists
+							sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, true).commit();
+							sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_SEARCH_LIST, true).commit();
+							sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_POPULAR_LIST, true).commit();
+							sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_RECC_LIST, true).commit();
+							sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_DOWNLOADED_LIST, true).commit();
+							//delete music wich user decided
+							for (MusicCollection AudioToDeleteFromStorage : musicCollectionToDelete){
+								File f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+".mp3").replaceAll("[\\/:*?\"<>|]", ""));
+								if (f.exists()) f.delete();
+							}
+						}
+						
 						ArrayList<Audio> musicList = new ArrayList<Audio>();
 						ArrayList<MusicCollection> musicCollection = new ArrayList<MusicCollection>();
 						//null lists
 						albumCollection = new ArrayList<AlbumCollection>();
 						musicListAdapter.UpdateList(musicCollection);
+						//null list of music to delete
+				    	musicCollectionToDelete = new ArrayList<MusicCollection>();
 						
 						//load nesc music
 				        switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
@@ -828,13 +845,17 @@ public class MusicFragment extends BaseFragment {
 						            sPref.edit().putString(Constants.PREFERENCES_USER_AVATAR_URL, ((userOne.photo_200 == null || userOne.photo_200.length()<1) ? userOne.photo_medium_rec : userOne.photo_200)).commit();
 									sPref.edit().putString(Constants.PREFERENCES_USER_FIRST_NAME, userOne.first_name).commit();
 									sPref.edit().putString(Constants.PREFERENCES_USER_LAST_NAME, userOne.last_name).commit();
+									
+									sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, false).commit();
 					        	}
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_POPULAR:
 					        	musicList = api.getAudioPopular(0, null, null, null);
+					        	sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_POPULAR_LIST, false).commit();
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS:
 					        	musicList = api.getAudioRecommendations(bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID), null, null, null);
+					        	sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_RECC_LIST, false).commit();
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_SEARCH:
 					        	if (bundle.getString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST) != null && bundle.getString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST).length()>0){
@@ -842,6 +863,7 @@ public class MusicFragment extends BaseFragment {
 					        		if (searchView != null)
 						        		searchView.setQuery(bundle.getString(Constants.BUNDLE_MUSIC_LIST_SEARCH_REQUEST), false);
 					        	}
+					        	sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_SEARCH_LIST, false).commit();
 					        	break;
 					        case Constants.BUNDLE_MUSIC_LIST_WALL:
 					        	ArrayList<WallMessage> wallMessageList = new ArrayList<WallMessage>();
@@ -910,20 +932,14 @@ public class MusicFragment extends BaseFragment {
                     				}
                     				musicList.add(new Audio((long)0, account.user_id, name, subname, Constants.LIST_APAR_NaN, oneMusicFile.getAbsolutePath(), null));
                     			}
+                    			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_DOWNLOADED_LIST, false).commit();
 					        	break;
 				        }
 						
 				        File f;
-				        boolean inDeleteList = false;
 						for (Audio one : musicList){
 							f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(one.artist+" - "+one.title+".mp3").replaceAll("[\\/:*?\"<>|]", ""));
-							for (MusicCollection AudioToDeleteFromStorage : musicCollectionToDelete){
-								if (one.aid == AudioToDeleteFromStorage.aid && one.owner_id == AudioToDeleteFromStorage.owner_id && one.artist.equals(AudioToDeleteFromStorage.artist) && one.title.equals(AudioToDeleteFromStorage.title)){
-									inDeleteList = true;
-									break;
-								}
-							}
-							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, f.exists() ? f.getAbsolutePath() : one.url, one.lyrics_id, (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE || bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM)) ? Constants.LIST_ACTION_REMOVE : Constants.LIST_ACTION_ADD, !f.exists() || inDeleteList ? Constants.LIST_ACTION_DOWNLOAD : Constants.LIST_ACTION_DELETE, Constants.LIST_APAR_NaN, null));
+							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, f.exists() ? f.getAbsolutePath() : one.url, one.lyrics_id, (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE || bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM)) ? Constants.LIST_ACTION_REMOVE : Constants.LIST_ACTION_ADD, !f.exists() ? Constants.LIST_ACTION_DOWNLOAD : Constants.LIST_ACTION_DELETE, Constants.LIST_APAR_NaN, null));
 						}
 						
 						if (musicCollection.isEmpty()){
