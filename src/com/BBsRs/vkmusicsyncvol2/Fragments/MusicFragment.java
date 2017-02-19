@@ -46,9 +46,9 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.Filter.FilterListener;
-import android.widget.AbsListView;
 import android.widget.ImageView;
 
 import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
@@ -222,45 +222,48 @@ public class MusicFragment extends BaseFragment {
           .setup(mPullToRefreshLayout);
         
         if(bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS) == null) {
-          	handler.postDelayed(new Runnable(){
-    			@Override
-    			public void run() {
-    				//refresh on open to load data when app first time started
-    		        mPullToRefreshLayout.setRefreshing(true);
-    		        customOnRefreshListener.onRefreshStarted(null);
-    			}
-          	}, 100);
+        	updateList();
         } else {
         	if (sPref.getBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, false) && (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE)){
         		//stop force update owner list
 				sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, false).commit();
-	          	handler.postDelayed(new Runnable(){
-	    			@Override
-	    			public void run() {
-	    				//refresh on open to load data when app first time started
-	    		        mPullToRefreshLayout.setRefreshing(true);
-	    		        customOnRefreshListener.onRefreshStarted(null);
-	    			}
-	          	}, 100);
+
+				updateList();
         	} else {
-        		if (sPref.getBoolean(Constants.PREFERENCES_UPDATE_ALL_MUSIC_LIST, false)){
-        			
-        			handler.postDelayed(new Runnable(){
-    	    			@Override
-    	    			public void run() {
-    	    				//refresh on open to load data when app first time started
-    	    		        mPullToRefreshLayout.setRefreshing(true);
-    	    		        customOnRefreshListener.onRefreshStarted(null);
-    	    			}
-    	          	}, 100);
+        		if (sPref.getBoolean(Constants.PREFERENCES_UPDATE_SEARCH_LIST, false) && bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_SEARCH){
+        			//stop force update
+        			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_SEARCH_LIST, false).commit();
+
+        			updateList();
         		} else {
-		        	ArrayList<MusicCollection> musicCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
-		        	albumCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS);
-		        	musicListAdapter.UpdateList(musicCollection);
-		        	musicListAdapter.notifyDataSetChanged();
-		        	
-		        	setUpHeaderView();
-		        	list.setVisibility(View.VISIBLE);
+        			if (sPref.getBoolean(Constants.PREFERENCES_UPDATE_POPULAR_LIST, false) && bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_POPULAR){
+            			//stop force update
+            			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_POPULAR_LIST, false).commit();
+
+            			updateList();
+            		} else {
+            			if (sPref.getBoolean(Constants.PREFERENCES_UPDATE_RECC_LIST, false) && bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS){
+                			//stop force update
+                			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_RECC_LIST, false).commit();
+
+                			updateList();
+                		} else {
+                			if (sPref.getBoolean(Constants.PREFERENCES_UPDATE_DOWNLOADED_LIST, false) && bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_DOWNLOADED){
+                    			//stop force update
+                    			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_DOWNLOADED_LIST, false).commit();
+                    			
+                    			updateList();
+                    		} else {
+					        	ArrayList<MusicCollection> musicCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
+					        	albumCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS);
+					        	musicListAdapter.UpdateList(musicCollection);
+					        	musicListAdapter.notifyDataSetChanged();
+					        	
+					        	setUpHeaderView();
+					        	list.setVisibility(View.VISIBLE);
+                    		}
+                		}
+            		}
         		}
         	}
         }
@@ -293,9 +296,18 @@ public class MusicFragment extends BaseFragment {
 			}
 		});
         
-        sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_ALL_MUSIC_LIST, false).commit();
-        
     	return contentView;
+	}
+	
+	public void updateList(){
+		handler.postDelayed(new Runnable(){
+			@Override
+			public void run() {
+				//refresh on open to load data when app first time started
+		        mPullToRefreshLayout.setRefreshing(true);
+		        customOnRefreshListener.onRefreshStarted(null);
+			}
+      	}, 100);
 	}
 	
 	final Runnable resuming = new Runnable(){
@@ -461,9 +473,11 @@ public class MusicFragment extends BaseFragment {
 		//call update for current list for second open
 		if (!musicCollectionToDelete.isEmpty()){
 			//update all music lists
-			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, null);
-			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_SECOND_COLLECTIONS, null);
-	       	sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_ALL_MUSIC_LIST, true).commit();
+			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, true).commit();
+			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_SEARCH_LIST, true).commit();
+			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_POPULAR_LIST, true).commit();
+			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_RECC_LIST, true).commit();
+			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_DOWNLOADED_LIST, true).commit();
 			//delete music wich user decided
 			for (MusicCollection AudioToDeleteFromStorage : musicCollectionToDelete){
 				File f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+".mp3").replaceAll("[\\/:*?\"<>|]", ""));
@@ -626,6 +640,27 @@ public class MusicFragment extends BaseFragment {
 						one.url = audioToChangeDownloadPercentage.url;
 						one.isDownloaded = audioToChangeDownloadPercentage.isDownloaded;
 						musicListAdapter.updateIsDownloaded(position);
+						//do not autoupdate current list
+						if (one.isDownloaded == Constants.LIST_ACTION_DELETE){
+							switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
+							case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED:
+								sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_DOWNLOADED_LIST, false).commit();
+								break;
+							case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS:
+								sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_RECC_LIST, false).commit();
+								break;
+							case Constants.BUNDLE_MUSIC_LIST_POPULAR:
+								sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_POPULAR_LIST, false).commit();
+								break;
+							case Constants.BUNDLE_MUSIC_LIST_SEARCH:
+								sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_SEARCH_LIST, false).commit();
+								break;
+							case Constants.BUNDLE_MUSIC_LIST_OF_PAGE:
+								if (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id)
+									sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, false).commit();
+								break;
+							} 
+						}
 					}
 					position++;
 				}

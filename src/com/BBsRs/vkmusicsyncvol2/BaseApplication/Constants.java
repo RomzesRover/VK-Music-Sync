@@ -11,8 +11,12 @@ public class Constants {
 	public static final String PREFERENCES_USER_FIRST_NAME = "preferences:user_first_name";
 	public static final String PREFERENCES_USER_LAST_NAME = "preferences:user_last_name";
 	
-	public static final String PREFERENCES_UPDATE_ALL_MUSIC_LIST = "preferences:update_all_music_list";
 	public static final String PREFERENCES_UPDATE_OWNER_LIST = "preferences:update_owner_list";
+	public static final String PREFERENCES_UPDATE_SEARCH_LIST = "preferences:update_search_list";
+	public static final String PREFERENCES_UPDATE_POPULAR_LIST = "preferences:update_popular_list";
+	public static final String PREFERENCES_UPDATE_RECC_LIST = "preferences:update_recc_list";
+	public static final String PREFERENCES_UPDATE_DOWNLOADED_LIST = "preferences:update_downloaded_list";
+	
 	public static final String PREFERENCES_DOWNLOAD_DIRECTORY = "preferences:download_directory";
 	
 	public static final String EXTRA_LIST_COLLECTIONS = "extra:list_collections";
