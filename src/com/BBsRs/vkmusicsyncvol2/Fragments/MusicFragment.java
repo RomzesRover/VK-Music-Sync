@@ -451,6 +451,41 @@ public class MusicFragment extends BaseFragment {
     	
     	//null list of music to delete
     	musicCollectionToDelete = new ArrayList<MusicCollection>();
+    	
+    	//update all lists if necessary
+    	switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
+		case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED:
+			if (sPref.getBoolean(Constants.PREFERENCES_UPDATE_DOWNLOADED_LIST, false)){
+				sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_DOWNLOADED_LIST, false).commit();
+				updateList();
+			}
+			break;
+		case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS:
+			if (sPref.getBoolean(Constants.PREFERENCES_UPDATE_RECC_LIST, false)){
+				sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_RECC_LIST, false).commit();
+				updateList();
+			}
+			break;
+		case Constants.BUNDLE_MUSIC_LIST_POPULAR:
+			if (sPref.getBoolean(Constants.PREFERENCES_UPDATE_POPULAR_LIST, false)){
+				sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_POPULAR_LIST, false).commit();
+				updateList();
+			}
+			break;
+		case Constants.BUNDLE_MUSIC_LIST_SEARCH:
+			if (sPref.getBoolean(Constants.PREFERENCES_UPDATE_SEARCH_LIST, false)){
+				sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_SEARCH_LIST, false).commit();
+				updateList();
+			}
+			break;
+		case Constants.BUNDLE_MUSIC_LIST_OF_PAGE:
+			if (sPref.getBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, false))
+				if (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id){
+					sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, false).commit();
+					updateList();
+				}
+			break;
+		}
     }
     
 	@Override
