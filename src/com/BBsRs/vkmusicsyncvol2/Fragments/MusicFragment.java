@@ -938,6 +938,13 @@ public class MusicFragment extends BaseFragment {
 				@Override
 		        protected void onPostExecute(Void result) {
                     if (getActivity()!=null){
+                    	//pause image loads
+      					handler.removeCallbacks(resuming);
+      					ImageLoader.getInstance().pause();
+      					if (musicListAdapter != null){
+      						musicListAdapter.updateQuality = false;
+      					}
+      					
                     	setUpHeaderView();
                     	musicListAdapter.notifyDataSetChanged();
                     	//with fly up animation
@@ -949,6 +956,9 @@ public class MusicFragment extends BaseFragment {
         					Intent requestDownloadStatus = new Intent(Constants.INTENT_REQUEST_DOWNLOAD_STATUS);
         					getActivity().sendBroadcast(requestDownloadStatus);
         				}
+        				
+        				handler.removeCallbacks(resuming);
+      					handler.postDelayed(resuming, 500);
                     }
 				}
 			};
