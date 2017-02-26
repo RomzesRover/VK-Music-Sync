@@ -120,7 +120,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		}
 	}
 	
-	public boolean updateQuality = true;
+	public boolean updateQuality = false;
 	class Result {
 		int position;
 
@@ -137,7 +137,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 			for (int position = list.getFirstVisiblePosition(); position<=list.getLastVisiblePosition(); position++){
 				int tmppos = position-1;
 				if (tmppos<0) tmppos = 0;
-				if (musicCollection.size()!=0 && musicCollection.get(tmppos).quality == -1 && musicCollection.get(tmppos).quality != 0){
+				if (musicCollection.size()!=0 && musicCollection.get(tmppos).quality == -1 && musicCollection.get(tmppos).quality != 0 && updateQuality){
 					//start async
 			        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
 			        	new updateSongQality().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tmppos);
