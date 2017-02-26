@@ -146,7 +146,7 @@ public class ContentActivity extends BaseActivity {
 				ImageView imageView = (ImageView) view;
 				boolean firstDisplay = !displayedImages.contains(imageUri);
 				if (firstDisplay) {
-					FadeInBitmapDisplayer.animate(imageView, 300);
+					FadeInBitmapDisplayer.animate(imageView, 500);
 					displayedImages.add(imageUri);
 				}
 			}
