@@ -96,33 +96,6 @@ public class FrGrFragment extends BaseFragment {
     	list.addHeaderView(header);
     	list.setAdapter(frGrListAdapter);
     	
-        //init pull to refresh module
-        ActionBarPullToRefresh.from(getActivity())
-          .allChildrenArePullable()
-          .listener(customOnRefreshListener)
-          .setup(mPullToRefreshLayout);
-        
-        //retrieve bundle
-      	bundle = this.getArguments();
-        
-		if(bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS) == null) {
-	      	handler.postDelayed(new Runnable(){
-				@Override
-				public void run() {
-			        //refresh on open to load data when app first time started
-			        mPullToRefreshLayout.setRefreshing(true);
-			        customOnRefreshListener.onRefreshStarted(null);
-				}
-	      	}, 100);
-        } else {
-        	ArrayList<FrGrCollection> frGrCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
-    		frGrListAdapter.UpdateList(frGrCollection);
-        	frGrListAdapter.notifyDataSetChanged();
-        	
-        	setUpHeaderView();
-        	list.setVisibility(View.VISIBLE);
-        }
-		
 		//view job
 		list.setOnItemClickListener(new OnItemClickListener(){
 			@Override
@@ -172,6 +145,33 @@ public class FrGrFragment extends BaseFragment {
 				}
 			}
 		});
+    	
+        //init pull to refresh module
+        ActionBarPullToRefresh.from(getActivity())
+          .allChildrenArePullable()
+          .listener(customOnRefreshListener)
+          .setup(mPullToRefreshLayout);
+        
+        //retrieve bundle
+      	bundle = this.getArguments();
+        
+		if(bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS) == null) {
+	      	handler.postDelayed(new Runnable(){
+				@Override
+				public void run() {
+			        //refresh on open to load data when app first time started
+			        mPullToRefreshLayout.setRefreshing(true);
+			        customOnRefreshListener.onRefreshStarted(null);
+				}
+	      	}, 100);
+        } else {
+        	ArrayList<FrGrCollection> frGrCollection = bundle.getParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS);
+    		frGrListAdapter.UpdateList(frGrCollection);
+        	frGrListAdapter.notifyDataSetChanged();
+        	
+        	setUpHeaderView();
+        	list.setVisibility(View.VISIBLE);
+        }
 		
     	return contentView;
 	}

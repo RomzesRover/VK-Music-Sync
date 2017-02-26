@@ -213,6 +213,35 @@ public class MusicFragment extends BaseFragment {
 		});
     	list.addHeaderView(header);
     	list.setAdapter(musicListAdapter);
+    	
+		list.setOnScrollListener(new OnScrollListener(){
+			@Override
+			public void onScroll(AbsListView arg0, int arg1, int arg2, int arg3) { }
+			@Override
+			public void onScrollStateChanged(AbsListView arg0, int scrollState) {
+				switch (scrollState){
+				case OnScrollListener.SCROLL_STATE_IDLE:
+					handler.removeCallbacks(resuming);
+					handler.postDelayed(resuming, 500);
+					break;
+				case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
+					handler.removeCallbacks(resuming);
+					ImageLoader.getInstance().pause();
+					if (musicListAdapter != null){
+						musicListAdapter.updateQuality = false;
+					}
+					break;
+				case OnScrollListener.SCROLL_STATE_FLING:
+					handler.removeCallbacks(resuming);
+					ImageLoader.getInstance().pause();
+					if (musicListAdapter != null){
+						musicListAdapter.updateQuality = false;
+					}
+					break;
+				}
+			}
+		});
+		
     	musicListAdapter.bindListView(list);
     	
         //init pull to refresh module
@@ -268,33 +297,26 @@ public class MusicFragment extends BaseFragment {
         	}
         }
         
-		list.setOnScrollListener(new OnScrollListener(){
-			@Override
-			public void onScroll(AbsListView arg0, int arg1, int arg2, int arg3) { }
-			@Override
-			public void onScrollStateChanged(AbsListView arg0, int scrollState) {
-				switch (scrollState){
-				case OnScrollListener.SCROLL_STATE_IDLE:
-					handler.removeCallbacks(resuming);
-					handler.postDelayed(resuming, 500);
-					break;
-				case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
-					handler.removeCallbacks(resuming);
-					ImageLoader.getInstance().pause();
-					if (musicListAdapter != null){
-						musicListAdapter.updateQuality = false;
-					}
-					break;
-				case OnScrollListener.SCROLL_STATE_FLING:
-					handler.removeCallbacks(resuming);
-					ImageLoader.getInstance().pause();
-					if (musicListAdapter != null){
-						musicListAdapter.updateQuality = false;
-					}
-					break;
-				}
+    	//stop update all to prevent @double autoupdate
+    	switch (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE)){
+		case Constants.BUNDLE_MUSIC_LIST_DOWNLOADED:
+			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_DOWNLOADED_LIST, false).commit();
+			break;
+		case Constants.BUNDLE_MUSIC_LIST_RECOMMENDATIONS:
+			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_RECC_LIST, false).commit();
+			break;
+		case Constants.BUNDLE_MUSIC_LIST_POPULAR:
+			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_POPULAR_LIST, false).commit();
+			break;
+		case Constants.BUNDLE_MUSIC_LIST_SEARCH:
+			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_SEARCH_LIST, false).commit();
+			break;
+		case Constants.BUNDLE_MUSIC_LIST_OF_PAGE:
+			if (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id){
+				sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, false).commit();
 			}
-		});
+			break;
+		}
         
     	return contentView;
 	}
