@@ -13,6 +13,7 @@ import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLa
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ import com.BBsRs.vkmusicsyncvol2.Adapters.FrGrListAdapter;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseFragment;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
+import com.BBsRs.vkmusicsyncvol2.Services.DownloadService;
 import com.BBsRs.vkmusicsyncvol2.collections.FrGrCollection;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -267,11 +269,10 @@ public class FrGrFragment extends BaseFragment {
 						}
 						
 						//slep to prevent laggy animations
-						Thread.sleep(100);
+						Thread.sleep(250);
 						
-						ArrayList<FrGrCollection> frGrCollection = new ArrayList<FrGrCollection>();
 						//null lists
-						frGrListAdapter.UpdateList(frGrCollection);
+						ArrayList<FrGrCollection> frGrCollection = new ArrayList<FrGrCollection>();
 						
 						//load nesc frgr list
 				        switch (bundle.getInt(Constants.BUNDLE_FRGR_LIST_TYPE)){
@@ -296,7 +297,7 @@ public class FrGrFragment extends BaseFragment {
 						} else {
 							bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_NO_ERROR);
 						}
-						
+				        
 				        frGrListAdapter.UpdateList(frGrCollection);
 					} catch (Exception e) {
 						bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_ANOTHER);
@@ -312,7 +313,7 @@ public class FrGrFragment extends BaseFragment {
 					});
 					//slep to prevent laggy animations
 					try {
-						Thread.sleep(150);
+						Thread.sleep(250);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -323,11 +324,27 @@ public class FrGrFragment extends BaseFragment {
 				@Override
 		        protected void onPostExecute(Void result) {
                     if (getActivity()!=null){
+                    	//pause image loads
+      					handler.removeCallbacks(resuming);
+      					ImageLoader.getInstance().pause();
+      					
                     	setUpHeaderView();
                     	frGrListAdapter.notifyDataSetChanged();
                     	//with fly up animation
                     	list.setVisibility(View.VISIBLE);
                     	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);
+                    	flyUpAnimation.setAnimationListener(new AnimationListener(){
+							@Override
+							public void onAnimationEnd(Animation arg0) {
+		        				handler.removeCallbacks(resuming);
+		      					handler.postDelayed(resuming, 500);
+							}
+							@Override
+							public void onAnimationRepeat(Animation arg0) { }
+							@Override
+							public void onAnimationStart(Animation arg0) { }
+                    		
+                    	});
                     	list.startAnimation(flyUpAnimation);
                     } 
 				}

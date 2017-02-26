@@ -823,7 +823,7 @@ public class MusicFragment extends BaseFragment {
 						}
 						
 						//slep to prevent laggy animations
-						Thread.sleep(100);
+						Thread.sleep(250);
 						
 						//delete music to delete
 						if (!musicCollectionToDelete.isEmpty()){
@@ -844,7 +844,6 @@ public class MusicFragment extends BaseFragment {
 						ArrayList<MusicCollection> musicCollection = new ArrayList<MusicCollection>();
 						//null lists
 						albumCollection = new ArrayList<AlbumCollection>();
-						musicListAdapter.UpdateList(musicCollection);
 						//null list of music to delete
 				    	musicCollectionToDelete = new ArrayList<MusicCollection>();
 						
@@ -1001,7 +1000,7 @@ public class MusicFragment extends BaseFragment {
 					
 					//slep to prevent laggy animations
 					try {
-						Thread.sleep(150);
+						Thread.sleep(250);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -1023,15 +1022,25 @@ public class MusicFragment extends BaseFragment {
                     	//with fly up animation
                     	list.setVisibility(View.VISIBLE);
                     	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);
+                    	flyUpAnimation.setAnimationListener(new AnimationListener(){
+							@Override
+							public void onAnimationEnd(Animation arg0) {
+								//update songs percentage
+		        				if (isMyServiceRunning(DownloadService.class)){
+		        					Intent requestDownloadStatus = new Intent(Constants.INTENT_REQUEST_DOWNLOAD_STATUS);
+		        					getActivity().sendBroadcast(requestDownloadStatus);
+		        				}
+		        				
+		        				handler.removeCallbacks(resuming);
+		      					handler.postDelayed(resuming, 500);
+							}
+							@Override
+							public void onAnimationRepeat(Animation arg0) { }
+							@Override
+							public void onAnimationStart(Animation arg0) { }
+                    		
+                    	});
                     	list.startAnimation(flyUpAnimation);
-                    	//update songs percentage
-        				if (isMyServiceRunning(DownloadService.class)){
-        					Intent requestDownloadStatus = new Intent(Constants.INTENT_REQUEST_DOWNLOAD_STATUS);
-        					getActivity().sendBroadcast(requestDownloadStatus);
-        				}
-        				
-        				handler.removeCallbacks(resuming);
-      					handler.postDelayed(resuming, 500);
                     }
 				}
 			};

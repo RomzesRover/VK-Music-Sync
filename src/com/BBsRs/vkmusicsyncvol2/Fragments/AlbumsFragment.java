@@ -202,11 +202,10 @@ public class AlbumsFragment extends BaseFragment {
 						}
 						
 						//slep to prevent laggy animations
-						Thread.sleep(100);
+						Thread.sleep(250);
 						
-						ArrayList<AlbumCollection> albumCollection = new ArrayList<AlbumCollection>();
 						//null lists
-						albumListAdapter.UpdateList(albumCollection);
+						ArrayList<AlbumCollection> albumCollection = new ArrayList<AlbumCollection>();
 						
 						//load nesc album list
 						for (AudioAlbum one : api.getAudioAlbums(bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID), 0, 100)){
@@ -234,7 +233,7 @@ public class AlbumsFragment extends BaseFragment {
 					});
 					//slep to prevent laggy animations
 					try {
-						Thread.sleep(150);
+						Thread.sleep(250);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
