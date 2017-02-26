@@ -132,6 +132,8 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB) 
 	public void updateQualities(){
 		try {
+			if (!updateQuality)
+				return;
 			for (int position = list.getFirstVisiblePosition(); position<=list.getLastVisiblePosition(); position++){
 				int tmppos = position-1;
 				if (tmppos<0) tmppos = 0;
@@ -492,7 +494,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		holder.quality.setText(musicCollection.get(position).quality == Constants.LIST_APAR_NaN || musicCollection.get(position).quality == Constants.LIST_APAR_IN_PROCESS ? "" : musicCollection.get(position).size+" MB | " + musicCollection.get(position).quality+"kbps");
 		
 		//set up quality 
-		if (musicCollection.get(position).quality == Constants.LIST_APAR_NaN){
+		if (musicCollection.get(position).quality == Constants.LIST_APAR_NaN && updateQuality){
 			//start async
 	        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
 	        	new updateSongQality().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, position);
