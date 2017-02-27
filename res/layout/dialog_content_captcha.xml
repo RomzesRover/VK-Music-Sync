@@ -50,6 +50,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:imeOptions="actionGo"
+            android:textColor="@color/white_color"
+            android:textSize="15sp"
             android:inputType="text" >
         </EditText>
     </LinearLayout>
@@ -61,33 +63,26 @@
         <Button
             android:id="@+id/apply"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/ic_intro_btn"
-            android:paddingLeft="26dp"
-            android:paddingRight="40dp"
+            android:background="@drawable/ic_dialog_btn"
+            android:padding="5dp"
             android:text="@string/login_activity_apply"
             android:textColor="@color/white_color"
-            android:textSize="17sp" />
+            android:textSize="16sp" />
 
         <Button
             android:id="@+id/cancel"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_toLeftOf="@+id/apply"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="5dp"
-            android:layout_marginRight="5dp"
-            android:background="@drawable/ic_intro_btn"
-            android:paddingLeft="26dp"
-            android:paddingRight="40dp"
+            android:background="@drawable/ic_dialog_btn"
+            android:padding="5dp"
             android:text="@string/login_activity_cancel"
             android:textColor="@color/white_color"
-            android:textSize="17sp" />
+            android:textSize="16sp" />
     </RelativeLayout>
 
 </LinearLayout>

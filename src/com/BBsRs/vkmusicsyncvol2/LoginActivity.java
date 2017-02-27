@@ -293,9 +293,9 @@ public class LoginActivity extends BaseActivity {
 	    	
 	    	//set fonts
 	    	SFUIFonts.LIGHT.apply(context, captchaText);
-	    	SFUIFonts.ULTRALIGHT.apply(context, title);
-	    	SFUIFonts.ULTRALIGHT.apply(context, cancel);
-	    	SFUIFonts.ULTRALIGHT.apply(context, apply);
+	    	SFUIFonts.MEDIUM.apply(context, title);
+	    	SFUIFonts.LIGHT.apply(context, cancel);
+	    	SFUIFonts.LIGHT.apply(context, apply);
 	    	
 	    	//view job
 	    	icon.setImageResource(R.drawable.ic_launcher);
@@ -387,7 +387,7 @@ public class LoginActivity extends BaseActivity {
 	    	WebView webview = (WebView)content.findViewById(R.id.vkontakteview);
 	    	
 	    	//set fonts
-	    	SFUIFonts.ULTRALIGHT.apply(context, title);
+	    	SFUIFonts.MEDIUM.apply(context, title);
 	    	
 	    	//view job
 	    	icon.setImageResource(R.drawable.ic_launcher);
