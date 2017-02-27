@@ -649,6 +649,16 @@ public class MusicFragment extends BaseFragment {
 			MusicCollection AudioToDownloadToStorage = musicListAdapter.getItem(position);
 			AudioToDownloadToStorage.isDownloaded = Constants.LIST_ACTION_DOWNLOAD_STARTED;
 			
+			//delete song from deleteList
+			int index = 0;
+			for (MusicCollection one : musicCollectionToDelete){
+				if (one.aid == AudioToDownloadToStorage.aid && one.owner_id == AudioToDownloadToStorage.owner_id && one.artist.equals(AudioToDownloadToStorage.artist) && one.title.equals(AudioToDownloadToStorage.title)){
+					musicCollectionToDelete.remove(index);
+					break;
+				}
+				index++;
+			}
+			
 			try {
 				if (!isMyServiceRunning(DownloadService.class)){
 					//start service with audio in Intent
