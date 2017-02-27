@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/icon"
-            android:text="@string/preferences_dialog_log_out"
+            android:text="@string/preferences_dialog_download_directory"
             android:singleLine="true"
             android:textColor="@color/white_color"
             android:textSize="18sp" />
@@ -34,20 +34,16 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="5dp" >
-        <TextView
-                android:id="@+id/summary"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingBottom="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="@dimen/activity_horizontal_margin"
-                android:text="@string/preferences_dialog_are_you_sure_logout"
-                android:autoLink="web"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/white_color"
-                android:textSize="16sp" />
-
+        <EditText
+            android:id="@+id/edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:imeOptions="actionGo"
+            android:textColor="@color/white_color"
+            android:textSize="15sp"
+            android:inputType="text" >
+        </EditText>
     </LinearLayout>
 
     <RelativeLayout
@@ -62,7 +58,7 @@
             android:layout_alignParentTop="true"
             android:background="@drawable/ic_dialog_btn"
             android:padding="5dp"
-            android:text="@string/preferences_dialog_yes"
+            android:text="@string/preferences_dialog_ok"
             android:textColor="@color/white_color"
             android:textSize="16sp" />
 
@@ -74,7 +70,7 @@
             android:layout_toLeftOf="@+id/apply"
             android:background="@drawable/ic_dialog_btn"
             android:padding="5dp"
-            android:text="@string/preferences_dialog_no"
+            android:text="@string/preferences_dialog_cancel"
             android:textColor="@color/white_color"
             android:textSize="16sp"/>
     </RelativeLayout>

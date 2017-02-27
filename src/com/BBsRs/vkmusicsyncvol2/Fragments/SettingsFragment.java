@@ -4,13 +4,12 @@ import java.io.File;
 
 import org.holoeverywhere.LayoutInflater;
 import org.holoeverywhere.app.AlertDialog;
-import org.holoeverywhere.preference.EditTextPreference;
 import org.holoeverywhere.preference.Preference;
-import org.holoeverywhere.preference.Preference.OnPreferenceChangeListener;
 import org.holoeverywhere.preference.Preference.OnPreferenceClickListener;
 import org.holoeverywhere.preference.PreferenceManager;
 import org.holoeverywhere.preference.SharedPreferences;
 import org.holoeverywhere.widget.Button;
+import org.holoeverywhere.widget.EditText;
 import org.holoeverywhere.widget.TextView;
 import org.holoeverywhere.widget.Toast;
 
@@ -32,8 +31,7 @@ public class SettingsFragment extends BasePreferencesFragment {
     //for retrieve data from activity
     Bundle bundle;
     
-    EditTextPreference downloadDirectory;
-    Preference stopDownload, logout;
+    Preference stopDownload, logout, downloadDirectory;
     
     AlertDialog alert = null;
     
@@ -50,28 +48,67 @@ public class SettingsFragment extends BasePreferencesFragment {
         addPreferencesFromResource(R.xml.settings_preferences);
         
         //init
-        downloadDirectory = (EditTextPreference) findPreference(Constants.PREFERENCES_DOWNLOAD_DIRECTORY);
+        downloadDirectory = (Preference) findPreference(Constants.PREFERENCES_DOWNLOAD_DIRECTORY);
         stopDownload = (Preference)findPreference("preference:stop_download");
         logout = (Preference)findPreference("preference:logout");
         
         //pref job
-        downloadDirectory.setOnPreferenceChangeListener(new OnPreferenceChangeListener(){
+        downloadDirectory.setOnPreferenceClickListener(new OnPreferenceClickListener(){
 			@Override
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				//check current download directory to availability 
-			    File checker = null;
-			    try {
-		    		checker = new File(newValue.toString()+"/1.txt");
-		    		checker.mkdirs();
-		    		checker.createNewFile();
-		    		checker.delete();
-		    		sPref.edit().putString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, newValue.toString()+"/").commit();
-		    		updateSummary();
-		    		return true;
-		    	} catch (Exception e){
-		    		Toast.makeText(getActivity(), getActivity().getString(R.string.preferences_download_directory_unavailable), Toast.LENGTH_LONG).show();
-		    		return false;
-		    	}
+			public boolean onPreferenceClick(Preference preference) {
+				final Context context = getActivity(); 								// create context
+		 		AlertDialog.Builder build = new AlertDialog.Builder(context); 				// create build for alert dialog
+		    	
+		    	LayoutInflater inflater = (LayoutInflater)context.getSystemService
+		    		      (Context.LAYOUT_INFLATER_SERVICE);
+		    	
+		    	//init views
+		    	View content = inflater.inflate(R.layout.dialog_edit_text, null);
+		    	TextView title = (TextView)content.findViewById(R.id.title);
+		    	final EditText directory = (EditText)content.findViewById(R.id.edit_text);
+		    	Button cancel = (Button)content.findViewById(R.id.cancel);
+		    	Button apply = (Button)content.findViewById(R.id.apply);
+//		    	ImageView icon = (ImageView)content.findViewById(R.id.icon);
+		    	
+		    	//set fonts
+		    	SFUIFonts.MEDIUM.apply(context, title);
+		    	SFUIFonts.LIGHT.apply(context, cancel);
+		    	SFUIFonts.LIGHT.apply(context, apply);
+		    	SFUIFonts.LIGHT.apply(context, directory);
+		    	
+		    	//view job
+		    	directory.setText(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, ""));
+		    	
+		    	apply.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						//check current download directory to availability 
+					    File checker = null;
+					    try {
+				    		checker = new File(directory.getText().toString()+"/1.txt");
+				    		checker.mkdirs();
+				    		checker.createNewFile();
+				    		checker.delete();
+				    		sPref.edit().putString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, directory.getText().toString()+"/").commit();
+				    		updateSummary();
+				    		alert.dismiss();
+				    	} catch (Exception e){
+				    		Toast.makeText(getActivity(), getActivity().getString(R.string.preferences_download_directory_unavailable), Toast.LENGTH_LONG).show();
+				    	}
+					}
+				});
+		    	
+		    	cancel.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						alert.dismiss();
+					}
+				});
+		    	
+		    	build.setView(content);
+		    	alert = build.create();															// show dialog
+		    	alert.show();
+		    	return false;
 			}
         });
         
@@ -113,9 +150,9 @@ public class SettingsFragment extends BasePreferencesFragment {
 					@Override
 					public void onClick(View v) {
 						sPref.edit().clear().commit();
+						alert.dismiss();
 						getActivity().startActivity(new Intent(getActivity(), LoaderActivity.class));
 						getActivity().finish();
-						alert.dismiss();
 					}
 				});
 		    	

@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
-    <string name="dialog_log_out">Log out</string>
-    <string name="dialog_are_you_sure_logout">Are you sure want to logout?</string>
-    <string name="dialog_yes">Yes</string>
-    <string name="dialog_no">No</string>
+    <string name="preferences_dialog_log_out">Log out</string>
+    <string name="preferences_dialog_are_you_sure_logout">Are you sure want to logout?</string>
+    <string name="preferences_dialog_yes">Yes</string>
+    <string name="preferences_dialog_no">No</string>
+    
+    <string name="preferences_dialog_download_directory">Download directory</string>
+    <string name="preferences_dialog_ok">Ok</string>
+    <string name="preferences_dialog_cancel">Cancel</string>
     
     <string name="preferences_base">Base</string>
     <string name="preferences_download_directory">Download directory</string>

@@ -9,7 +9,7 @@
         android:title="@string/app_name" />
 
     <PreferenceCategory android:title="@string/preferences_base" >
-        <EditTextPreference
+        <Preference
             android:key="preferences:download_directory"
             android:title="@string/preferences_download_directory" /> 
         <Preference
