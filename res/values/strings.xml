@@ -27,7 +27,7 @@
     <string name="download_stop">Stop download</string>
 
     <string name="app_name">VK Music Sync</string>
-    <string name="app_version">0.2 Alpha</string>
+    <string name="app_version">0.3 Alpha</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="login_activity_authorization">Authoriziation</string>
