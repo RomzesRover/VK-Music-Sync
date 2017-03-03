@@ -13,4 +13,15 @@
         <item name="background">@drawable/ab_solid_color</item>
     </style>
 
+    <style name="SeekBarwhite" parent="android:Widget.SeekBar">
+        <item name="android:progressDrawable">@drawable/white_scrubber_progress_horizontal_holo_light</item>
+        <item name="android:indeterminateDrawable">@drawable/white_scrubber_progress_horizontal_holo_light</item>
+        <item name="android:minHeight">13dip</item>
+        <item name="android:maxHeight">13dip</item>
+        <item name="android:thumb">@drawable/white_scrubber_control_selector_holo_light</item>
+        <item name="android:thumbOffset">16dip</item>
+        <item name="android:paddingLeft">7dip</item>
+        <item name="android:paddingRight">7dip</item>
+    </style>
+
 </resources>

@@ -13,7 +13,6 @@ import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLa
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 import android.annotation.TargetApi;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,7 +34,6 @@ import com.BBsRs.vkmusicsyncvol2.Adapters.FrGrListAdapter;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseFragment;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
-import com.BBsRs.vkmusicsyncvol2.Services.DownloadService;
 import com.BBsRs.vkmusicsyncvol2.collections.FrGrCollection;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;

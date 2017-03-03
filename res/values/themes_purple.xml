@@ -10,6 +10,9 @@
         <item name="homeAsUpIndicator">@drawable/contenttheme_ic_navigation_drawer</item>
         <item name="android:windowBackground">@color/white_color</item>
         <item name="android:editTextStyle">@style/EditTextpurple</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="windowContentOverlay">@null</item>
+        <item name="android:seekBarStyle">@style/SeekBarwhite</item>
     </style>
     
     <style name="purple.Loader" parent="Holo.Theme.NoActionBar">

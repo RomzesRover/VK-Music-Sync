@@ -22,6 +22,9 @@ public class Constants {
 	public static final String EXTRA_LIST_COLLECTIONS = "extra:list_collections";
 	public static final String EXTRA_LIST_SECOND_COLLECTIONS = "extra:list_second_collections_2";
 	
+	public static final String BUNDLE_PLAYER_LIST_COLLECTIONS = "bundle:player_list_collections";
+	public static final String BUNDLE_PLAYER_CURRENT_SELECTED_POSITION = "bundle:player_current_selected_position";
+	
 	public static final String BUNDLE_MUSIC_LIST_TYPE = "bundle:music_list_type";
 	public static final int BUNDLE_MUSIC_LIST_OF_PAGE = 0;
 	public static final int BUNDLE_MUSIC_LIST_POPULAR = 1;

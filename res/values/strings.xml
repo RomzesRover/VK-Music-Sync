@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
+    <string name="player_of">of</string>
+    
     <string name="preferences_dialog_log_out">Log out</string>
     <string name="preferences_dialog_are_you_sure_logout">Are you sure want to logout?</string>
     <string name="preferences_dialog_yes">Yes</string>
