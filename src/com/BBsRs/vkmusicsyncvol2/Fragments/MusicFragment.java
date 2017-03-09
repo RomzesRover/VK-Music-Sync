@@ -445,7 +445,7 @@ public class MusicFragment extends BaseFragment {
 			//set close button icon
 	        ImageView closeBtn = (ImageView) searchField.get(searchView);
 	        closeBtn.setImageResource(R.drawable.ic_search_cancel);
-	        closeBtn.setBackground(null);
+	        closeBtn.setBackgroundColor(getResources().getColor(R.color.transparent_color));
 	        //set search icon
 	        ImageView searchButton = (ImageView) searchView.findViewById(R.id.search_button);            
             searchButton.setImageResource(R.drawable.ic_menu_search);
