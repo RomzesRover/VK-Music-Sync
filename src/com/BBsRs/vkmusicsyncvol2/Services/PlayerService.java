@@ -1,6 +1,8 @@
 package com.BBsRs.vkmusicsyncvol2.Services;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 import org.holoeverywhere.preference.PreferenceManager;
 import org.holoeverywhere.preference.SharedPreferences;
@@ -38,6 +40,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	PowerManager.WakeLock wl;
 	
 	ArrayList<MusicCollection> musicCollection = new ArrayList<MusicCollection>();
+	ArrayList<MusicCollection> musicCollectionOriginal = new ArrayList<MusicCollection>();
 	int currentTrack;
 	
 	private MediaPlayer mediaPlayer;
@@ -46,7 +49,6 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	boolean canSwitch = false;
 	boolean prepared = false;
 	boolean lastAction = true;
-//	boolean loopAll = true;
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -70,6 +72,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().registerReceiver(requestBackSwitchInfo, new IntentFilter(Constants.INTENT_PLAYER_REQUEST_BACK_SWITCH_INFO));
 		getApplicationContext().registerReceiver(killServiceOnPause, new IntentFilter(Constants.INTENT_PLAYER_KILL_SERVICE_ON_PAUSE));
 		getApplicationContext().registerReceiver(changeRepeat, new IntentFilter(Constants.INTENT_PLAYER_REPEAT));
+		getApplicationContext().registerReceiver(changeShuffle, new IntentFilter(Constants.INTENT_PLAYER_SHUFFLE));
 	}
 	
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -101,6 +104,8 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().unregisterReceiver(requestBackSwitchInfo);
 		getApplicationContext().unregisterReceiver(killServiceOnPause);
 		getApplicationContext().unregisterReceiver(changeRepeat);
+		getApplicationContext().unregisterReceiver(changeShuffle);
+		
 		//release player
 		releaseMP();
 		
@@ -146,6 +151,45 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+	    }
+	};
+	
+	private BroadcastReceiver changeShuffle = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	    	if (!canSwitch)
+	    		return;
+	    	if (mediaPlayer == null)
+	    		return;
+	    	
+	    	if (musicCollectionOriginal.isEmpty()){
+	    		musicCollectionOriginal = new ArrayList<MusicCollection>();
+	    		musicCollectionOriginal.addAll(musicCollection);
+	    		Collections.shuffle(musicCollection, new Random(System.currentTimeMillis()));
+	    	}
+	    	else {
+	    		//determine new position in list
+	    		int index=0;
+    			for (MusicCollection one : musicCollectionOriginal){
+    				if (one.aid == musicCollection.get(currentTrack).aid && one.owner_id == musicCollection.get(currentTrack).owner_id && one.artist.equals(musicCollection.get(currentTrack).artist) && one.title.equals(musicCollection.get(currentTrack).title)){
+    					currentTrack = index;
+    					break;
+    				}
+    				index++;
+    			}
+    			
+	    		musicCollection = new ArrayList<MusicCollection>();
+	    		musicCollection.addAll(musicCollectionOriginal);
+	    		musicCollectionOriginal = new ArrayList<MusicCollection>();
+	    	}
+
+	    	Intent i3 = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_SHUFFLE);
+			i3.putExtra(Constants.INTENT_PLAYER_PLAYBACK_SHUFFLE_STATUS, !musicCollectionOriginal.isEmpty());
+			sendBroadcast(i3);
+	    	
+	    	canSwitch = false;
+	    	handler.removeCallbacks(resuming);
+			handler.postDelayed(resuming, 525);
 	    }
 	};
 	
@@ -259,6 +303,10 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	    			currentTrackNew != currentTrack || 
 	    			!musicCollection.get(currentTrack).artist.equals(musicCollectionNew.get(currentTrackNew).artist) || 
 	    			!musicCollection.get(currentTrack).title.equals(musicCollectionNew.get(currentTrackNew).title)){
+	    		
+	    		//destroy shuffle
+	    		musicCollectionOriginal = new ArrayList<MusicCollection>();
+	    		
 	    		musicCollection = musicCollectionNew;
 		    	currentTrack = currentTrackNew;
 		    	//strat play music
@@ -277,10 +325,26 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		i2.putExtra(Constants.INTENT_PLAYER_PLAYBACK_REPEAT_STATUS, mediaPlayer.isLooping());
 		sendBroadcast(i2);
 		
+		Intent i3 = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_SHUFFLE);
+		i3.putExtra(Constants.INTENT_PLAYER_PLAYBACK_SHUFFLE_STATUS, !musicCollectionOriginal.isEmpty());
+		sendBroadcast(i3);
+		
+		int cr = currentTrack;
+		if (!musicCollectionOriginal.isEmpty()){
+			int index=0;
+			for (MusicCollection one : musicCollectionOriginal){
+				if (one.aid == musicCollection.get(currentTrack).aid && one.owner_id == musicCollection.get(currentTrack).owner_id && one.artist.equals(musicCollection.get(currentTrack).artist) && one.title.equals(musicCollection.get(currentTrack).title)){
+					cr=index;
+					break;
+				}
+				index++;
+			}
+		}
+		
 		Intent backSwitchInfo = new Intent(Constants.INTENT_PLAYER_BACK_SWITCH_TRACK_INFO);
 		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_DIRECTION, direction);
 		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_FITS, fits);
-		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_POSITION, currentTrack);
+		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_POSITION, cr);
 		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_SIZE, musicCollection.size());
 		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_ONE_AUDIO, (Parcelable)musicCollection.get(currentTrack));
 		sendBroadcast(backSwitchInfo);

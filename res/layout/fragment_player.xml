@@ -138,7 +138,8 @@
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_music_shuffle" />
+                android:src="@drawable/ic_music_shuffle_dis"
+                android:tag="dis" />
 
             <LinearLayout
                 android:layout_width="wrap_content"

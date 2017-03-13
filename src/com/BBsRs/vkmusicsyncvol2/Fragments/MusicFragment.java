@@ -987,9 +987,12 @@ public class MusicFragment extends BaseFragment {
 				        }
 						
 				        File f;
+				        int idx=0;
 						for (Audio one : musicList){
 							f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(one.artist+" - "+one.title+".mp3").replaceAll("[\\/:*?\"<>|]", ""));
 							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, f.exists() ? f.getAbsolutePath() : one.url, one.lyrics_id, (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE || bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM)) ? Constants.LIST_ACTION_REMOVE : Constants.LIST_ACTION_ADD, !f.exists() ? Constants.LIST_ACTION_DOWNLOAD : Constants.LIST_ACTION_DELETE, Constants.LIST_APAR_NaN, null));
+							idx++;
+							Log.e("HEREZAZA", idx +" : " + one.artist + " " + one.title);
 						}
 						
 						if (musicCollection.isEmpty()){

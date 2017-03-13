@@ -19,6 +19,7 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -100,6 +101,14 @@ public class PlayerFragment extends BaseFragment {
 			restartPlayer.putExtras(bundle);
 			getActivity().sendBroadcast(restartPlayer);
 		}
+		
+		shuffle.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				Intent a = new Intent(Constants.INTENT_PLAYER_SHUFFLE);
+				getActivity().sendBroadcast(a);
+			}
+		});
 		
 		repeat.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -196,6 +205,7 @@ public class PlayerFragment extends BaseFragment {
     	getActivity().registerReceiver(backSwitchInfo, new IntentFilter(Constants.INTENT_PLAYER_BACK_SWITCH_TRACK_INFO));
     	getActivity().registerReceiver(playPauseStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_PLAY_PAUSE));
     	getActivity().registerReceiver(repeatStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_REPEAT));
+    	getActivity().registerReceiver(shuffleStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_SHUFFLE));
     }
     
 	@Override
@@ -206,11 +216,40 @@ public class PlayerFragment extends BaseFragment {
 		getActivity().unregisterReceiver(backSwitchInfo);
 		getActivity().unregisterReceiver(playPauseStatus);
 		getActivity().unregisterReceiver(repeatStatus);
+		getActivity().unregisterReceiver(shuffleStatus);
 		
 		//kill service if no song in player
 		Intent i = new Intent(Constants.INTENT_PLAYER_KILL_SERVICE_ON_PAUSE);
 		getActivity().sendBroadcast(i);
 	}
+	
+	private BroadcastReceiver shuffleStatus = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, final Intent intent) {
+			
+			if (shuffle.getTag().toString().equals(!intent.getExtras().getBoolean(Constants.INTENT_PLAYER_PLAYBACK_SHUFFLE_STATUS) ? "dis" : "en"))
+				return;
+			
+	    	Animation flyUpAnimation6 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
+		    flyUpAnimation6.setAnimationListener(new AnimationListener(){
+				@Override
+				public void onAnimationEnd(Animation arg0) {
+					shuffle.setVisibility(View.INVISIBLE);
+					shuffle.setImageResource(!intent.getExtras().getBoolean(Constants.INTENT_PLAYER_PLAYBACK_SHUFFLE_STATUS) ? R.drawable.ic_music_shuffle_dis : R.drawable.ic_music_shuffle);
+					shuffle.setTag(!intent.getExtras().getBoolean(Constants.INTENT_PLAYER_PLAYBACK_SHUFFLE_STATUS) ? "dis" : "en");
+					shuffle.setVisibility(View.VISIBLE);
+					
+					Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim_small);
+					shuffle.startAnimation(flyDownAnimation);
+				}
+				@Override
+				public void onAnimationRepeat(Animation arg0) { }
+				@Override
+				public void onAnimationStart(Animation arg0) { }
+	    	});
+		    shuffle.startAnimation(flyUpAnimation6);
+		}
+	};
 	
 	private BroadcastReceiver repeatStatus = new BroadcastReceiver(){
 		@Override
