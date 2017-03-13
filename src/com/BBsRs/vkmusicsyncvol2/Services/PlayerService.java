@@ -46,6 +46,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	boolean canSwitch = false;
 	boolean prepared = false;
 	boolean lastAction = true;
+//	boolean loopAll = true;
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -68,6 +69,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().registerReceiver(seekChange, new IntentFilter(Constants.INTENT_PLAYER_SEEK_CHANGE));
 		getApplicationContext().registerReceiver(requestBackSwitchInfo, new IntentFilter(Constants.INTENT_PLAYER_REQUEST_BACK_SWITCH_INFO));
 		getApplicationContext().registerReceiver(killServiceOnPause, new IntentFilter(Constants.INTENT_PLAYER_KILL_SERVICE_ON_PAUSE));
+		getApplicationContext().registerReceiver(changeRepeat, new IntentFilter(Constants.INTENT_PLAYER_REPEAT));
 	}
 	
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -98,6 +100,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().unregisterReceiver(seekChange);
 		getApplicationContext().unregisterReceiver(requestBackSwitchInfo);
 		getApplicationContext().unregisterReceiver(killServiceOnPause);
+		getApplicationContext().unregisterReceiver(changeRepeat);
 		//release player
 		releaseMP();
 		
@@ -131,7 +134,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	    	try {
 	    		if (mediaPlayer!=null){
 	    			seekToInt=intent.getIntExtra(Constants.INTENT_PLAYER_SEEK_TO, 0);
-	    			if (seekToInt == mediaPlayer.getDuration()){
+	    			if (seekToInt == mediaPlayer.getDuration() && ! mediaPlayer.isLooping()){
 	    				//play next on end of the song
 	    				Intent next = new Intent(Constants.INTENT_PLAYER_NEXT);
 	    				next.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_FITS, false);
@@ -143,6 +146,26 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+	    }
+	};
+	
+	private BroadcastReceiver changeRepeat = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	    	if (!canSwitch)
+	    		return;
+	    	if (mediaPlayer == null)
+	    		return;
+	    	
+	    	mediaPlayer.setLooping(!mediaPlayer.isLooping());
+	    	
+	    	Intent i = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_REPEAT);
+			i.putExtra(Constants.INTENT_PLAYER_PLAYBACK_REPEAT_STATUS, mediaPlayer.isLooping());
+			sendBroadcast(i);
+	    	
+	    	canSwitch = false;
+	    	handler.removeCallbacks(resuming);
+			handler.postDelayed(resuming, 525);
 	    }
 	};
 	
@@ -250,6 +273,10 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		i.putExtra(Constants.INTENT_PLAYER_PLAYBACK_PLAY_PAUSE_STATUS, mediaPlayer.isPlaying() || !prepared);
 		sendBroadcast(i);
 		
+		Intent i2 = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_REPEAT);
+		i2.putExtra(Constants.INTENT_PLAYER_PLAYBACK_REPEAT_STATUS, mediaPlayer.isLooping());
+		sendBroadcast(i2);
+		
 		Intent backSwitchInfo = new Intent(Constants.INTENT_PLAYER_BACK_SWITCH_TRACK_INFO);
 		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_DIRECTION, direction);
 		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_FITS, fits);
@@ -260,10 +287,13 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	}
 	
 	private void initMP(){
+		boolean looping = false;
+		if (mediaPlayer != null) looping = mediaPlayer.isLooping();
 		prepared = false;
 		
 		releaseMP();
 		mediaPlayer = new MediaPlayer();
+		mediaPlayer.setLooping(looping);
         mediaPlayer.setOnPreparedListener(this);
         mediaPlayer.setOnBufferingUpdateListener(this);
         mediaPlayer.setOnCompletionListener(this);

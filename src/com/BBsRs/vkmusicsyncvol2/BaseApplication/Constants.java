@@ -77,6 +77,7 @@ public class Constants {
 	public static final String INTENT_PLAYER_NEXT = "intent:player_next";
 	public static final String INTENT_PLAYER_PREV = "intent:player_prev";
 	public static final String INTENT_PLAYER_PLAY_PAUSE = "intent:player_play_pause";
+	public static final String INTENT_PLAYER_REPEAT = "intent:player_repeat";
 	/*--*/
 	public static final String INTENT_PLAYER_SEEK_CHANGE = "intent:player_seek_change";
 	public static final String INTENT_PLAYER_SEEK_TO = "intent:player_seek_to";
@@ -94,6 +95,10 @@ public class Constants {
 	public static final String INTENT_PLAYER_PLAYBACK_PLAY_PAUSE_STATUS = "intent:player_playback_play_pause_status";
 	/*--*/
 	public static final String INTENT_PLAYER_KILL_SERVICE_ON_PAUSE = "intent:player_kill_service_on_pause";
+	/*--*/
+	public static final String INTENT_PLAYER_PLAYBACK_CHANGE_REPEAT = "intent:player_playback_change_repeat";
+	public static final String INTENT_PLAYER_PLAYBACK_REPEAT_STATUS = "intent:player_playback_repeat_status";
+	
 	
 	
 	public static final int LIST_ACTION_ADD = 0;

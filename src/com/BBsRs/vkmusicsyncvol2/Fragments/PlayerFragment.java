@@ -100,6 +100,14 @@ public class PlayerFragment extends BaseFragment {
 			restartPlayer.putExtras(bundle);
 			getActivity().sendBroadcast(restartPlayer);
 		}
+		
+		repeat.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				Intent a = new Intent(Constants.INTENT_PLAYER_REPEAT);
+				getActivity().sendBroadcast(a);
+			}
+		});
     	
 		//view job
 		next.setOnClickListener(new View.OnClickListener() {
@@ -187,6 +195,7 @@ public class PlayerFragment extends BaseFragment {
     	getActivity().registerReceiver(updatePlayback, new IntentFilter(Constants.INTENT_UPDATE_PLAYBACK));
     	getActivity().registerReceiver(backSwitchInfo, new IntentFilter(Constants.INTENT_PLAYER_BACK_SWITCH_TRACK_INFO));
     	getActivity().registerReceiver(playPauseStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_PLAY_PAUSE));
+    	getActivity().registerReceiver(repeatStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_REPEAT));
     }
     
 	@Override
@@ -196,11 +205,40 @@ public class PlayerFragment extends BaseFragment {
 		getActivity().unregisterReceiver(updatePlayback);
 		getActivity().unregisterReceiver(backSwitchInfo);
 		getActivity().unregisterReceiver(playPauseStatus);
+		getActivity().unregisterReceiver(repeatStatus);
 		
 		//kill service if no song in player
 		Intent i = new Intent(Constants.INTENT_PLAYER_KILL_SERVICE_ON_PAUSE);
 		getActivity().sendBroadcast(i);
 	}
+	
+	private BroadcastReceiver repeatStatus = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, final Intent intent) {
+			
+			if (repeat.getTag().toString().equals(!intent.getExtras().getBoolean(Constants.INTENT_PLAYER_PLAYBACK_REPEAT_STATUS) ? "all" : "one"))
+				return;
+			
+	    	Animation flyUpAnimation6 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
+		    flyUpAnimation6.setAnimationListener(new AnimationListener(){
+				@Override
+				public void onAnimationEnd(Animation arg0) {
+					repeat.setVisibility(View.INVISIBLE);
+					repeat.setImageResource(!intent.getExtras().getBoolean(Constants.INTENT_PLAYER_PLAYBACK_REPEAT_STATUS) ? R.drawable.ic_music_repeat_all : R.drawable.ic_music_repeat_one);
+					repeat.setTag(!intent.getExtras().getBoolean(Constants.INTENT_PLAYER_PLAYBACK_REPEAT_STATUS) ? "all" : "one");
+					repeat.setVisibility(View.VISIBLE);
+					
+					Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim_small);
+					repeat.startAnimation(flyDownAnimation);
+				}
+				@Override
+				public void onAnimationRepeat(Animation arg0) { }
+				@Override
+				public void onAnimationStart(Animation arg0) { }
+	    	});
+		    repeat.startAnimation(flyUpAnimation6);
+		}
+	};
 	
 	private BroadcastReceiver playPauseStatus = new BroadcastReceiver(){
 		@Override

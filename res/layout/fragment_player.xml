@@ -118,7 +118,8 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_music_repeat" />
+                android:src="@drawable/ic_music_repeat_all"
+                android:tag="all" />
 
             <ImageView
                 android:id="@+id/play_pause"
