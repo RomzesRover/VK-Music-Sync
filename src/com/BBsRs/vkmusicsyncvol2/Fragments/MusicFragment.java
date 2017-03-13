@@ -250,7 +250,7 @@ public class MusicFragment extends BaseFragment {
 				Bundle playerBundle  = new Bundle();
 				playerBundle.putParcelableArrayList(Constants.BUNDLE_PLAYER_LIST_COLLECTIONS, musicListAdapter.getMusicCollection());
 				playerBundle.putInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION, _position-1);
-				playerBundle.putString(Constants.BUNDLE_LIST_TITLE_NAME, bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME).split(";")[bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME).split(";").length-1]+";%s "+getActivity().getString(R.string.player_of)+" "+musicListAdapter.getCount());
+				playerBundle.putString(Constants.BUNDLE_LIST_TITLE_NAME, bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME).split(";")[bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME).split(";").length-1]+";%s "+getActivity().getString(R.string.player_of)+" %s");
 				
 				//create music list fragment
 		        PlayerFragment playerFragment = new PlayerFragment();

@@ -22,9 +22,6 @@ public class Constants {
 	public static final String EXTRA_LIST_COLLECTIONS = "extra:list_collections";
 	public static final String EXTRA_LIST_SECOND_COLLECTIONS = "extra:list_second_collections_2";
 	
-	public static final String BUNDLE_PLAYER_LIST_COLLECTIONS = "bundle:player_list_collections";
-	public static final String BUNDLE_PLAYER_CURRENT_SELECTED_POSITION = "bundle:player_current_selected_position";
-	
 	public static final String BUNDLE_MUSIC_LIST_TYPE = "bundle:music_list_type";
 	public static final int BUNDLE_MUSIC_LIST_OF_PAGE = 0;
 	public static final int BUNDLE_MUSIC_LIST_POPULAR = 1;
@@ -67,6 +64,37 @@ public class Constants {
 	/*--*/
 	public static final String INTENT_STOP_DOWNLOAD = "intent:stop_download";
 	public static final String INTENT_REQUEST_DOWNLOAD_STATUS = "intent:request_download_status";
+	/*--PLAYER VALUES--*/
+	public static final String INTENT_UPDATE_PLAYBACK = "intent:update_playback";
+	public static final String INTENT_UPDATE_PLAYBACK_CURRENT = "intent:update_playback_current";
+	public static final String INTENT_UPDATE_PLAYBACK_CURRENT_BUFFERING = "intent:update_playback_current_buffering";
+	public static final String INTENT_UPDATE_PLAYBACK_LENGTH = "intent:update_playback_length";
+	/*--*/
+	public static final String BUNDLE_PLAYER_LIST_COLLECTIONS = "bundle:player_list_collections";
+	public static final String BUNDLE_PLAYER_CURRENT_SELECTED_POSITION = "bundle:player_current_selected_position";
+	/*--*/
+	public static final String INTENT_PLAYER_RESTART = "intent:player_restart";
+	public static final String INTENT_PLAYER_NEXT = "intent:player_next";
+	public static final String INTENT_PLAYER_PREV = "intent:player_prev";
+	public static final String INTENT_PLAYER_PLAY_PAUSE = "intent:player_play_pause";
+	/*--*/
+	public static final String INTENT_PLAYER_SEEK_CHANGE = "intent:player_seek_change";
+	public static final String INTENT_PLAYER_SEEK_TO = "intent:player_seek_to";
+	/*--*/
+	public static final String INTENT_PLAYER_BACK_SWITCH_TRACK_INFO = "intent:player_back_switch_track_info";
+	public static final String INTENT_PLAYER_BACK_SWITCH_DIRECTION = "intent:player_back_switch_direction";
+	public static final String INTENT_PLAYER_BACK_SWITCH_FITS = "intent:player_back_switch_fits";
+	public static final String INTENT_PLAYER_BACK_SWITCH_POSITION = "intent:player_back_switch_position";
+	public static final String INTENT_PLAYER_BACK_SWITCH_SIZE = "intent:player_back_switch_size";
+	public static final String INTENT_PLAYER_BACK_SWITCH_ONE_AUDIO = "intent:player_back_switch_one_audio";
+	/*---*/
+	public static final String INTENT_PLAYER_REQUEST_BACK_SWITCH_INFO = "intent:player_request_back_switch_info";
+	/*--*/
+	public static final String INTENT_PLAYER_PLAYBACK_PLAY_PAUSE = "intent:player_playback_play_pause";
+	public static final String INTENT_PLAYER_PLAYBACK_PLAY_PAUSE_STATUS = "intent:player_playback_play_pause_status";
+	/*--*/
+	public static final String INTENT_PLAYER_KILL_SERVICE_ON_PAUSE = "intent:player_kill_service_on_pause";
+	
 	
 	public static final int LIST_ACTION_ADD = 0;
 	public static final int LIST_ACTION_ADDED = 1;

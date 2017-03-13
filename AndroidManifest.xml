@@ -35,6 +35,7 @@
         <activity android:name=".ContentActivity" >
         </activity>
         <service android:name=".Services.DownloadService"></service>
+        <service android:name=".Services.PlayerService"></service>
     </application>
 
 </manifest>

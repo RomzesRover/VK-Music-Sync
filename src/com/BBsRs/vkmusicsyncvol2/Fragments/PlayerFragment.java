@@ -7,8 +7,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.holoeverywhere.LayoutInflater;
+import org.holoeverywhere.widget.SeekBar;
+import org.holoeverywhere.widget.SeekBar.OnSeekBarChangeListener;
 import org.holoeverywhere.widget.TextView;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,9 +28,11 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
+import com.BBsRs.vkmusicsyncvol2.ContentActivity;
 import com.BBsRs.vkmusicsyncvol2.R;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseFragment;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
+import com.BBsRs.vkmusicsyncvol2.Services.PlayerService;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -37,13 +47,12 @@ public class PlayerFragment extends BaseFragment {
 	//with this options we will load images
     DisplayImageOptions options ;
     
-    ArrayList<MusicCollection> musicCollection = new ArrayList<MusicCollection>();
-    int currentTrack;
-    
     private final static Handler handler = new Handler();
     
 	TextView title, subTitle, timeCurrent, timeEnd;
 	ImageView albumArt, albumArtBg, shuffle, prev, playPause, next, repeat;
+	SeekBar seekBar;
+	boolean updateSeek = true;
 	
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
@@ -64,6 +73,7 @@ public class PlayerFragment extends BaseFragment {
     	playPause = (ImageView)contentView.findViewById(R.id.play_pause);
     	next = (ImageView)contentView.findViewById(R.id.next);
     	repeat = (ImageView)contentView.findViewById(R.id.repeat);
+    	seekBar = (SeekBar)contentView.findViewById(R.id.seekBar1);
     	
         //init image loader
         options = new DisplayImageOptions.Builder()
@@ -80,56 +90,188 @@ public class PlayerFragment extends BaseFragment {
     	SFUIFonts.MEDIUM.apply(getActivity(), timeCurrent);
     	SFUIFonts.MEDIUM.apply(getActivity(), timeEnd);
     	
-    	//load list
-    	musicCollection = bundle.getParcelableArrayList(Constants.BUNDLE_PLAYER_LIST_COLLECTIONS);
-    	currentTrack = bundle.getInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION);
+		//start play current tracklist
+		if (!isMyServiceRunning(PlayerService.class)){
+			//start service with audio in Intent
+			Intent startPlayer = new Intent(getActivity(), PlayerService.class);
+			startPlayer.putExtras(bundle);
+			getActivity().startService(startPlayer);
+		} else {
+			Intent restartPlayer = new Intent(Constants.INTENT_PLAYER_RESTART);
+			restartPlayer.putExtras(bundle);
+			getActivity().sendBroadcast(restartPlayer);
+		}
     	
     	//set up current track data
-    	updateCurrentTrackInfo(true);
+//    	updateCurrentTrackInfo(true, false);
     	
 		//view job
 		next.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				if (!isItPossibleToChangeTrack)
-		    		return;
-				currentTrack++;
-				updateCurrentTrackInfo(true);
+				Intent next = new Intent(Constants.INTENT_PLAYER_NEXT);
+				next.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_FITS, true);
+				getActivity().sendBroadcast(next);
+				
+				//pause update for seeks info
+				updateSeek=false;
+				handler.removeCallbacks(updateSeekEnable);
+				handler.postDelayed(updateSeekEnable, 500);
 			}
 		});
 		
 		prev.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				if (!isItPossibleToChangeTrack)
-		    		return;
-				currentTrack--;
-				updateCurrentTrackInfo(false);
+				Intent prev = new Intent(Constants.INTENT_PLAYER_PREV);
+				prev.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_FITS, true);
+				getActivity().sendBroadcast(prev);
+				
+				//pause update for seeks info
+				updateSeek=false;
+				handler.removeCallbacks(updateSeekEnable);
+				handler.postDelayed(updateSeekEnable, 500);
 			}
 		});
 		
-    	
-    	
+		playPause.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				Intent playPause = new Intent(Constants.INTENT_PLAYER_PLAY_PAUSE);
+				getActivity().sendBroadcast(playPause);
+			}
+		});
+		
+        seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener(){
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				timeCurrent.setText(stringPlusZero(String.valueOf((int)(progress/1000/60)))+":"+stringPlusZero(String.valueOf((int)(progress/1000%60))));
+			}
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				updateSeek=false;
+			}
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				Intent i = new Intent(Constants.INTENT_PLAYER_SEEK_CHANGE);
+				i.putExtra(Constants.INTENT_PLAYER_SEEK_TO, seekBar.getProgress());
+				getActivity().sendBroadcast(i);
+				handler.removeCallbacks(updateSeekEnable);
+				handler.postDelayed(updateSeekEnable, 500);
+			}
+        });
+		
     	return contentView;
 	}
+	
+	Runnable updateSeekEnable = new Runnable() {
+        public void run() {
+        	updateSeek=true;
+        }
+    };
 	
     @Override
     public void onResume() {
         super.onResume();
-        //set subtitle for a current fragment with custom font
-        setTitle(String.format(bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME), currentTrack+1));
+        //request back update, to fit to current list playing (Update cover art, titles, etc)
+        handler.postDelayed(new Runnable(){
+			@Override
+			public void run() {
+				if (!isMyServiceRunning(PlayerService.class)){
+					//switch to main list scree
+					((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().setCurrentPage(1);
+				} else {
+					Intent requestBackSwitchInfo = new Intent(Constants.INTENT_PLAYER_REQUEST_BACK_SWITCH_INFO);
+					getActivity().sendBroadcast(requestBackSwitchInfo);
+				}
+		}}, 250);
+        
+        //enable receivers
+    	getActivity().registerReceiver(updatePlayback, new IntentFilter(Constants.INTENT_UPDATE_PLAYBACK));
+    	getActivity().registerReceiver(backSwitchInfo, new IntentFilter(Constants.INTENT_PLAYER_BACK_SWITCH_TRACK_INFO));
+    	getActivity().registerReceiver(playPauseStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_PLAY_PAUSE));
     }
     
-    boolean isItPossibleToChangeTrack = true;
-    public void updateCurrentTrackInfo(boolean plus){
-    	isItPossibleToChangeTrack = false;
+	@Override
+	public void onPause() {
+		super.onPause();
+		//disable receivers
+		getActivity().unregisterReceiver(updatePlayback);
+		getActivity().unregisterReceiver(backSwitchInfo);
+		getActivity().unregisterReceiver(playPauseStatus);
+		
+		//kill service if no song in player
+		Intent i = new Intent(Constants.INTENT_PLAYER_KILL_SERVICE_ON_PAUSE);
+		getActivity().sendBroadcast(i);
+	}
+	
+	private BroadcastReceiver playPauseStatus = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, final Intent intent) {
+			
+			if (playPause.getTag().toString().equals(!intent.getExtras().getBoolean(Constants.INTENT_PLAYER_PLAYBACK_PLAY_PAUSE_STATUS) ? "play" : "pause"))
+				return;
+			
+	    	Animation flyUpAnimation6 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
+		    flyUpAnimation6.setAnimationListener(new AnimationListener(){
+				@Override
+				public void onAnimationEnd(Animation arg0) {
+					playPause.setVisibility(View.INVISIBLE);
+					playPause.setImageResource(!intent.getExtras().getBoolean(Constants.INTENT_PLAYER_PLAYBACK_PLAY_PAUSE_STATUS) ? R.drawable.ic_music_play : R.drawable.ic_music_pause);
+					playPause.setTag(!intent.getExtras().getBoolean(Constants.INTENT_PLAYER_PLAYBACK_PLAY_PAUSE_STATUS) ? "play" : "pause");
+					playPause.setVisibility(View.VISIBLE);
+					
+					Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim_small);
+					playPause.startAnimation(flyDownAnimation);
+				}
+				@Override
+				public void onAnimationRepeat(Animation arg0) { }
+				@Override
+				public void onAnimationStart(Animation arg0) { }
+	    	});
+		    playPause.startAnimation(flyUpAnimation6);
+		}
+	};
+	
+	private BroadcastReceiver backSwitchInfo = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, Intent intent) {
+			//set up current track data
+	    	updateCurrentTrackInfo(
+	    			intent.getExtras().getBoolean(Constants.INTENT_PLAYER_BACK_SWITCH_DIRECTION), 
+	    			intent.getExtras().getBoolean(Constants.INTENT_PLAYER_BACK_SWITCH_FITS), 
+	    			intent.getExtras().getInt(Constants.INTENT_PLAYER_BACK_SWITCH_POSITION), 
+	    			intent.getExtras().getInt(Constants.INTENT_PLAYER_BACK_SWITCH_SIZE), 
+	    			(MusicCollection) intent.getExtras().getParcelable(Constants.INTENT_PLAYER_BACK_SWITCH_ONE_AUDIO));
+		}
+	};
+    
+	private BroadcastReceiver updatePlayback = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, Intent intent) {
+			if (!updateSeek)
+				return;
+			timeCurrent.setText(stringPlusZero(String.valueOf((int)(intent.getIntExtra(Constants.INTENT_UPDATE_PLAYBACK_CURRENT, 0)/1000/60)))+":"+stringPlusZero(String.valueOf((int)(intent.getIntExtra(Constants.INTENT_UPDATE_PLAYBACK_CURRENT, 0)/1000%60))));
+			timeEnd.setText(stringPlusZero(String.valueOf((int)(intent.getIntExtra(Constants.INTENT_UPDATE_PLAYBACK_LENGTH, 0)/1000/60)))+":"+stringPlusZero(String.valueOf((int)(intent.getIntExtra(Constants.INTENT_UPDATE_PLAYBACK_LENGTH, 0)/1000%60))));
+			seekBar.setMax(intent.getIntExtra(Constants.INTENT_UPDATE_PLAYBACK_LENGTH, 0));
+    		seekBar.setProgress(intent.getIntExtra(Constants.INTENT_UPDATE_PLAYBACK_CURRENT, 0));
+    		seekBar.setSecondaryProgress(intent.getIntExtra(Constants.INTENT_UPDATE_PLAYBACK_CURRENT_BUFFERING, 0));
+		}
+	};
+    
+    public void updateCurrentTrackInfo(boolean plus, boolean fits, int currentTrack, int size, final MusicCollection currentInPlayer){
+    	
+    	//do not autoupdate if current displayed track is equals to new
+    	if (title.getText().equals(currentInPlayer.title) && subTitle.getText().equals(currentInPlayer.artist)) return;
+    	
 		try {
 			ImageLoader.getInstance().stop();
 			ImageLoader.getInstance().resume();
-			if (musicCollection.get(currentTrack).isDownloaded == Constants.LIST_ACTION_DELETE)
-				ImageLoader.getInstance().displayImage(musicCollection.get(currentTrack).url, albumArt, options, 2, plus ? animateFirstListenerLeft : animateFirstListenerRight);
+			if (currentInPlayer.isDownloaded == Constants.LIST_ACTION_DELETE)
+				ImageLoader.getInstance().displayImage(currentInPlayer.url, albumArt, options, 2, plus ? animateFirstListenerLeft : animateFirstListenerRight);
 			else 
-				ImageLoader.getInstance().displayImage(Constants.GOOGLE_IMAGE_REQUEST_URL + URLEncoder.encode(musicCollection.get(currentTrack).artist+ " - "+musicCollection.get(currentTrack).title, "UTF-8"), albumArt, options, 1, plus ? animateFirstListenerLeft : animateFirstListenerRight);
+				ImageLoader.getInstance().displayImage(Constants.GOOGLE_IMAGE_REQUEST_URL + URLEncoder.encode(currentInPlayer.artist+ " - "+currentInPlayer.title, "UTF-8"), albumArt, options, 1, plus ? animateFirstListenerLeft : animateFirstListenerRight);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -139,7 +281,7 @@ public class PlayerFragment extends BaseFragment {
 			@Override
 			public void onAnimationEnd(Animation arg0) {
 				title.setVisibility(View.INVISIBLE);
-				title.setText(musicCollection.get(currentTrack).title);
+				title.setText(currentInPlayer.title);
 				title.setVisibility(View.VISIBLE);
 				
 				Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);
@@ -157,7 +299,7 @@ public class PlayerFragment extends BaseFragment {
 			@Override
 			public void onAnimationEnd(Animation arg0) {
 				subTitle.setVisibility(View.INVISIBLE);
-				subTitle.setText(musicCollection.get(currentTrack).artist);
+				subTitle.setText(currentInPlayer.artist);
 				subTitle.setVisibility(View.VISIBLE);
 				
 				Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);
@@ -170,15 +312,15 @@ public class PlayerFragment extends BaseFragment {
     	});
 	    subTitle.startAnimation(flyUpAnimation2);
 	    
-		Animation flyUpAnimation3 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim);
+		Animation flyUpAnimation3 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
 	    flyUpAnimation3.setAnimationListener(new AnimationListener(){
 			@Override
 			public void onAnimationEnd(Animation arg0) {
 				timeEnd.setVisibility(View.INVISIBLE);
-				timeEnd.setText(stringPlusZero(String.valueOf((int)(musicCollection.get(currentTrack).duration)/60))+":"+stringPlusZero(String.valueOf((int)(musicCollection.get(currentTrack).duration)%60)));
+				timeEnd.setText(stringPlusZero(String.valueOf((int)(currentInPlayer.duration)/60))+":"+stringPlusZero(String.valueOf((int)(currentInPlayer.duration)%60)));
 				timeEnd.setVisibility(View.VISIBLE);
 				
-				Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);
+				Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim_small);
 				timeEnd.startAnimation(flyDownAnimation);
 			}
 			@Override
@@ -188,7 +330,7 @@ public class PlayerFragment extends BaseFragment {
     	});
 	    timeEnd.startAnimation(flyUpAnimation3);
 	    
-		Animation flyUpAnimation4 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim);
+		Animation flyUpAnimation4 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
 	    flyUpAnimation4.setAnimationListener(new AnimationListener(){
 			@Override
 			public void onAnimationEnd(Animation arg0) {
@@ -196,7 +338,7 @@ public class PlayerFragment extends BaseFragment {
 				timeCurrent.setText("00:00");
 				timeCurrent.setVisibility(View.VISIBLE);
 				
-				Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);
+				Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim_small);
 				timeCurrent.startAnimation(flyDownAnimation);
 			}
 			@Override
@@ -207,16 +349,45 @@ public class PlayerFragment extends BaseFragment {
 	    timeCurrent.startAnimation(flyUpAnimation4);
 	    
 	    //update title
-	    setTitle(String.format(bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME), currentTrack+1));
+	    setTitle(String.format(bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME), currentTrack+1, size));
 	    
-	    handler.postDelayed(new Runnable(){
-			@Override
-			public void run() {
-				isItPossibleToChangeTrack = true;
-			}
-	    }, 500);
+	    if (!fits) return;
 	    
-		
+	    if (plus){
+	    	Animation flyUpAnimation5 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
+		    flyUpAnimation5.setAnimationListener(new AnimationListener(){
+				@Override
+				public void onAnimationEnd(Animation arg0) {
+					next.setVisibility(View.INVISIBLE);
+					next.setVisibility(View.VISIBLE);
+					
+					Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim_small);
+					next.startAnimation(flyDownAnimation);
+				}
+				@Override
+				public void onAnimationRepeat(Animation arg0) { }
+				@Override
+				public void onAnimationStart(Animation arg0) { }
+	    	});
+		    next.startAnimation(flyUpAnimation5);
+	    } else {
+	    	Animation flyUpAnimation6 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
+		    flyUpAnimation6.setAnimationListener(new AnimationListener(){
+				@Override
+				public void onAnimationEnd(Animation arg0) {
+					prev.setVisibility(View.INVISIBLE);
+					prev.setVisibility(View.VISIBLE);
+					
+					Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim_small);
+					prev.startAnimation(flyDownAnimation);
+				}
+				@Override
+				public void onAnimationRepeat(Animation arg0) { }
+				@Override
+				public void onAnimationStart(Animation arg0) { }
+	    	});
+		    prev.startAnimation(flyUpAnimation6);
+	    }
     }
     
 	//this func adds zeros to string
@@ -294,4 +465,14 @@ public class PlayerFragment extends BaseFragment {
 			}
 		}
 	}
+	
+	private boolean isMyServiceRunning(Class<?> serviceClass) {			//returns true is service running
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
