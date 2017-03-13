@@ -246,6 +246,10 @@ public class MusicFragment extends BaseFragment {
 		list.setOnItemClickListener(new OnItemClickListener(){
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int _position, long arg3) {
+				
+				//null list of music to delete to prevent possible play error
+		    	musicCollectionToDelete = new ArrayList<MusicCollection>();
+		    	
 				//create bundle to player list
 				Bundle playerBundle  = new Bundle();
 				playerBundle.putParcelableArrayList(Constants.BUNDLE_PLAYER_LIST_COLLECTIONS, musicListAdapter.getMusicCollection());
