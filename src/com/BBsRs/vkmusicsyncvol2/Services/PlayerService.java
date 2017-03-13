@@ -229,10 +229,18 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	private BroadcastReceiver restartPlayer = new BroadcastReceiver() {
 	    @Override
 	    public void onReceive(Context context, Intent intent) {
-	    	musicCollection = intent.getExtras().getParcelableArrayList(Constants.BUNDLE_PLAYER_LIST_COLLECTIONS);
-	    	currentTrack = intent.getExtras().getInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION);
-	    	//strat play music
-	    	initMP();
+	    	ArrayList<MusicCollection> musicCollectionNew = intent.getExtras().getParcelableArrayList(Constants.BUNDLE_PLAYER_LIST_COLLECTIONS);
+	    	int currentTrackNew = intent.getExtras().getInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION);
+	    	
+	    	if (musicCollectionNew.size() != musicCollection.size() || 
+	    			currentTrackNew != currentTrack || 
+	    			!musicCollection.get(currentTrack).artist.equals(musicCollectionNew.get(currentTrackNew).artist) || 
+	    			!musicCollection.get(currentTrack).title.equals(musicCollectionNew.get(currentTrackNew).title)){
+	    		musicCollection = musicCollectionNew;
+		    	currentTrack = currentTrackNew;
+		    	//strat play music
+		    	initMP();
+	    	} 
 	    }
 	};
 	

@@ -1,7 +1,6 @@
 package com.BBsRs.vkmusicsyncvol2.Fragments;
 
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -101,9 +100,6 @@ public class PlayerFragment extends BaseFragment {
 			restartPlayer.putExtras(bundle);
 			getActivity().sendBroadcast(restartPlayer);
 		}
-    	
-    	//set up current track data
-//    	updateCurrentTrackInfo(true, false);
     	
 		//view job
 		next.setOnClickListener(new View.OnClickListener() {
