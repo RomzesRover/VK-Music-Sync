@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnBufferingUpdateListener;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -73,9 +74,26 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().registerReceiver(killServiceOnPause, new IntentFilter(Constants.INTENT_PLAYER_KILL_SERVICE_ON_PAUSE));
 		getApplicationContext().registerReceiver(changeRepeat, new IntentFilter(Constants.INTENT_PLAYER_REPEAT));
 		getApplicationContext().registerReceiver(changeShuffle, new IntentFilter(Constants.INTENT_PLAYER_SHUFFLE));
+		getApplicationContext().registerReceiver(NoisyAudioStreamReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
 	}
 	
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		
+		//create audio focus things
+		afListenerSound = new AFListener();
+		am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+		
+		int result = am.requestAudioFocus(afListenerSound,
+                // Use the music stream.
+                AudioManager.STREAM_MUSIC,
+                // Request permanent focus.
+                AudioManager.AUDIOFOCUS_GAIN);
+		
+		if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+			//no access granted!!!
+			stopSelf();
+		}
+		
 		try {
 			//init prefernces
 			sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -105,14 +123,73 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().unregisterReceiver(killServiceOnPause);
 		getApplicationContext().unregisterReceiver(changeRepeat);
 		getApplicationContext().unregisterReceiver(changeShuffle);
+		getApplicationContext().unregisterReceiver(NoisyAudioStreamReceiver);
 		
 		//release player
 		releaseMP();
+		
+		// Abandon audio focus when playback complete    
+		if (am!=null && afListenerSound!=null)
+			am.abandonAudioFocus(afListenerSound);
 		
 		//release wake lock
 		if (wl !=null )
 			wl.release();
 	}
+	
+	AudioManager am;
+	AFListener afListenerSound;
+	
+	class AFListener implements OnAudioFocusChangeListener{
+		
+		public int volume = -1;
+		
+		@Override
+		public void onAudioFocusChange(int focus) {
+			switch (focus) {
+			case AudioManager.AUDIOFOCUS_LOSS:
+				//opened other music or video app, focus loss
+				stopSelf();
+				break;
+			case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+				//focus loss transient: phone call, etc, just pause music and resume on gain
+				Intent pause = new Intent(Constants.INTENT_PLAYER_PLAY_PAUSE);
+	        	pause.putExtra(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_PAUSE_ONLY);
+				sendBroadcast(pause);
+				break;
+			case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+				// Lower the volume notification, etc
+				if (am!=null){
+					volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+					//30 percent of current volume
+					am.setStreamVolume(AudioManager.STREAM_MUSIC, volume*30/100, 0);
+		    	  }
+				break;
+			case AudioManager.AUDIOFOCUS_GAIN:
+				// Resume playback 
+				Intent play = new Intent(Constants.INTENT_PLAYER_PLAY_PAUSE);
+	        	play.putExtra(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_PLAY_ONLY);
+				sendBroadcast(play);
+				
+				// Raise volume back to normal
+				if (am!=null && volume != -1)
+					am.setStreamVolume(AudioManager.STREAM_MUSIC, volume == -1 ? am.getStreamVolume(AudioManager.STREAM_MUSIC) : volume, 0);
+				break;
+			}
+		}
+	}
+	
+	private BroadcastReceiver NoisyAudioStreamReceiver = new BroadcastReceiver() {
+		@Override
+	    public void onReceive(Context context, Intent intent) {
+	        if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
+	        	// Pause playback, on headphones out
+	        	Intent pause = new Intent(Constants.INTENT_PLAYER_PLAY_PAUSE);
+	        	pause.putExtra(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_PAUSE_ONLY);
+				sendBroadcast(pause);
+	        }
+	    }
+	};
 	
 	private BroadcastReceiver killServiceOnPause = new BroadcastReceiver() {
 	    @Override
@@ -223,14 +300,20 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	    		return;
 	    	
 	    	if (mediaPlayer.isPlaying()){
-	    		mediaPlayer.pause();
-	    		if (wl !=null && wl.isHeld())
-					wl.release();
+	    		if (intent.getExtras().getInt(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY) == Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_PAUSE_ONLY ||
+	    				intent.getExtras().getInt(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY) == Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY){
+		    		mediaPlayer.pause();
+		    		if (wl !=null && wl.isHeld())
+						wl.release();
+	    		}
 	    	} else {
-	    		if (wl !=null && !wl.isHeld())
-					wl.acquire();
-	    		mediaPlayer.start();
-	    		startPlayProgressUpdater();
+	    		if (intent.getExtras().getInt(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY) == Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_PLAY_ONLY ||
+		    			intent.getExtras().getInt(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY) == Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY){
+		    		if (wl !=null && !wl.isHeld())
+		    			wl.acquire();
+		    		mediaPlayer.start();
+		    		startPlayProgressUpdater();
+	    		}
 	    	}
 	    	
 	    	Intent i = new Intent(Constants.INTENT_PLAYER_PLAYBACK_PLAY_PAUSE);

@@ -80,6 +80,11 @@ public class Constants {
 	public static final String INTENT_PLAYER_REPEAT = "intent:player_repeat";
 	public static final String INTENT_PLAYER_SHUFFLE = "intent:player_shuffle";
 	/*--*/
+	public static final String INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE = "intent:player_play_pause_strict_mode";
+	public static final int INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY = 1;
+	public static final int INTENT_PLAYER_PLAY_PAUSE_STRICT_PAUSE_ONLY = 3;
+	public static final int INTENT_PLAYER_PLAY_PAUSE_STRICT_PLAY_ONLY = 5;
+	/*--*/
 	public static final String INTENT_PLAYER_SEEK_CHANGE = "intent:player_seek_change";
 	public static final String INTENT_PLAYER_SEEK_TO = "intent:player_seek_to";
 	/*--*/

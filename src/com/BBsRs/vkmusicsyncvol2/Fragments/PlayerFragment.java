@@ -150,6 +150,7 @@ public class PlayerFragment extends BaseFragment {
 			@Override
 			public void onClick(View arg0) {
 				Intent playPause = new Intent(Constants.INTENT_PLAYER_PLAY_PAUSE);
+				playPause.putExtra(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY);
 				getActivity().sendBroadcast(playPause);
 			}
 		});
