@@ -96,9 +96,11 @@ public class PlayerFragment extends BaseFragment {
 			startPlayer.putExtras(bundle);
 			getActivity().startService(startPlayer);
 		} else {
-			Intent restartPlayer = new Intent(Constants.INTENT_PLAYER_RESTART);
-			restartPlayer.putExtras(bundle);
-			getActivity().sendBroadcast(restartPlayer);
+			if (bundle!=null && bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME)!=null){
+				Intent restartPlayer = new Intent(Constants.INTENT_PLAYER_RESTART);
+				restartPlayer.putExtras(bundle);
+				getActivity().sendBroadcast(restartPlayer);
+			}
 		}
 		
 		shuffle.setOnClickListener(new View.OnClickListener() {
@@ -121,37 +123,100 @@ public class PlayerFragment extends BaseFragment {
 		next.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				Intent next = new Intent(Constants.INTENT_PLAYER_NEXT);
-				next.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_FITS, true);
-				getActivity().sendBroadcast(next);
-				
-				//pause update for seeks info
-				updateSeek=false;
-				handler.removeCallbacks(updateSeekEnable);
-				handler.postDelayed(updateSeekEnable, 500);
+				if (isMyServiceRunning(PlayerService.class)){
+					Intent next = new Intent(Constants.INTENT_PLAYER_NEXT);
+					next.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_FITS, true);
+					getActivity().sendBroadcast(next);
+					
+					//pause update for seeks info
+					updateSeek=false;
+					handler.removeCallbacks(updateSeekEnable);
+					handler.postDelayed(updateSeekEnable, 500);
+				} else {
+					//start service with audio in Intent
+					Intent startPlayer = new Intent(getActivity(), PlayerService.class);
+					
+			    	//determine next pos
+					int cr = bundle.getInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION);
+			    	if (bundle.getInt(Constants.BUNDLE_PLAYER_LIST_SIZE)-1<=cr)
+			    		cr = 0; 
+			    	else
+			    		cr++;
+			    	bundle.putInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION, cr);
+			    	
+					startPlayer.putExtras(bundle);
+					getActivity().startService(startPlayer);
+					
+			        //request back update, to fit to current list playing (Update cover art, titles, etc)
+			        handler.postDelayed(new Runnable(){
+						@Override
+						public void run() {
+							Intent requestBackSwitchInfo = new Intent(Constants.INTENT_PLAYER_REQUEST_BACK_SWITCH_INFO);
+							getActivity().sendBroadcast(requestBackSwitchInfo);
+					}}, 250);
+				}
 			}
 		});
 		
 		prev.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				Intent prev = new Intent(Constants.INTENT_PLAYER_PREV);
-				prev.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_FITS, true);
-				getActivity().sendBroadcast(prev);
-				
-				//pause update for seeks info
-				updateSeek=false;
-				handler.removeCallbacks(updateSeekEnable);
-				handler.postDelayed(updateSeekEnable, 500);
+				if (isMyServiceRunning(PlayerService.class)){
+					Intent prev = new Intent(Constants.INTENT_PLAYER_PREV);
+					prev.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_FITS, true);
+					getActivity().sendBroadcast(prev);
+					
+					//pause update for seeks info
+					updateSeek=false;
+					handler.removeCallbacks(updateSeekEnable);
+					handler.postDelayed(updateSeekEnable, 500);
+				} else {
+					//start service with audio in Intent
+					Intent startPlayer = new Intent(getActivity(), PlayerService.class);
+					
+			    	//determine prev pos
+					int cr = bundle.getInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION);
+			    	if (cr==0)
+			    		cr = bundle.getInt(Constants.BUNDLE_PLAYER_LIST_SIZE)-1; 
+			    	else
+			    		cr--;
+			    	bundle.putInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION, cr);
+			    	
+					startPlayer.putExtras(bundle);
+					getActivity().startService(startPlayer);
+					
+			        //request back update, to fit to current list playing (Update cover art, titles, etc)
+			        handler.postDelayed(new Runnable(){
+						@Override
+						public void run() {
+							Intent requestBackSwitchInfo = new Intent(Constants.INTENT_PLAYER_REQUEST_BACK_SWITCH_INFO);
+							getActivity().sendBroadcast(requestBackSwitchInfo);
+					}}, 250);
+				}
 			}
 		});
 		
 		playPause.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				Intent playPause = new Intent(Constants.INTENT_PLAYER_PLAY_PAUSE);
-				playPause.putExtra(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY);
-				getActivity().sendBroadcast(playPause);
+				if (isMyServiceRunning(PlayerService.class)){
+					Intent playPause = new Intent(Constants.INTENT_PLAYER_PLAY_PAUSE);
+					playPause.putExtra(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY);
+					getActivity().sendBroadcast(playPause);
+				} else {
+					//start service with audio in Intent
+					Intent startPlayer = new Intent(getActivity(), PlayerService.class);
+					startPlayer.putExtras(bundle);
+					getActivity().startService(startPlayer);
+					
+			        //request back update, to fit to current list playing (Update cover art, titles, etc)
+			        handler.postDelayed(new Runnable(){
+						@Override
+						public void run() {
+							Intent requestBackSwitchInfo = new Intent(Constants.INTENT_PLAYER_REQUEST_BACK_SWITCH_INFO);
+							getActivity().sendBroadcast(requestBackSwitchInfo);
+					}}, 250);
+				}
 			}
 		});
 		
@@ -316,6 +381,7 @@ public class PlayerFragment extends BaseFragment {
 	    			intent.getExtras().getBoolean(Constants.INTENT_PLAYER_BACK_SWITCH_FITS), 
 	    			intent.getExtras().getInt(Constants.INTENT_PLAYER_BACK_SWITCH_POSITION), 
 	    			intent.getExtras().getInt(Constants.INTENT_PLAYER_BACK_SWITCH_SIZE), 
+	    			intent.getExtras().getString(Constants.INTENT_PLAYER_LIST_TITLE_NAME), 
 	    			(MusicCollection) intent.getExtras().getParcelable(Constants.INTENT_PLAYER_BACK_SWITCH_ONE_AUDIO));
 		}
 	};
@@ -333,7 +399,7 @@ public class PlayerFragment extends BaseFragment {
 		}
 	};
     
-    public void updateCurrentTrackInfo(boolean plus, boolean fits, int currentTrack, int size, final MusicCollection currentInPlayer){
+    public void updateCurrentTrackInfo(boolean plus, boolean fits, int currentTrack, int size, String abTitle, final MusicCollection currentInPlayer){
     	
     	//do not autoupdate if current displayed track is equals to new
     	if (title.getText().equals(currentInPlayer.title) && subTitle.getText().equals(currentInPlayer.artist)) return;
@@ -422,7 +488,9 @@ public class PlayerFragment extends BaseFragment {
 	    timeCurrent.startAnimation(flyUpAnimation4);
 	    
 	    //update title
-	    setTitle(String.format(bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME), currentTrack+1, size));
+	    setTitle(String.format(abTitle, currentTrack+1, size));
+	    bundle.putInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION, currentTrack);
+	    bundle.putInt(Constants.BUNDLE_PLAYER_LIST_SIZE, size);
 	    
 	    if (!fits) return;
 	    

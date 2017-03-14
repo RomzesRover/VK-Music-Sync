@@ -3,6 +3,7 @@
     
     <string name="player_of">of</string>
     <string name="player_error">An error occurred during try to play this track</string>
+    <string name="player_now">Now playing:</string>
     
     <string name="preferences_dialog_log_out">Log out</string>
     <string name="preferences_dialog_are_you_sure_logout">Are you sure want to logout?</string>

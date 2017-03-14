@@ -9,6 +9,9 @@ import org.holoeverywhere.preference.SharedPreferences;
 import org.holoeverywhere.widget.Toast;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,14 +28,20 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.os.PowerManager;
+import android.support.v4.app.NotificationCompat;
 
+import com.BBsRs.vkmusicsyncvol2.ContentActivity;
 import com.BBsRs.vkmusicsyncvol2.R;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
 
 public class PlayerService extends Service implements OnPreparedListener, OnCompletionListener, OnBufferingUpdateListener, OnErrorListener{
 	
-	String LOG_TAG = "Player Service";
+	//notification
+	PendingIntent contentIntent, PendingIntentPrevSong, PendingIntentNextSong, PendingIntentPlayPause, PendingDeleteIntent;
+	NotificationCompat.Builder mBuilder;
+	Notification notification;
+	NotificationManager mNotificationManager;
 	
 	SharedPreferences sPref;
 	private final Handler handler = new Handler();
@@ -43,6 +52,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	ArrayList<MusicCollection> musicCollection = new ArrayList<MusicCollection>();
 	ArrayList<MusicCollection> musicCollectionOriginal = new ArrayList<MusicCollection>();
 	int currentTrack;
+	String abTitle;
 	
 	private MediaPlayer mediaPlayer;
 	int bufferingInMillis = 0;
@@ -64,6 +74,14 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
         wl.setReferenceCounted(false);
 		wl.acquire();
 		
+		//init notifications
+		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		contentIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(Constants.INTENT_PLAYER_OPEN_ACTIVITY_PLAYER_FRAGMENT), 0);        
+		PendingIntentPrevSong = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(Constants.INTENT_PLAYER_PREV).putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_FITS, false), 0);
+		PendingIntentNextSong = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(Constants.INTENT_PLAYER_NEXT).putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_FITS, false), 0);
+		PendingIntentPlayPause = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(Constants.INTENT_PLAYER_PLAY_PAUSE).putExtra(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY), 0);
+		PendingDeleteIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(Constants.INTENT_PLAYER_KILL_SERVICE_ON_PAUSE), 0);
+		
 		//enable receivers
 		getApplicationContext().registerReceiver(restartPlayer, new IntentFilter(Constants.INTENT_PLAYER_RESTART));
 		getApplicationContext().registerReceiver(playPause, new IntentFilter(Constants.INTENT_PLAYER_PLAY_PAUSE));
@@ -75,6 +93,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().registerReceiver(changeRepeat, new IntentFilter(Constants.INTENT_PLAYER_REPEAT));
 		getApplicationContext().registerReceiver(changeShuffle, new IntentFilter(Constants.INTENT_PLAYER_SHUFFLE));
 		getApplicationContext().registerReceiver(NoisyAudioStreamReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
+		getApplicationContext().registerReceiver(startContentActivtyPlayerFragment, new IntentFilter(Constants.INTENT_PLAYER_OPEN_ACTIVITY_PLAYER_FRAGMENT));
 	}
 	
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -100,6 +119,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 			
 	    	musicCollection = intent.getExtras().getParcelableArrayList(Constants.BUNDLE_PLAYER_LIST_COLLECTIONS);
 	    	currentTrack = intent.getExtras().getInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION, 0);
+	    	abTitle = intent.getExtras().getString(Constants.BUNDLE_LIST_TITLE_NAME);
 	    	
 	    	//strat play music
 	    	initMP();
@@ -124,6 +144,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().unregisterReceiver(changeRepeat);
 		getApplicationContext().unregisterReceiver(changeShuffle);
 		getApplicationContext().unregisterReceiver(NoisyAudioStreamReceiver);
+		getApplicationContext().unregisterReceiver(startContentActivtyPlayerFragment);
 		
 		//release player
 		releaseMP();
@@ -132,9 +153,37 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		if (am!=null && afListenerSound!=null)
 			am.abandonAudioFocus(afListenerSound);
 		
+		//stop foreground
+		mNotificationManager.cancel(Constants.NOTIFICATION_PLAYER);
+		
 		//release wake lock
 		if (wl !=null )
 			wl.release();
+	}
+	
+	private void showNotification(){
+		//create new
+		mBuilder = new NotificationCompat.Builder(this);
+		
+		mBuilder.setContentTitle(musicCollection.get(currentTrack).artist)
+		.setContentText(musicCollection.get(currentTrack).title)
+		.setSmallIcon(mediaPlayer.isPlaying() || !prepared ? R.drawable.ic_music_notification_small_icon : R.drawable.ic_music_notification_pause_small_icon)
+		.setContentIntent(contentIntent)
+		.addAction(R.drawable.ic_not_prev, "", PendingIntentPrevSong)
+		.addAction(!mediaPlayer.isPlaying() && prepared ? R.drawable.ic_not_play : R.drawable.ic_not_pause, "", PendingIntentPlayPause)
+		.addAction(R.drawable.ic_not_next, "", PendingIntentNextSong)
+		.setOngoing(mediaPlayer.isPlaying() || !prepared)
+		.setAutoCancel(false)
+		.setProgress(0, 0, false)
+		.setPriority(NotificationCompat.PRIORITY_MAX);
+		
+		//show not
+		notification = mBuilder.build();
+		//set ticker
+		notification.tickerText = getString(R.string.player_now)+" "+musicCollection.get(currentTrack).artist+" - "+musicCollection.get(currentTrack).title;
+		notification.deleteIntent = PendingDeleteIntent;
+		
+		mNotificationManager.notify(Constants.NOTIFICATION_PLAYER, notification);
 	}
 	
 	AudioManager am;
@@ -178,6 +227,14 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 			}
 		}
 	}
+	
+	private BroadcastReceiver startContentActivtyPlayerFragment = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	    	//user decide to open player activity
+	    	startActivity(new Intent(getApplicationContext(), ContentActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+	    }
+	};
 	
 	private BroadcastReceiver NoisyAudioStreamReceiver = new BroadcastReceiver() {
 		@Override
@@ -319,6 +376,9 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	    	Intent i = new Intent(Constants.INTENT_PLAYER_PLAYBACK_PLAY_PAUSE);
 			i.putExtra(Constants.INTENT_PLAYER_PLAYBACK_PLAY_PAUSE_STATUS, mediaPlayer.isPlaying() || !prepared);
 			sendBroadcast(i);
+			
+			//set current notification
+	        showNotification();
 	    	
 	    	canSwitch = false;
 	    	handler.removeCallbacks(resuming);
@@ -339,7 +399,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	    		currentTrack++;
 	    	
 	    	//stop send track info
-			handler.removeCallbacks(notification);
+			handler.removeCallbacks(updatePlayback);
 			
 			lastAction = true;
 			
@@ -364,7 +424,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	    		currentTrack--;
 	    	
 	    	//stop send track info
-			handler.removeCallbacks(notification);
+			handler.removeCallbacks(updatePlayback);
 			
 			lastAction = false;
 			
@@ -381,6 +441,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	    public void onReceive(Context context, Intent intent) {
 	    	ArrayList<MusicCollection> musicCollectionNew = intent.getExtras().getParcelableArrayList(Constants.BUNDLE_PLAYER_LIST_COLLECTIONS);
 	    	int currentTrackNew = intent.getExtras().getInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION);
+	    	abTitle = intent.getExtras().getString(Constants.BUNDLE_LIST_TITLE_NAME);
 	    	
 	    	if (musicCollectionNew.size() != musicCollection.size() || 
 	    			currentTrackNew != currentTrack || 
@@ -412,6 +473,9 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		i3.putExtra(Constants.INTENT_PLAYER_PLAYBACK_SHUFFLE_STATUS, !musicCollectionOriginal.isEmpty());
 		sendBroadcast(i3);
 		
+		//set current notification
+        showNotification();
+		
 		int cr = currentTrack;
 		if (!musicCollectionOriginal.isEmpty()){
 			int index=0;
@@ -429,6 +493,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_FITS, fits);
 		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_POSITION, cr);
 		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_SIZE, musicCollection.size());
+		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_LIST_TITLE_NAME, abTitle);
 		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_ONE_AUDIO, (Parcelable)musicCollection.get(currentTrack));
 		sendBroadcast(backSwitchInfo);
 	}
@@ -446,6 +511,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
         mediaPlayer.setOnCompletionListener(this);
         mediaPlayer.setOnErrorListener(this);
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        
 		try {
 			mediaPlayer.setDataSource(musicCollection.get(currentTrack).url);
 	        mediaPlayer.prepareAsync();
@@ -486,7 +552,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	
 	private void releaseMP() {
 		//stop send track info
-		handler.removeCallbacks(notification);
+		handler.removeCallbacks(updatePlayback);
 		
 		if (mediaPlayer != null) {
 			try {
@@ -554,8 +620,8 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 			sendBroadcast(i);
 			
 		    if (mediaPlayer.isPlaying()) {
-		    	handler.removeCallbacks(notification);
-		        handler.postDelayed(notification,500);
+		    	handler.removeCallbacks(updatePlayback);
+		        handler.postDelayed(updatePlayback,500);
 		    }
 		} catch (Exception e){
 			i.putExtra(Constants.INTENT_UPDATE_PLAYBACK_CURRENT, 0);
@@ -566,7 +632,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 			return;
 		}
 	}
-	Runnable notification = new Runnable() {
+	Runnable updatePlayback = new Runnable() {
         public void run() {
             startPlayProgressUpdater();
         }
