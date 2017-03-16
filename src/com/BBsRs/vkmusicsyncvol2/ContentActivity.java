@@ -12,6 +12,10 @@ import org.holoeverywhere.slider.SliderMenu;
 import org.holoeverywhere.widget.TextView;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
@@ -23,6 +27,7 @@ import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseActivity;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 import com.BBsRs.vkmusicsyncvol2.Fragments.FrGrFragment;
 import com.BBsRs.vkmusicsyncvol2.Fragments.MusicFragment;
+import com.BBsRs.vkmusicsyncvol2.Fragments.PlayerFragment;
 import com.BBsRs.vkmusicsyncvol2.Fragments.SettingsFragment;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -132,7 +137,37 @@ public class ContentActivity extends BaseActivity {
 	public void onResume(){
 		super.onResume();
 		getSupportActionBar().setIcon(R.drawable.ic_menu);
+		
+		//
+		registerReceiver(openPlayerFragment, new IntentFilter(Constants.INTENT_PLAYER_OPEN_ACTIVITY_PLAYER_FRAGMENT));
 	}
+	
+	@Override
+	public void onPause(){
+		super.onPause();
+		//
+		unregisterReceiver(openPlayerFragment);
+	}
+
+	private BroadcastReceiver openPlayerFragment = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	    	//check is playerFragment current in use
+	    	if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_PLAYER_TAG) != null){
+	    		return;
+	    	}
+	    	
+			//create bundle to player list
+			Bundle playerBundle  = new Bundle();
+			
+			//create music list fragment
+	        PlayerFragment playerFragment = new PlayerFragment();
+	        playerFragment.setArguments(playerBundle);
+           	
+           	//start new music list fragment
+			addonSlider().obtainSliderMenu().replaceFragment(playerFragment, Constants.FRAGMENT_PLAYER_TAG, true);
+	    }
+	};
 	
 	//animation for universal image loader
 	private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();

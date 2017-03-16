@@ -76,7 +76,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		
 		//init notifications
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		contentIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(Constants.INTENT_PLAYER_OPEN_ACTIVITY_PLAYER_FRAGMENT), 0);        
+		contentIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(Constants.INTENT_PLAYER_OPEN_ACTIVITY), 0);        
 		PendingIntentPrevSong = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(Constants.INTENT_PLAYER_PREV).putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_FITS, false), 0);
 		PendingIntentNextSong = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(Constants.INTENT_PLAYER_NEXT).putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_FITS, false), 0);
 		PendingIntentPlayPause = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(Constants.INTENT_PLAYER_PLAY_PAUSE).putExtra(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY), 0);
@@ -93,7 +93,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().registerReceiver(changeRepeat, new IntentFilter(Constants.INTENT_PLAYER_REPEAT));
 		getApplicationContext().registerReceiver(changeShuffle, new IntentFilter(Constants.INTENT_PLAYER_SHUFFLE));
 		getApplicationContext().registerReceiver(NoisyAudioStreamReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
-		getApplicationContext().registerReceiver(startContentActivtyPlayerFragment, new IntentFilter(Constants.INTENT_PLAYER_OPEN_ACTIVITY_PLAYER_FRAGMENT));
+		getApplicationContext().registerReceiver(startContentActivty, new IntentFilter(Constants.INTENT_PLAYER_OPEN_ACTIVITY));
 	}
 	
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -144,7 +144,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().unregisterReceiver(changeRepeat);
 		getApplicationContext().unregisterReceiver(changeShuffle);
 		getApplicationContext().unregisterReceiver(NoisyAudioStreamReceiver);
-		getApplicationContext().unregisterReceiver(startContentActivtyPlayerFragment);
+		getApplicationContext().unregisterReceiver(startContentActivty);
 		
 		//release player
 		releaseMP();
@@ -228,11 +228,19 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		}
 	}
 	
-	private BroadcastReceiver startContentActivtyPlayerFragment = new BroadcastReceiver() {
+	private BroadcastReceiver startContentActivty = new BroadcastReceiver() {
 	    @Override
 	    public void onReceive(Context context, Intent intent) {
 	    	//user decide to open player activity
 	    	startActivity(new Intent(getApplicationContext(), ContentActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+	    	//try to open player fragment after open activity
+	    	handler.postDelayed(new Runnable(){
+				@Override
+				public void run() {
+					Intent openPlayerFragment = new Intent(Constants.INTENT_PLAYER_OPEN_ACTIVITY_PLAYER_FRAGMENT);
+					sendBroadcast(openPlayerFragment);
+				}
+	    	}, 500);
 	    }
 	};
 	

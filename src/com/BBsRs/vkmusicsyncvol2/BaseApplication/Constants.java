@@ -65,6 +65,7 @@ public class Constants {
 	public static final String INTENT_STOP_DOWNLOAD = "intent:stop_download";
 	public static final String INTENT_REQUEST_DOWNLOAD_STATUS = "intent:request_download_status";
 	/*--PLAYER VALUES--*/
+	public static final String FRAGMENT_PLAYER_TAG = "fragment:player_tag";
 	public static final String INTENT_UPDATE_PLAYBACK = "intent:update_playback";
 	public static final String INTENT_UPDATE_PLAYBACK_CURRENT = "intent:update_playback_current";
 	public static final String INTENT_UPDATE_PLAYBACK_CURRENT_BUFFERING = "intent:update_playback_current_buffering";
@@ -80,6 +81,7 @@ public class Constants {
 	public static final String INTENT_PLAYER_PLAY_PAUSE = "intent:player_play_pause";
 	public static final String INTENT_PLAYER_REPEAT = "intent:player_repeat";
 	public static final String INTENT_PLAYER_SHUFFLE = "intent:player_shuffle";
+	public static final String INTENT_PLAYER_OPEN_ACTIVITY = "intent:player_open_activity";
 	public static final String INTENT_PLAYER_OPEN_ACTIVITY_PLAYER_FRAGMENT = "intent:player_open_player_fragment";
 	public static final String INTENT_PLAYER_KILL_SERVICE_ON_PAUSE = "intent:player_kill_service_on_pause";
 	/*--*/

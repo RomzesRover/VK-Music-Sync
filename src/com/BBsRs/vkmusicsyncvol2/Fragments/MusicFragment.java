@@ -262,7 +262,7 @@ public class MusicFragment extends BaseFragment {
 		        playerFragment.setArguments(playerBundle);
 	           	
 	           	//start new music list fragment
-				((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(playerFragment);
+				((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(playerFragment, Constants.FRAGMENT_PLAYER_TAG, true);
 			}
 		});
 		
