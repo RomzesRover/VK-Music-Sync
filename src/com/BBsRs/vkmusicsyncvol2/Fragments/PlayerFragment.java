@@ -27,7 +27,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
-import com.BBsRs.vkmusicsyncvol2.ContentActivity;
 import com.BBsRs.vkmusicsyncvol2.R;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseFragment;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
@@ -35,6 +34,7 @@ import com.BBsRs.vkmusicsyncvol2.Services.PlayerService;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
@@ -539,6 +539,28 @@ public class PlayerFragment extends BaseFragment {
 	//animation for universal image loader
 	private ImageLoadingListener animateFirstListenerRight = new AnimateFirstDisplayListenerRight();
 	private class AnimateFirstDisplayListenerRight extends SimpleImageLoadingListener {
+		
+		@Override
+		public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+			
+			ImageView imageView = (ImageView) view;
+			
+			Animation flyRightOutAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_right_anim_out);
+			albumArtBg.startAnimation(flyRightOutAnimation);
+			
+			Animation flyRightAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_right_anim);
+			flyRightAnimation.setAnimationListener(new AnimationListener(){
+				@Override
+				public void onAnimationEnd(Animation arg0) {
+					albumArtBg.setImageResource(R.drawable.music_stub_source);
+				}
+				@Override
+				public void onAnimationRepeat(Animation arg0) { }
+				@Override
+				public void onAnimationStart(Animation arg0) { }
+			});
+			imageView.startAnimation(flyRightAnimation);
+		}
 
 		final List<String> displayedImages = Collections.synchronizedList(new LinkedList<String>());
 
@@ -572,6 +594,28 @@ public class PlayerFragment extends BaseFragment {
 	}
 	private ImageLoadingListener animateFirstListenerLeft = new AnimateFirstDisplayListenerLeft();
 	private class AnimateFirstDisplayListenerLeft extends SimpleImageLoadingListener {
+		
+		@Override
+		public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+			
+			ImageView imageView = (ImageView) view;
+			
+			Animation flyLeftOutAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_left_anim_out);
+			albumArtBg.startAnimation(flyLeftOutAnimation);
+			
+			Animation flyLeftAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_left_anim);
+			flyLeftAnimation.setAnimationListener(new AnimationListener(){
+				@Override
+				public void onAnimationEnd(Animation arg0) {
+					albumArtBg.setImageResource(R.drawable.music_stub_source);
+				}
+				@Override
+				public void onAnimationRepeat(Animation arg0) { }
+				@Override
+				public void onAnimationStart(Animation arg0) { }
+			});
+			imageView.startAnimation(flyLeftAnimation);
+		}
 
 		final List<String> displayedImages = Collections.synchronizedList(new LinkedList<String>());
 
