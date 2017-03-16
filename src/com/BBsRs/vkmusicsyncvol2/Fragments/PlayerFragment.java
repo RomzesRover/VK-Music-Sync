@@ -256,13 +256,10 @@ public class PlayerFragment extends BaseFragment {
         handler.postDelayed(new Runnable(){
 			@Override
 			public void run() {
-				if (!isMyServiceRunning(PlayerService.class)){
-					//switch to main list scree
-					((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().setCurrentPage(1);
-				} else {
+				if (isMyServiceRunning(PlayerService.class)){
 					Intent requestBackSwitchInfo = new Intent(Constants.INTENT_PLAYER_REQUEST_BACK_SWITCH_INFO);
 					getActivity().sendBroadcast(requestBackSwitchInfo);
-				}
+				} 
 		}}, 250);
         
         //enable receivers
