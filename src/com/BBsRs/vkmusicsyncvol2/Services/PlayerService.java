@@ -24,6 +24,7 @@ import android.media.MediaPlayer.OnBufferingUpdateListener;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
@@ -238,6 +239,28 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 				@Override
 				public void run() {
 					Intent openPlayerFragment = new Intent(Constants.INTENT_PLAYER_OPEN_ACTIVITY_PLAYER_FRAGMENT);
+					
+					int cr = currentTrack;
+					if (!musicCollectionOriginal.isEmpty()){
+						int index=0;
+						for (MusicCollection one : musicCollectionOriginal){
+							if (one.aid == musicCollection.get(currentTrack).aid && one.owner_id == musicCollection.get(currentTrack).owner_id && one.artist.equals(musicCollection.get(currentTrack).artist) && one.title.equals(musicCollection.get(currentTrack).title)){
+								cr=index;
+								break;
+							}
+							index++;
+						}
+					}
+					
+					//create bundle to player list
+					Bundle playerBundle  = new Bundle();
+					playerBundle.putParcelableArrayList(Constants.BUNDLE_PLAYER_LIST_COLLECTIONS, musicCollectionOriginal != null && !musicCollectionOriginal.isEmpty() ? musicCollectionOriginal : musicCollection);
+					playerBundle.putInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION, cr);
+					playerBundle.putInt(Constants.BUNDLE_PLAYER_LIST_SIZE, musicCollection.size());
+					playerBundle.putString(Constants.BUNDLE_LIST_TITLE_NAME, abTitle);
+					
+					openPlayerFragment.putExtras(playerBundle);
+					
 					sendBroadcast(openPlayerFragment);
 				}
 	    	}, 500);
@@ -452,7 +475,6 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	    	abTitle = intent.getExtras().getString(Constants.BUNDLE_LIST_TITLE_NAME);
 	    	
 	    	if (musicCollectionNew.size() != musicCollection.size() || 
-	    			currentTrackNew != currentTrack || 
 	    			!musicCollection.get(currentTrack).artist.equals(musicCollectionNew.get(currentTrackNew).artist) || 
 	    			!musicCollection.get(currentTrack).title.equals(musicCollectionNew.get(currentTrackNew).title)){
 	    		

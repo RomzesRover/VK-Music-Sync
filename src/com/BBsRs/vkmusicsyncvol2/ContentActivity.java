@@ -158,7 +158,7 @@ public class ContentActivity extends BaseActivity {
 	    	}
 	    	
 			//create bundle to player list
-			Bundle playerBundle  = new Bundle();
+			Bundle playerBundle  = intent.getExtras();
 			
 			//create music list fragment
 	        PlayerFragment playerFragment = new PlayerFragment();
