@@ -83,6 +83,7 @@ public class Constants {
 	public static final String INTENT_PLAYER_SHUFFLE = "intent:player_shuffle";
 	public static final String INTENT_PLAYER_OPEN_ACTIVITY = "intent:player_open_activity";
 	public static final String INTENT_PLAYER_OPEN_ACTIVITY_PLAYER_FRAGMENT = "intent:player_open_player_fragment";
+	public static final String INTENT_PLAYER_OPEN_ACTIVITY_LAST_FRAGMENT = "intent:player_open_activity_last_fragment";
 	public static final String INTENT_PLAYER_KILL_SERVICE_ON_PAUSE = "intent:player_kill_service_on_pause";
 	/*--*/
 	public static final String INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE = "intent:player_play_pause_strict_mode";

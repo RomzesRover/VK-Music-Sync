@@ -140,6 +140,7 @@ public class ContentActivity extends BaseActivity {
 		
 		//
 		registerReceiver(openPlayerFragment, new IntentFilter(Constants.INTENT_PLAYER_OPEN_ACTIVITY_PLAYER_FRAGMENT));
+		registerReceiver(openLastFragment, new IntentFilter(Constants.INTENT_PLAYER_OPEN_ACTIVITY_LAST_FRAGMENT));
 	}
 	
 	@Override
@@ -147,7 +148,15 @@ public class ContentActivity extends BaseActivity {
 		super.onPause();
 		//
 		unregisterReceiver(openPlayerFragment);
+		unregisterReceiver(openLastFragment);
 	}
+	
+	private BroadcastReceiver openLastFragment = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	    	sliderMenu.setCurrentPage(sliderMenu.getCurrentPage());
+	    }
+	};
 
 	private BroadcastReceiver openPlayerFragment = new BroadcastReceiver() {
 	    @Override

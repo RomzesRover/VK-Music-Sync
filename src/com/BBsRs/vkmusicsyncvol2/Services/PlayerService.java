@@ -597,8 +597,21 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	}
 
 	@Override
-	public boolean onError(MediaPlayer arg0, int arg1, int arg2) {
-		// TODO Auto-generated method stub
+	public boolean onError(MediaPlayer mp, int what, int extra) {
+		if (what==-38 && extra == 0)
+			return false;
+		Toast.makeText(getApplicationContext(), getString(R.string.player_error), Toast.LENGTH_LONG).show();
+		
+		handler.postDelayed(new Runnable(){
+			@Override
+			public void run() {
+				handler.removeCallbacks(updatePlayback);
+				Intent openLastFragment = new Intent(Constants.INTENT_PLAYER_OPEN_ACTIVITY_LAST_FRAGMENT);
+				sendBroadcast(openLastFragment);
+				
+				stopSelf();
+			}
+		}, 1000);
 		return false;
 	}
 
