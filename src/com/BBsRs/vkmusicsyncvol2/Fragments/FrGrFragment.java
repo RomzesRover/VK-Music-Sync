@@ -194,6 +194,10 @@ public class FrGrFragment extends BaseFragment {
 		if (frGrListAdapter != null){
 			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, frGrListAdapter.getFrGrCollection());
 		}
+		
+		if (loadM != null){
+			loadM.cancel(true);
+		}
     }
 	
     @Override
@@ -235,12 +239,13 @@ public class FrGrFragment extends BaseFragment {
     		break;
     	}
 	}
-    
+
+	AsyncTask<Void, Void, Void> loadM;
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) 
     public class CustomOnRefreshListener  implements OnRefreshListener{
 		@Override
 		public void onRefreshStarted(View view) {
-			AsyncTask<Void, Void, Void> loadM = new AsyncTask<Void, Void, Void>() {
+			loadM = new AsyncTask<Void, Void, Void>() {
 				
 				@Override
 				protected Void doInBackground(Void... params) {

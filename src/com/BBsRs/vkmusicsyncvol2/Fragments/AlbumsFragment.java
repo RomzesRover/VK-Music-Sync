@@ -140,6 +140,10 @@ public class AlbumsFragment extends BaseFragment {
 		if (albumListAdapter != null){
 			getArguments().putParcelableArrayList(Constants.EXTRA_LIST_COLLECTIONS, albumListAdapter.getAlbumCollection());
 		}
+		
+		if (loadM != null){
+			loadM.cancel(true);
+		}
     }
 	
     @Override
@@ -171,11 +175,12 @@ public class AlbumsFragment extends BaseFragment {
     	}
 	}
     
+	AsyncTask<Void, Void, Void> loadM;
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) 
     public class CustomOnRefreshListener  implements OnRefreshListener{
 		@Override
 		public void onRefreshStarted(View view) {
-			AsyncTask<Void, Void, Void> loadM = new AsyncTask<Void, Void, Void>() {
+			loadM = new AsyncTask<Void, Void, Void>() {
 				
 				@Override
 				protected Void doInBackground(Void... params) {
