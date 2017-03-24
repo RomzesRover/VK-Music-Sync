@@ -1,6 +1,7 @@
 package com.BBsRs.vkmusicsyncvol2.Fragments;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,6 +61,7 @@ import com.BBsRs.vkmusicsyncvol2.Adapters.MusicListAdapter;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseFragment;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
+import com.BBsRs.vkmusicsyncvol2.BaseApplication.ObjectSerializer;
 import com.BBsRs.vkmusicsyncvol2.Services.DownloadService;
 import com.BBsRs.vkmusicsyncvol2.collections.AlbumCollection;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
@@ -250,19 +252,49 @@ public class MusicFragment extends BaseFragment {
 				//null list of music to delete to prevent possible play error
 		    	musicCollectionToDelete = new ArrayList<MusicCollection>();
 		    	
-				//create bundle to player list
-				Bundle playerBundle  = new Bundle();
-				playerBundle.putParcelableArrayList(Constants.BUNDLE_PLAYER_LIST_COLLECTIONS, musicListAdapter.getMusicCollection());
-				playerBundle.putInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION, _position-1);
-				playerBundle.putInt(Constants.BUNDLE_PLAYER_LIST_SIZE, musicListAdapter.getCount());
-				playerBundle.putString(Constants.BUNDLE_LIST_TITLE_NAME, bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME).split(";")[bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME).split(";").length-1]+";%s "+getActivity().getString(R.string.player_of)+" %s");
-				
-				//create music list fragment
-		        PlayerFragment playerFragment = new PlayerFragment();
-		        playerFragment.setArguments(playerBundle);
-	           	
-	           	//start new music list fragment
-				((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(playerFragment, Constants.FRAGMENT_PLAYER_TAG, true);
+				 try {
+					 //put playerlist to preferences files (new file, dont worry for parse all other values)
+					 int lastSavePosR = 0, lastSavePosL = 0, maxSavePos = musicListAdapter.getCount(), iteration = 0;
+					 while (true){
+						 //determine save pos
+						 if (lastSavePosR + 99 > maxSavePos){
+							 lastSavePosR = maxSavePos;
+						 } else {
+							 lastSavePosR += 99;
+						 }
+						 
+						 //save lists
+						 SharedPreferences.Editor editor = getSharedPreferences(Constants.PREFERENCES_PLAYER_LIST_COLLECTIONS + iteration, Context.MODE_PRIVATE).edit();
+						 editor.putString(Constants.PREFERENCES_PLAYER_LIST_COLLECTIONS, ObjectSerializer.serialize(new ArrayList<MusicCollection>(musicListAdapter.getMusicCollection().subList(lastSavePosL, lastSavePosR))));
+						 editor.commit();
+						 
+						 lastSavePosL = lastSavePosR;
+						 
+						 if (lastSavePosR == maxSavePos){
+							 break;
+						 }
+						 
+						 iteration++;
+					 }
+					 
+					 //create bundle to player list
+					 Bundle playerBundle  = new Bundle();
+					 playerBundle.putInt(Constants.BUNDLE_PLAYER_LIST_CURR_HLENGTH, iteration);
+					 playerBundle.putInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION, _position-1);
+					 playerBundle.putInt(Constants.BUNDLE_PLAYER_LIST_SIZE, musicListAdapter.getCount());
+					 playerBundle.putString(Constants.BUNDLE_LIST_TITLE_NAME, bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME).split(";")[bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME).split(";").length-1]+";%s "+getActivity().getString(R.string.player_of)+" %s");
+						
+					 //create music list fragment
+					 PlayerFragment playerFragment = new PlayerFragment();
+					 playerFragment.setArguments(playerBundle);
+			           	
+					 //start new music list fragment
+					 ((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(playerFragment, Constants.FRAGMENT_PLAYER_TAG, true);
+					 
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 		

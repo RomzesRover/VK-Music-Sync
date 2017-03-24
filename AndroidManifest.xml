@@ -32,10 +32,15 @@
             android:name=".LoginActivity"
             android:theme="@style/purple.Login" >
         </activity>
-        <activity android:name=".ContentActivity" android:launchMode="singleTop">
+        <activity
+            android:name=".ContentActivity"
+            android:launchMode="singleTop" >
         </activity>
-        <service android:name=".Services.DownloadService"></service>
-        <service android:name=".Services.PlayerService"></service>
+
+        <service android:name=".Services.DownloadService" >
+        </service>
+        <service android:name=".Services.PlayerService" >
+        </service>
     </application>
 
 </manifest>

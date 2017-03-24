@@ -1,5 +1,6 @@
 package com.BBsRs.vkmusicsyncvol2.Services;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -34,6 +35,7 @@ import android.support.v4.app.NotificationCompat;
 import com.BBsRs.vkmusicsyncvol2.ContentActivity;
 import com.BBsRs.vkmusicsyncvol2.R;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
+import com.BBsRs.vkmusicsyncvol2.BaseApplication.ObjectSerializer;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
 
 public class PlayerService extends Service implements OnPreparedListener, OnCompletionListener, OnBufferingUpdateListener, OnErrorListener{
@@ -53,6 +55,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	ArrayList<MusicCollection> musicCollection = new ArrayList<MusicCollection>();
 	ArrayList<MusicCollection> musicCollectionOriginal = new ArrayList<MusicCollection>();
 	int currentTrack;
+	int hLength;
 	String abTitle;
 	
 	private MediaPlayer mediaPlayer;
@@ -97,6 +100,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().registerReceiver(startContentActivty, new IntentFilter(Constants.INTENT_PLAYER_OPEN_ACTIVITY));
 	}
 	
+	@SuppressWarnings("unchecked")
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		
 		//create audio focus things
@@ -118,10 +122,18 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 			//init prefernces
 			sPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 			
-	    	musicCollection = intent.getExtras().getParcelableArrayList(Constants.BUNDLE_PLAYER_LIST_COLLECTIONS);
-	    	currentTrack = intent.getExtras().getInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION, 0);
+			//null list
+			musicCollection = new ArrayList<MusicCollection>();
+			
+			hLength = intent.getExtras().getInt(Constants.BUNDLE_PLAYER_LIST_CURR_HLENGTH, 0);
+			currentTrack = intent.getExtras().getInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION, 0);
 	    	abTitle = intent.getExtras().getString(Constants.BUNDLE_LIST_TITLE_NAME);
-	    	
+	    	//retrive music list from shared prefs
+			for (int iteration = 0; iteration <= hLength; iteration++){
+				android.content.SharedPreferences prefs = getSharedPreferences(Constants.PREFERENCES_PLAYER_LIST_COLLECTIONS + iteration, Context.MODE_PRIVATE);
+				musicCollection.addAll((ArrayList<MusicCollection>) ObjectSerializer.deserialize(prefs.getString(Constants.PREFERENCES_PLAYER_LIST_COLLECTIONS, ObjectSerializer.serialize(new ArrayList<MusicCollection>()))));
+			}
+			
 	    	//strat play music
 	    	initMP();
 		} catch (Exception e){
@@ -254,7 +266,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 					
 					//create bundle to player list
 					Bundle playerBundle  = new Bundle();
-					playerBundle.putParcelableArrayList(Constants.BUNDLE_PLAYER_LIST_COLLECTIONS, musicCollectionOriginal != null && !musicCollectionOriginal.isEmpty() ? musicCollectionOriginal : musicCollection);
+					playerBundle.putInt(Constants.BUNDLE_PLAYER_LIST_CURR_HLENGTH, hLength);
 					playerBundle.putInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION, cr);
 					playerBundle.putInt(Constants.BUNDLE_PLAYER_LIST_SIZE, musicCollection.size());
 					playerBundle.putString(Constants.BUNDLE_LIST_TITLE_NAME, abTitle);
@@ -468,11 +480,25 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	};
 	
 	private BroadcastReceiver restartPlayer = new BroadcastReceiver() {
-	    @Override
+	    @SuppressWarnings("unchecked")
+		@Override
 	    public void onReceive(Context context, Intent intent) {
-	    	ArrayList<MusicCollection> musicCollectionNew = intent.getExtras().getParcelableArrayList(Constants.BUNDLE_PLAYER_LIST_COLLECTIONS);
+	    	//null new list
+	    	ArrayList<MusicCollection> musicCollectionNew = new ArrayList<MusicCollection>();
+	    	
 	    	int currentTrackNew = intent.getExtras().getInt(Constants.BUNDLE_PLAYER_CURRENT_SELECTED_POSITION);
 	    	abTitle = intent.getExtras().getString(Constants.BUNDLE_LIST_TITLE_NAME);
+	    	hLength = intent.getExtras().getInt(Constants.BUNDLE_PLAYER_LIST_CURR_HLENGTH, 0);
+	    	
+	    	//retrive music list from shared prefs
+			for (int iteration = 0; iteration <= hLength; iteration++){
+				try {
+					android.content.SharedPreferences prefs = getSharedPreferences(Constants.PREFERENCES_PLAYER_LIST_COLLECTIONS + iteration, Context.MODE_PRIVATE);
+					musicCollectionNew.addAll((ArrayList<MusicCollection>) ObjectSerializer.deserialize(prefs.getString(Constants.PREFERENCES_PLAYER_LIST_COLLECTIONS, ObjectSerializer.serialize(new ArrayList<MusicCollection>()))));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 	    	
 	    	if (musicCollectionNew.size() != musicCollection.size() || 
 	    			!musicCollection.get(currentTrack).artist.equals(musicCollectionNew.get(currentTrackNew).artist) || 
