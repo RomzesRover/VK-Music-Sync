@@ -134,7 +134,7 @@
             android:scaleType="fitXY"
             android:src="@color/gray_four_color" />
     </LinearLayout>
-    
+
     <LinearLayout
         android:id="@+id/errorLayout"
         android:layout_width="match_parent"
@@ -143,12 +143,12 @@
         android:orientation="vertical"
         android:paddingLeft="13dp"
         android:paddingRight="13dp"
+        android:paddingBottom="11dp"
         android:paddingTop="11dp" >
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="11dp" >
+            android:layout_height="wrap_content" >
 
             <TextView
                 android:id="@+id/errr"
@@ -156,14 +156,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ellipsize="end"
-                android:gravity="center_horizontal"
+                android:gravity="center"
                 android:lines="3"
                 android:singleLine="false"
                 android:text="@string/content_activity_access_to_users_audio_denied"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/black_color"
                 android:textSize="15sp" />
-
         </LinearLayout>
     </LinearLayout>
 

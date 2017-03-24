@@ -8,6 +8,7 @@ import org.holoeverywhere.preference.SharedPreferences;
 import org.holoeverywhere.widget.LinearLayout;
 import org.holoeverywhere.widget.ListView;
 import org.holoeverywhere.widget.TextView;
+import org.holoeverywhere.widget.Toast;
 
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
@@ -93,6 +94,12 @@ public class FrGrFragment extends BaseFragment {
     	//init header buttons
     	header = inflater.inflate(R.layout.list_music_header);
     	SFUIFonts.MEDIUM.apply(getActivity(), (TextView)header.findViewById(R.id.errr));
+    	((LinearLayout)header.findViewById(R.id.errorLayout)).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				Toast.makeText(getActivity(), getActivity().getString(R.string.content_activity_error_info), Toast.LENGTH_LONG).show();
+			}
+		});
     	list.addHeaderView(header);
     	list.setAdapter(frGrListAdapter);
     	
@@ -303,6 +310,7 @@ public class FrGrFragment extends BaseFragment {
 				        
 				        frGrListAdapter.UpdateList(frGrCollection);
 					} catch (Exception e) {
+						frGrListAdapter.UpdateList(new ArrayList<FrGrCollection>());
 						bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_ANOTHER);
 						e.printStackTrace();
 					}

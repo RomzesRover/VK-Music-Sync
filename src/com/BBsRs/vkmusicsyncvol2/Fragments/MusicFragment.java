@@ -215,6 +215,12 @@ public class MusicFragment extends BaseFragment {
 				((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(albumsFragment);
 			}
 		});
+    	((LinearLayout)header.findViewById(R.id.errorLayout)).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				Toast.makeText(getActivity(), getActivity().getString(R.string.content_activity_error_info), Toast.LENGTH_LONG).show();
+			}
+		});
     	list.addHeaderView(header);
     	list.setAdapter(musicListAdapter);
     	
@@ -1045,6 +1051,7 @@ public class MusicFragment extends BaseFragment {
 						
 						musicListAdapter.UpdateList(musicCollection);
 					} catch (Exception e) {
+						musicListAdapter.UpdateList(new ArrayList<MusicCollection>());
 						if (e.getMessage().contains("Access denied: access to users audio is denied")){
 							bundle.putInt(Constants.BUNDLE_LIST_ERROR_CODE, Constants.BUNDLE_LIST_ERROR_CODE_ACCESS_TO_USER_AUDIO_DENIED);
 						} else {
