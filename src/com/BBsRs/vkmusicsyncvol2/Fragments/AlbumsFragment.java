@@ -244,11 +244,27 @@ public class AlbumsFragment extends BaseFragment {
 		                    mPullToRefreshLayout.setRefreshComplete();
 						}
 					});
+					
 					//slep to prevent laggy animations
 					try {
-						Thread.sleep(250);
+						Thread.sleep(200);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					handler.post(new Runnable(){
+						@Override
+						public void run() {
+							//
+	      					setUpHeaderView();
+	                    	albumListAdapter.notifyDataSetChanged();
+						}
+					});
+					
+					//slep to prevent laggy animations
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 					
@@ -257,8 +273,6 @@ public class AlbumsFragment extends BaseFragment {
 				@Override
 		        protected void onPostExecute(Void result) {
                     if (getActivity()!=null){
-                    	setUpHeaderView();
-                    	albumListAdapter.notifyDataSetChanged();
                     	//with fly up animation
                     	list.setVisibility(View.VISIBLE);
                     	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);

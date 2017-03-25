@@ -322,11 +322,30 @@ public class FrGrFragment extends BaseFragment {
 		                    mPullToRefreshLayout.setRefreshComplete();
 						}
 					});
+					
 					//slep to prevent laggy animations
 					try {
-						Thread.sleep(250);
+						Thread.sleep(200);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					handler.post(new Runnable(){
+						@Override
+						public void run() {
+							//pause image loads
+	      					handler.removeCallbacks(resuming);
+	      					ImageLoader.getInstance().pause();
+							//
+	      					setUpHeaderView();
+	                    	frGrListAdapter.notifyDataSetChanged();
+						}
+					});
+					
+					//slep to prevent laggy animations
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 					
@@ -335,12 +354,6 @@ public class FrGrFragment extends BaseFragment {
 				@Override
 		        protected void onPostExecute(Void result) {
                     if (getActivity()!=null){
-                    	//pause image loads
-      					handler.removeCallbacks(resuming);
-      					ImageLoader.getInstance().pause();
-      					
-                    	setUpHeaderView();
-                    	frGrListAdapter.notifyDataSetChanged();
                     	//with fly up animation
                     	list.setVisibility(View.VISIBLE);
                     	Animation flyUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim);
