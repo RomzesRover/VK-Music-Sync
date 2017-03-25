@@ -175,6 +175,9 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	}
 	
 	private void showNotification(){
+		if(mediaPlayer == null)
+			return;
+		
 		//create new
 		mBuilder = new NotificationCompat.Builder(this);
 		
@@ -516,19 +519,6 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	};
 	
 	private void sendBackInfoToScreen(boolean direction, boolean fits){
-		//play pause status
-		Intent i = new Intent(Constants.INTENT_PLAYER_PLAYBACK_PLAY_PAUSE);
-		i.putExtra(Constants.INTENT_PLAYER_PLAYBACK_PLAY_PAUSE_STATUS, mediaPlayer.isPlaying() || !prepared);
-		sendBroadcast(i);
-		
-		Intent i2 = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_REPEAT);
-		i2.putExtra(Constants.INTENT_PLAYER_PLAYBACK_REPEAT_STATUS, mediaPlayer.isLooping());
-		sendBroadcast(i2);
-		
-		Intent i3 = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_SHUFFLE);
-		i3.putExtra(Constants.INTENT_PLAYER_PLAYBACK_SHUFFLE_STATUS, !musicCollectionOriginal.isEmpty());
-		sendBroadcast(i3);
-		
 		//set current notification
         showNotification();
 		
@@ -552,6 +542,22 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_LIST_TITLE_NAME, abTitle);
 		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_ONE_AUDIO, (Parcelable)musicCollection.get(currentTrack));
 		sendBroadcast(backSwitchInfo);
+		
+		if (mediaPlayer == null)
+			return;
+		
+		//play pause status
+		Intent i = new Intent(Constants.INTENT_PLAYER_PLAYBACK_PLAY_PAUSE);
+		i.putExtra(Constants.INTENT_PLAYER_PLAYBACK_PLAY_PAUSE_STATUS, mediaPlayer.isPlaying() || !prepared);
+		sendBroadcast(i);
+		
+		Intent i2 = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_REPEAT);
+		i2.putExtra(Constants.INTENT_PLAYER_PLAYBACK_REPEAT_STATUS, mediaPlayer.isLooping());
+		sendBroadcast(i2);
+		
+		Intent i3 = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_SHUFFLE);
+		i3.putExtra(Constants.INTENT_PLAYER_PLAYBACK_SHUFFLE_STATUS, !musicCollectionOriginal.isEmpty());
+		sendBroadcast(i3);
 	}
 	
 	private void initMP(){
