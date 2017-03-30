@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
+    <string name="player_prev_short_not">PREV</string>
+    <string name="player_next_short_not">NEXT</string>
+    <string name="player_play_short_not">PLAY</string>
+    <string name="player_pause_short_not">PAUSE</string>
     <string name="player_of">of</string>
     <string name="player_error">An error occurred during try to play this track</string>
     <string name="player_now">Now playing:</string>

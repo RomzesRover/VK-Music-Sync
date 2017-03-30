@@ -25,6 +25,7 @@ import android.media.MediaPlayer.OnBufferingUpdateListener;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -181,13 +182,15 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		//create new
 		mBuilder = new NotificationCompat.Builder(this);
 		
+		boolean nougat = Build.VERSION.SDK_INT >= 24;
+		
 		mBuilder.setContentTitle(musicCollection.get(currentTrack).artist)
 		.setContentText(musicCollection.get(currentTrack).title)
 		.setSmallIcon(mediaPlayer.isPlaying() || !prepared ? R.drawable.ic_music_notification_small_icon : R.drawable.ic_music_notification_pause_small_icon)
 		.setContentIntent(contentIntent)
-		.addAction(R.drawable.ic_not_prev, "", PendingIntentPrevSong)
-		.addAction(!mediaPlayer.isPlaying() && prepared ? R.drawable.ic_not_play : R.drawable.ic_not_pause, "", PendingIntentPlayPause)
-		.addAction(R.drawable.ic_not_next, "", PendingIntentNextSong)
+		.addAction(R.drawable.ic_not_prev, nougat? getString(R.string.player_prev_short_not) : "", PendingIntentPrevSong)
+		.addAction(!mediaPlayer.isPlaying() && prepared ? R.drawable.ic_not_play : R.drawable.ic_not_pause, !mediaPlayer.isPlaying() && prepared ? nougat? getString(R.string.player_play_short_not) : "" : nougat? getString(R.string.player_pause_short_not) : "", PendingIntentPlayPause)
+		.addAction(R.drawable.ic_not_next, nougat? getString(R.string.player_next_short_not) : "", PendingIntentNextSong)
 		.setOngoing(mediaPlayer.isPlaying() || !prepared)
 		.setAutoCancel(false)
 		.setProgress(0, 0, false)
