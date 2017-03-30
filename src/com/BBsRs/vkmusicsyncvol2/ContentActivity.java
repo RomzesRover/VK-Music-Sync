@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -76,6 +77,31 @@ public class ContentActivity extends BaseActivity {
         sliderMenu = addonSlider().obtainDefaultSliderMenu(R.layout.menu);
         sliderMenu.setInverseTextColorWhenSelected(false);
         addonSlider().setOverlayActionBar(true);
+        
+        try {
+        	addonSlider().setDrawerListener(new DrawerListener(){
+        		@Override
+        		public void onDrawerClosed(View arg0) {
+        			Intent i = new Intent(Constants.INTENT_FORCE_SHOW_UPDATE_LINE);
+        			sendBroadcast(i);
+        		}
+        		@Override
+        		public void onDrawerOpened(View arg0) {
+        			Intent i2 = new Intent(Constants.INTENT_FORCE_CLOSE_SEARCH_KEYBOARD);
+        			sendBroadcast(i2);
+        		}
+        		@Override
+        		public void onDrawerSlide(View arg0, float arg1) {
+        			Intent i3 = new Intent(Constants.INTENT_FORCE_HIDE_UPDATE_LINE);
+        			sendBroadcast(i3);
+        		}
+        		@Override
+        		public void onDrawerStateChanged(int arg0) {}
+        	});
+        } catch (Exception e){
+        	e.printStackTrace();
+        	//Error on tablets !!
+        }
         
         //init bundles
         Bundle myMusic  = new Bundle();

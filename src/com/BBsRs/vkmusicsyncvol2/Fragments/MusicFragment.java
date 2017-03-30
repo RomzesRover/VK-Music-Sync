@@ -33,7 +33,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.support.v7.widget.SearchView.SearchAutoComplete;
@@ -105,30 +104,7 @@ public class MusicFragment extends BaseFragment {
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
     	View contentView = inflater.inflate(R.layout.fragment_music_frgr_album);
-    	
-    	//init hide slider menu (hide search)
-        try {
-        	((ContentActivity) getSupportActivity()).addonSlider().setDrawerListener(new DrawerListener(){
-        		@Override
-        		public void onDrawerClosed(View arg0) {}
-        		@Override
-        		public void onDrawerOpened(View arg0) {
-        			//hide search, keyboard if its opened
-                	if (searchView != null && getActivity() != null){
-          				InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
-          				imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
-        				}
-        		}
-        		@Override
-        		public void onDrawerSlide(View arg0, float arg1) {}
-        		@Override
-        		public void onDrawerStateChanged(int arg0) {}
-        	});
-        } catch (Exception e){
-        	e.printStackTrace();
-        	//Error on tablets !!
-        }
-    	
+
     	//set up preferences
 	    sPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 	    
@@ -532,6 +508,9 @@ public class MusicFragment extends BaseFragment {
     	getActivity().registerReceiver(downloadSongToStorage, new IntentFilter(Constants.INTENT_DOWNLOAD_SONG_TO_STORAGE));
     	getActivity().registerReceiver(changeSongDownloadPercentage, new IntentFilter(Constants.INTENT_CHANGE_SONG_DOWNLOAD_PERCENTAGE));
     	getActivity().registerReceiver(deleteSongFromStorage, new IntentFilter(Constants.INTENT_DELETE_SONG_FROM_STORAGE));
+    	getActivity().registerReceiver(forceShowUpdateLine, new IntentFilter(Constants.INTENT_FORCE_SHOW_UPDATE_LINE));
+    	getActivity().registerReceiver(forceHideUpdateLine, new IntentFilter(Constants.INTENT_FORCE_HIDE_UPDATE_LINE));
+    	getActivity().registerReceiver(forceCloseSearchKeyboard, new IntentFilter(Constants.INTENT_FORCE_CLOSE_SEARCH_KEYBOARD));
     	
     	//null list of music to delete
     	musicCollectionToDelete = new ArrayList<MusicCollection>();
@@ -592,6 +571,9 @@ public class MusicFragment extends BaseFragment {
 		getActivity().unregisterReceiver(downloadSongToStorage);
 		getActivity().unregisterReceiver(changeSongDownloadPercentage);
 		getActivity().unregisterReceiver(deleteSongFromStorage);
+		getActivity().unregisterReceiver(forceShowUpdateLine);
+		getActivity().unregisterReceiver(forceHideUpdateLine);
+		getActivity().unregisterReceiver(forceCloseSearchKeyboard);
 		
 		//call update for current list for second open
 		if (!musicCollectionToDelete.isEmpty()){
@@ -613,6 +595,36 @@ public class MusicFragment extends BaseFragment {
 			}
 		}
 	}
+	
+	private BroadcastReceiver forceCloseSearchKeyboard = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, Intent arg1) {
+			//hide search, keyboard if its opened
+        	if (searchView != null && getActivity() != null){
+  				InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+  				imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+			}
+		}
+	};
+	
+	private BroadcastReceiver forceShowUpdateLine = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, Intent arg1) {
+			
+			boolean active = loadM != null && loadM.getStatus() != AsyncTask.Status.FINISHED;
+			
+			if (active)
+				mPullToRefreshLayout.setRefreshing(true);
+		}
+	};
+	
+	
+	private BroadcastReceiver forceHideUpdateLine = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, Intent arg1) {
+			mPullToRefreshLayout.setRefreshComplete();
+		}
+	};
 	
 	private BroadcastReceiver addSongToOwnerList = new BroadcastReceiver(){
 		@Override

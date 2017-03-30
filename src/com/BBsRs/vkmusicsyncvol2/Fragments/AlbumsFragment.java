@@ -14,6 +14,10 @@ import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLa
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -151,14 +155,40 @@ public class AlbumsFragment extends BaseFragment {
 		if (loadM != null){
 			loadM.cancel(true);
 		}
+		
+		getActivity().unregisterReceiver(forceShowUpdateLine);
+		getActivity().unregisterReceiver(forceHideUpdateLine);
     }
 	
     @Override
     public void onResume() {
         super.onResume();
+        
+        getActivity().registerReceiver(forceShowUpdateLine, new IntentFilter(Constants.INTENT_FORCE_SHOW_UPDATE_LINE));
+    	getActivity().registerReceiver(forceHideUpdateLine, new IntentFilter(Constants.INTENT_FORCE_HIDE_UPDATE_LINE));
+    	
         //set subtitle for a current fragment with custom font
         setTitle(bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME));
     }
+    
+	private BroadcastReceiver forceShowUpdateLine = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, Intent arg1) {
+			
+			boolean active = loadM != null && loadM.getStatus() != AsyncTask.Status.FINISHED;
+			
+			if (active)
+				mPullToRefreshLayout.setRefreshing(true);
+		}
+	};
+	
+	
+	private BroadcastReceiver forceHideUpdateLine = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, Intent arg1) {
+			mPullToRefreshLayout.setRefreshComplete();
+		}
+	};
     
 	public void setUpHeaderView(){
 		if (header == null) return;

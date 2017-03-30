@@ -64,6 +64,10 @@ public class Constants {
 	/*--*/
 	public static final String INTENT_STOP_DOWNLOAD = "intent:stop_download";
 	public static final String INTENT_REQUEST_DOWNLOAD_STATUS = "intent:request_download_status";
+	/*--*/
+	public static final String INTENT_FORCE_HIDE_UPDATE_LINE = "intent:force_hide_update_line";
+	public static final String INTENT_FORCE_SHOW_UPDATE_LINE = "intent:force_show_update_line";
+	public static final String INTENT_FORCE_CLOSE_SEARCH_KEYBOARD = "intent:force_close_search_keyboard";
 	/*--PLAYER VALUES--*/
 	public static final String FRAGMENT_PLAYER_TAG = "fragment:player_tag";
 	public static final String INTENT_UPDATE_PLAYBACK = "intent:update_playback";
