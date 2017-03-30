@@ -390,6 +390,7 @@ public class PlayerFragment extends BaseFragment {
 				return;
 			timeCurrent.setText(stringPlusZero(String.valueOf((int)(intent.getIntExtra(Constants.INTENT_UPDATE_PLAYBACK_CURRENT, 0)/1000/60)))+":"+stringPlusZero(String.valueOf((int)(intent.getIntExtra(Constants.INTENT_UPDATE_PLAYBACK_CURRENT, 0)/1000%60))));
 			timeEnd.setText(stringPlusZero(String.valueOf((int)(intent.getIntExtra(Constants.INTENT_UPDATE_PLAYBACK_LENGTH, 0)/1000/60)))+":"+stringPlusZero(String.valueOf((int)(intent.getIntExtra(Constants.INTENT_UPDATE_PLAYBACK_LENGTH, 0)/1000%60))));
+			
 			seekBar.setMax(intent.getIntExtra(Constants.INTENT_UPDATE_PLAYBACK_LENGTH, 0));
     		seekBar.setProgress(intent.getIntExtra(Constants.INTENT_UPDATE_PLAYBACK_CURRENT, 0));
     		seekBar.setSecondaryProgress(intent.getIntExtra(Constants.INTENT_UPDATE_PLAYBACK_CURRENT_BUFFERING, 0));
