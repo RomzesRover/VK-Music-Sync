@@ -9,15 +9,14 @@ import java.util.Random;
 import org.holoeverywhere.preference.PreferenceManager;
 import org.holoeverywhere.preference.SharedPreferences;
 import org.holoeverywhere.widget.Toast;
-import org.json.JSONException;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.app.ActivityManager.RunningServiceInfo;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -45,7 +44,6 @@ import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.ObjectSerializer;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
 import com.perm.kate.api.Api;
-import com.perm.kate.api.KException;
 
 public class PlayerService extends Service implements OnPreparedListener, OnCompletionListener, OnBufferingUpdateListener, OnErrorListener{
 	
@@ -359,6 +357,12 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 						b.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_LYRICS_STATUS, lyrics);
 						sendBroadcast(b);
 					} catch (Exception e) {
+						handler.post(new Runnable(){
+							@Override
+							public void run() {
+								Toast.makeText(getApplicationContext(), getString(R.string.player_lyrycs_error), Toast.LENGTH_LONG).show();
+							}
+						});
 						e.printStackTrace();
 					} 
 				}

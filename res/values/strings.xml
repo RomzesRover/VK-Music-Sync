@@ -3,6 +3,7 @@
     
     <string name="player_dialog_lyrics">Lyrics</string>
     <string name="player_dialog_ok">Ok</string>
+    <string name="player_lyrycs_error">This track have no lyrics on vk</string>
     <string name="player_prev_short_not">PREV</string>
     <string name="player_next_short_not">NEXT</string>
     <string name="player_play_short_not">PLAY</string>

@@ -53,7 +53,7 @@ public class PlayerFragment extends BaseFragment {
 	TextView title, subTitle, timeCurrent, timeEnd;
 	ImageView albumArt, albumArtBg, shuffle, prev, playPause, next, repeat, isInOwnerList, isDownloadedAction, icLyricsAction;
 	SeekBar seekBar;
-	boolean updateSeek = true;
+	boolean updateSeek = false;
 	
 	AlertDialog alert = null;
 	
@@ -162,7 +162,7 @@ public class PlayerFragment extends BaseFragment {
 					//pause update for seeks info
 					updateSeek=false;
 					handler.removeCallbacks(updateSeekEnable);
-					handler.postDelayed(updateSeekEnable, 500);
+					handler.postDelayed(updateSeekEnable, 1025);
 				} else {
 					//start service with audio in Intent
 					Intent startPlayer = new Intent(getActivity(), PlayerService.class);
@@ -200,7 +200,7 @@ public class PlayerFragment extends BaseFragment {
 					//pause update for seeks info
 					updateSeek=false;
 					handler.removeCallbacks(updateSeekEnable);
-					handler.postDelayed(updateSeekEnable, 500);
+					handler.postDelayed(updateSeekEnable, 1025);
 				} else {
 					//start service with audio in Intent
 					Intent startPlayer = new Intent(getActivity(), PlayerService.class);
@@ -267,7 +267,7 @@ public class PlayerFragment extends BaseFragment {
 				i.putExtra(Constants.INTENT_PLAYER_SEEK_TO, seekBar.getProgress());
 				getActivity().sendBroadcast(i);
 				handler.removeCallbacks(updateSeekEnable);
-				handler.postDelayed(updateSeekEnable, 500);
+				handler.postDelayed(updateSeekEnable, 1025);
 			}
         });
 		
@@ -283,6 +283,11 @@ public class PlayerFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        
+        updateSeek=false;
+		handler.removeCallbacks(updateSeekEnable);
+		handler.postDelayed(updateSeekEnable, 1025);
+		
         //request back update, to fit to current list playing (Update cover art, titles, etc)
         handler.postDelayed(new Runnable(){
 			@Override
@@ -291,7 +296,7 @@ public class PlayerFragment extends BaseFragment {
 					Intent requestBackSwitchInfo = new Intent(Constants.INTENT_PLAYER_REQUEST_BACK_SWITCH_INFO);
 					getActivity().sendBroadcast(requestBackSwitchInfo);
 				} 
-		}}, 250);
+		}}, 525);
         
         //enable receivers
     	getActivity().registerReceiver(updatePlayback, new IntentFilter(Constants.INTENT_UPDATE_PLAYBACK));
