@@ -35,11 +35,18 @@ import android.support.v4.app.NotificationCompat;
 
 import com.BBsRs.vkmusicsyncvol2.ContentActivity;
 import com.BBsRs.vkmusicsyncvol2.R;
+import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.ObjectSerializer;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
+import com.perm.kate.api.Api;
 
 public class PlayerService extends Service implements OnPreparedListener, OnCompletionListener, OnBufferingUpdateListener, OnErrorListener{
+	
+    /*----------------------------VK API-----------------------------*/
+    Account account=new Account();
+    Api api;
+    /*----------------------------VK API-----------------------------*/
 	
 	//notification
 	PendingIntent contentIntent, PendingIntentPrevSong, PendingIntentNextSong, PendingIntentPlayPause, PendingDeleteIntent;
@@ -79,6 +86,10 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
         wl.setReferenceCounted(false);
 		wl.acquire();
 		
+    	//init vkapi
+	    account.restore(getApplicationContext());
+        api=new Api(account.access_token, Constants.CLIENT_ID);
+		
 		//init notifications
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		contentIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(Constants.INTENT_PLAYER_OPEN_ACTIVITY), 0);        
@@ -99,6 +110,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().registerReceiver(changeShuffle, new IntentFilter(Constants.INTENT_PLAYER_SHUFFLE));
 		getApplicationContext().registerReceiver(NoisyAudioStreamReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
 		getApplicationContext().registerReceiver(startContentActivty, new IntentFilter(Constants.INTENT_PLAYER_OPEN_ACTIVITY));
+		getApplicationContext().registerReceiver(isInOwnerList, new IntentFilter(Constants.INTENT_IS_IN_OWNERS_LIST_ACTION));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -159,6 +171,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().unregisterReceiver(changeShuffle);
 		getApplicationContext().unregisterReceiver(NoisyAudioStreamReceiver);
 		getApplicationContext().unregisterReceiver(startContentActivty);
+		getApplicationContext().unregisterReceiver(isInOwnerList);
 		
 		//release player
 		releaseMP();
@@ -294,6 +307,91 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	        	pause.putExtra(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_PAUSE_ONLY);
 				sendBroadcast(pause);
 	        }
+	    }
+	};
+	
+	private BroadcastReceiver isInOwnerList = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	    	if (!canSwitch)
+	    		return;
+	    	
+	    	canSwitch = false;
+	    	handler.removeCallbacks(resuming);
+			handler.postDelayed(resuming, 525);
+			
+			switch (musicCollection.get(currentTrack).isInOwnerList){
+			case Constants.LIST_ACTION_ADD: case Constants.LIST_ACTION_RESTORE:
+				new Thread (new Runnable(){
+					@Override
+					public void run() {
+						try {
+							long oid = musicCollection.get(currentTrack).owner_id != -1 ? musicCollection.get(currentTrack).owner_id : account.user_id;
+							if (musicCollection.get(currentTrack).isInOwnerList == Constants.LIST_ACTION_RESTORE)
+								api.restoreAudio(musicCollection.get(currentTrack).aid, oid, null, null);
+							else
+								api.addAudio(musicCollection.get(currentTrack).aid, oid, null, null, null);
+							//notify list with v sign
+							handler.post(new Runnable(){
+								@Override
+								public void run() {
+									if (musicCollection.get(currentTrack).isInOwnerList == Constants.LIST_ACTION_RESTORE)
+										musicCollection.get(currentTrack).isInOwnerList = Constants.LIST_ACTION_REMOVE;
+									else {
+										musicCollection.get(currentTrack).isInOwnerList = Constants.LIST_ACTION_ADDED;
+										//force update owner list
+										sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, true).commit();
+									}
+									Intent a = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_IN_OWNERS_LIST);
+									a.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_IN_OWNERS_LIST_STATUS, musicCollection.get(currentTrack).isInOwnerList);
+									sendBroadcast(a);
+								}
+							});
+						} catch (Exception e){
+							e.printStackTrace();
+							handler.post(new Runnable(){
+								@Override
+								public void run() {
+									Toast.makeText(getApplicationContext(), String.format(getString(R.string.content_activity_error_on_adding_to_owner_list), musicCollection.get(currentTrack).artist + " - " + musicCollection.get(currentTrack).title), Toast.LENGTH_LONG).show();
+								}
+							});
+						}
+					}
+				}).start();
+				break;
+			case Constants.LIST_ACTION_REMOVE:
+				new Thread (new Runnable(){
+					@Override
+					public void run() {
+						try {
+							long oid = musicCollection.get(currentTrack).owner_id != -1 ? musicCollection.get(currentTrack).owner_id : account.user_id;
+							api.deleteAudio(musicCollection.get(currentTrack).aid, oid);
+							//notify list with + sign
+							handler.post(new Runnable(){
+								@Override
+								public void run() {
+									musicCollection.get(currentTrack).isInOwnerList = Constants.LIST_ACTION_RESTORE;
+									//force update owner list
+									sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, true).commit();
+									
+									Intent a = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_IN_OWNERS_LIST);
+									a.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_IN_OWNERS_LIST_STATUS, musicCollection.get(currentTrack).isInOwnerList);
+									sendBroadcast(a);
+								}
+							});
+						} catch (Exception e){
+							e.printStackTrace();
+							handler.post(new Runnable(){
+								@Override
+								public void run() {
+									Toast.makeText(getApplicationContext(), String.format(getString(R.string.content_activity_error_on_remove_from_owner_list), musicCollection.get(currentTrack).artist + " - " + musicCollection.get(currentTrack).title), Toast.LENGTH_LONG).show();
+								}
+							});
+						}
+					}
+				}).start();
+				break;
+			}
 	    }
 	};
 	
@@ -545,6 +643,10 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_LIST_TITLE_NAME, abTitle);
 		backSwitchInfo.putExtra(Constants.INTENT_PLAYER_BACK_SWITCH_ONE_AUDIO, (Parcelable)musicCollection.get(currentTrack));
 		sendBroadcast(backSwitchInfo);
+		
+		Intent a = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_IN_OWNERS_LIST);
+		a.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_IN_OWNERS_LIST_STATUS, musicCollection.get(currentTrack).isInOwnerList);
+		sendBroadcast(a);
 		
 		if (mediaPlayer == null)
 			return;

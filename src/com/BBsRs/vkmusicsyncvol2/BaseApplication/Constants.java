@@ -90,6 +90,7 @@ public class Constants {
 	public static final String INTENT_PLAYER_OPEN_ACTIVITY_PLAYER_FRAGMENT = "intent:player_open_player_fragment";
 	public static final String INTENT_PLAYER_OPEN_ACTIVITY_LAST_FRAGMENT = "intent:player_open_activity_last_fragment";
 	public static final String INTENT_PLAYER_KILL_SERVICE_ON_PAUSE = "intent:player_kill_service_on_pause";
+	public static final String INTENT_IS_IN_OWNERS_LIST_ACTION = "intent:is_in_owners_list_action";
 	/*--*/
 	public static final String INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE = "intent:player_play_pause_strict_mode";
 	public static final int INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY = 1;
@@ -117,6 +118,9 @@ public class Constants {
 	/*--*/
 	public static final String INTENT_PLAYER_PLAYBACK_CHANGE_SHUFFLE = "intent:player_playback_change_shuffle";
 	public static final String INTENT_PLAYER_PLAYBACK_SHUFFLE_STATUS = "intent:player_playback_shuffle_status";
+	/*--*/
+	public static final String INTENT_PLAYER_PLAYBACK_CHANGE_IS_IN_OWNERS_LIST = "intent:player_playback_change_is_in_owners_list";
+	public static final String INTENT_PLAYER_PLAYBACK_IS_IN_OWNERS_LIST_STATUS = "intent:player_playback_is_in_owners_list_status";
 	/*--*/
 	public static final int LIST_ACTION_ADD = 0;
 	public static final int LIST_ACTION_ADDED = 1;

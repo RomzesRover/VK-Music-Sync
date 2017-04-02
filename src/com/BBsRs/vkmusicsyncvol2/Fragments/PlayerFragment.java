@@ -49,7 +49,7 @@ public class PlayerFragment extends BaseFragment {
     private final static Handler handler = new Handler();
     
 	TextView title, subTitle, timeCurrent, timeEnd;
-	ImageView albumArt, albumArtBg, shuffle, prev, playPause, next, repeat;
+	ImageView albumArt, albumArtBg, shuffle, prev, playPause, next, repeat, isInOwnerList, isDownloadedAction;
 	SeekBar seekBar;
 	boolean updateSeek = true;
 	
@@ -73,6 +73,8 @@ public class PlayerFragment extends BaseFragment {
     	next = (ImageView)contentView.findViewById(R.id.next);
     	repeat = (ImageView)contentView.findViewById(R.id.repeat);
     	seekBar = (SeekBar)contentView.findViewById(R.id.seekBar1);
+    	isInOwnerList = (ImageView)contentView.findViewById(R.id.isInOwnerListAction);
+		isDownloadedAction = (ImageView)contentView.findViewById(R.id.isDownloadedAction);
     	
         //init image loader
         options = new DisplayImageOptions.Builder()
@@ -102,6 +104,14 @@ public class PlayerFragment extends BaseFragment {
 				getActivity().sendBroadcast(restartPlayer);
 			}
 		}
+		
+		isInOwnerList.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				Intent a = new Intent(Constants.INTENT_IS_IN_OWNERS_LIST_ACTION);
+				getActivity().sendBroadcast(a);
+			}
+		});
 		
 		shuffle.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -268,6 +278,7 @@ public class PlayerFragment extends BaseFragment {
     	getActivity().registerReceiver(playPauseStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_PLAY_PAUSE));
     	getActivity().registerReceiver(repeatStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_REPEAT));
     	getActivity().registerReceiver(shuffleStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_SHUFFLE));
+    	getActivity().registerReceiver(isInOwnersListStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_IN_OWNERS_LIST));
     }
     
 	@Override
@@ -279,11 +290,108 @@ public class PlayerFragment extends BaseFragment {
 		getActivity().unregisterReceiver(playPauseStatus);
 		getActivity().unregisterReceiver(repeatStatus);
 		getActivity().unregisterReceiver(shuffleStatus);
+		getActivity().unregisterReceiver(isInOwnersListStatus);
 		
 		//kill service if no song in player
 		Intent i = new Intent(Constants.INTENT_PLAYER_KILL_SERVICE_ON_PAUSE);
 		getActivity().sendBroadcast(i);
 	}
+	
+	private BroadcastReceiver isInOwnersListStatus = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, final Intent intent) {
+			switch (intent.getExtras().getInt(Constants.INTENT_PLAYER_PLAYBACK_IS_IN_OWNERS_LIST_STATUS)){
+			case Constants.LIST_ACTION_ADD:
+				if (!isInOwnerList.getTag().equals("add")){
+			    	Animation flyUpAnimation6 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
+				    flyUpAnimation6.setAnimationListener(new AnimationListener(){
+						@Override
+						public void onAnimationEnd(Animation arg0) {
+							isInOwnerList.setVisibility(View.INVISIBLE);
+							isInOwnerList.setImageResource(R.drawable.ic_music_add_normal);
+							isInOwnerList.setTag("add");
+							isInOwnerList.setVisibility(View.VISIBLE);
+							
+							Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim_small);
+							isInOwnerList.startAnimation(flyDownAnimation);
+						}
+						@Override
+						public void onAnimationRepeat(Animation arg0) { }
+						@Override
+						public void onAnimationStart(Animation arg0) { }
+			    	});
+				    isInOwnerList.startAnimation(flyUpAnimation6);
+				}
+				break;
+			case Constants.LIST_ACTION_ADDED:
+				if (!isInOwnerList.getTag().equals("added")){
+			    	Animation flyUpAnimation6 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
+				    flyUpAnimation6.setAnimationListener(new AnimationListener(){
+						@Override
+						public void onAnimationEnd(Animation arg0) {
+							isInOwnerList.setVisibility(View.INVISIBLE);
+							isInOwnerList.setImageResource(R.drawable.ic_music_added_normal);
+							isInOwnerList.setTag("added");
+							isInOwnerList.setVisibility(View.VISIBLE);
+							
+							Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim_small);
+							isInOwnerList.startAnimation(flyDownAnimation);
+						}
+						@Override
+						public void onAnimationRepeat(Animation arg0) { }
+						@Override
+						public void onAnimationStart(Animation arg0) { }
+			    	});
+				    isInOwnerList.startAnimation(flyUpAnimation6);
+				}
+				break;
+			case Constants.LIST_ACTION_REMOVE:
+				if (!isInOwnerList.getTag().equals("rmv")){
+			    	Animation flyUpAnimation6 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
+				    flyUpAnimation6.setAnimationListener(new AnimationListener(){
+						@Override
+						public void onAnimationEnd(Animation arg0) {
+							isInOwnerList.setVisibility(View.INVISIBLE);
+							isInOwnerList.setImageResource(R.drawable.ic_music_remove_normal);
+							isInOwnerList.setTag("rmv");
+							isInOwnerList.setVisibility(View.VISIBLE);
+							
+							Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim_small);
+							isInOwnerList.startAnimation(flyDownAnimation);
+						}
+						@Override
+						public void onAnimationRepeat(Animation arg0) { }
+						@Override
+						public void onAnimationStart(Animation arg0) { }
+			    	});
+				    isInOwnerList.startAnimation(flyUpAnimation6);
+				}
+				break;
+			case Constants.LIST_ACTION_RESTORE:
+				if (!isInOwnerList.getTag().equals("add")){
+			    	Animation flyUpAnimation6 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
+				    flyUpAnimation6.setAnimationListener(new AnimationListener(){
+						@Override
+						public void onAnimationEnd(Animation arg0) {
+							isInOwnerList.setVisibility(View.INVISIBLE);
+							isInOwnerList.setImageResource(R.drawable.ic_music_add_normal);
+							isInOwnerList.setTag("add");
+							isInOwnerList.setVisibility(View.VISIBLE);
+							
+							Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim_small);
+							isInOwnerList.startAnimation(flyDownAnimation);
+						}
+						@Override
+						public void onAnimationRepeat(Animation arg0) { }
+						@Override
+						public void onAnimationStart(Animation arg0) { }
+			    	});
+				    isInOwnerList.startAnimation(flyUpAnimation6);
+				}
+				break;
+			}
+		}
+	};
 	
 	private BroadcastReceiver shuffleStatus = new BroadcastReceiver(){
 		@Override
