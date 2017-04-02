@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
+    <string name="player_dialog_lyrics">Lyrics</string>
+    <string name="player_dialog_ok">Ok</string>
     <string name="player_prev_short_not">PREV</string>
     <string name="player_next_short_not">NEXT</string>
     <string name="player_play_short_not">PLAY</string>

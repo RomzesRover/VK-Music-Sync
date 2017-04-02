@@ -92,6 +92,7 @@ public class Constants {
 	public static final String INTENT_PLAYER_KILL_SERVICE_ON_PAUSE = "intent:player_kill_service_on_pause";
 	public static final String INTENT_IS_IN_OWNERS_LIST_ACTION = "intent:is_in_owners_list_action";
 	public static final String INTENT_IS_DOWNLOADED_ACTION = "intent:is_downloaded_action";
+	public static final String INTENT_IS_LYRICS_ACTION = "intent:is_lyrics_action";
 	/*--*/
 	public static final String INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE = "intent:player_play_pause_strict_mode";
 	public static final int INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY = 1;
@@ -125,6 +126,9 @@ public class Constants {
 	/*--*/
 	public static final String INTENT_PLAYER_PLAYBACK_CHANGE_IS_DOWNLOADED = "intent:player_playback_change_is_downloaded";
 	public static final String INTENT_PLAYER_PLAYBACK_IS_DOWNLOADED_STATUS = "intent:player_playback_is_downloaded_status";
+	/*--*/
+	public static final String INTENT_PLAYER_PLAYBACK_CHANGE_IS_LYRICS = "intent:player_playback_change_is_lyrics";
+	public static final String INTENT_PLAYER_PLAYBACK_IS_LYRICS_STATUS = "intent:player_playback_is_lyrics_status";
 	/*--*/
 	public static final int LIST_ACTION_ADD = 0;
 	public static final int LIST_ACTION_ADDED = 1;

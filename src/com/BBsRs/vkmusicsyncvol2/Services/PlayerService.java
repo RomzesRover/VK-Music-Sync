@@ -9,6 +9,7 @@ import java.util.Random;
 import org.holoeverywhere.preference.PreferenceManager;
 import org.holoeverywhere.preference.SharedPreferences;
 import org.holoeverywhere.widget.Toast;
+import org.json.JSONException;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
@@ -44,6 +45,7 @@ import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.ObjectSerializer;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
 import com.perm.kate.api.Api;
+import com.perm.kate.api.KException;
 
 public class PlayerService extends Service implements OnPreparedListener, OnCompletionListener, OnBufferingUpdateListener, OnErrorListener{
 	
@@ -119,6 +121,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().registerReceiver(isInOwnerList, new IntentFilter(Constants.INTENT_IS_IN_OWNERS_LIST_ACTION));
 		getApplicationContext().registerReceiver(isDownloaded, new IntentFilter(Constants.INTENT_IS_DOWNLOADED_ACTION));
 		getApplicationContext().registerReceiver(changeSongDownloadPercentage, new IntentFilter(Constants.INTENT_CHANGE_SONG_DOWNLOAD_PERCENTAGE));
+		getApplicationContext().registerReceiver(icLyrics, new IntentFilter(Constants.INTENT_IS_LYRICS_ACTION));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -182,6 +185,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().unregisterReceiver(isInOwnerList);
 		getApplicationContext().unregisterReceiver(isDownloaded);
 		getApplicationContext().unregisterReceiver(changeSongDownloadPercentage);
+		getApplicationContext().unregisterReceiver(icLyrics);
 		
 		//release player
 		releaseMP();
@@ -332,6 +336,33 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	        	pause.putExtra(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_PAUSE_ONLY);
 				sendBroadcast(pause);
 	        }
+	    }
+	};
+	
+	private BroadcastReceiver icLyrics = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	    	if (!canSwitch)
+	    		return;
+	    	
+	    	canSwitch = false;
+	    	handler.removeCallbacks(resuming);
+			handler.postDelayed(resuming, 525);
+			
+			new Thread (new Runnable(){
+				@Override
+				public void run() {
+					try {
+						String lyrics = api.getLyrics(musicCollection.get(currentTrack).lyrics_id);
+						
+						Intent b = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_LYRICS);
+						b.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_LYRICS_STATUS, lyrics);
+						sendBroadcast(b);
+					} catch (Exception e) {
+						e.printStackTrace();
+					} 
+				}
+			}).start();
 	    }
 	};
 	
@@ -726,6 +757,9 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	    		
 	    		//destroy shuffle
 	    		musicCollectionOriginal = new ArrayList<MusicCollection>();
+	    		
+	    		//re
+	    		mediaPlayer.setLooping(false);
 	    		
 	    		musicCollection = musicCollectionNew;
 		    	currentTrack = currentTrackNew;

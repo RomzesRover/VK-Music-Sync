@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.holoeverywhere.LayoutInflater;
+import org.holoeverywhere.app.AlertDialog;
+import org.holoeverywhere.widget.Button;
 import org.holoeverywhere.widget.SeekBar;
 import org.holoeverywhere.widget.SeekBar.OnSeekBarChangeListener;
 import org.holoeverywhere.widget.TextView;
@@ -49,9 +51,11 @@ public class PlayerFragment extends BaseFragment {
     private final static Handler handler = new Handler();
     
 	TextView title, subTitle, timeCurrent, timeEnd;
-	ImageView albumArt, albumArtBg, shuffle, prev, playPause, next, repeat, isInOwnerList, isDownloadedAction;
+	ImageView albumArt, albumArtBg, shuffle, prev, playPause, next, repeat, isInOwnerList, isDownloadedAction, icLyricsAction;
 	SeekBar seekBar;
 	boolean updateSeek = true;
+	
+	AlertDialog alert = null;
 	
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
@@ -75,6 +79,7 @@ public class PlayerFragment extends BaseFragment {
     	seekBar = (SeekBar)contentView.findViewById(R.id.seekBar1);
     	isInOwnerList = (ImageView)contentView.findViewById(R.id.isInOwnerListAction);
 		isDownloadedAction = (ImageView)contentView.findViewById(R.id.isDownloadedAction);
+		icLyricsAction  = (ImageView)contentView.findViewById(R.id.isLyricsAction);
     	
         //init image loader
         options = new DisplayImageOptions.Builder()
@@ -104,6 +109,14 @@ public class PlayerFragment extends BaseFragment {
 				getActivity().sendBroadcast(restartPlayer);
 			}
 		}
+		
+		icLyricsAction.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				Intent a = new Intent(Constants.INTENT_IS_LYRICS_ACTION);
+				getActivity().sendBroadcast(a);
+			}
+		});
 		
 		isDownloadedAction.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -288,6 +301,7 @@ public class PlayerFragment extends BaseFragment {
     	getActivity().registerReceiver(shuffleStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_SHUFFLE));
     	getActivity().registerReceiver(isInOwnersListStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_IN_OWNERS_LIST));
     	getActivity().registerReceiver(isDownloadedStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_DOWNLOADED));
+    	getActivity().registerReceiver(isLyricsStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_LYRICS));
     }
     
 	@Override
@@ -301,11 +315,66 @@ public class PlayerFragment extends BaseFragment {
 		getActivity().unregisterReceiver(shuffleStatus);
 		getActivity().unregisterReceiver(isInOwnersListStatus);
 		getActivity().unregisterReceiver(isDownloadedStatus);
+		getActivity().unregisterReceiver(isLyricsStatus);
 		
 		//kill service if no song in player
 		Intent i = new Intent(Constants.INTENT_PLAYER_KILL_SERVICE_ON_PAUSE);
 		getActivity().sendBroadcast(i);
 	}
+	
+	private BroadcastReceiver isLyricsStatus = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, final Intent intent) {
+			Animation flyUpAnimation6 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
+		    flyUpAnimation6.setAnimationListener(new AnimationListener(){
+				@Override
+				public void onAnimationEnd(Animation arg0) {
+					Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim_small);
+					icLyricsAction.startAnimation(flyDownAnimation);
+				}
+				@Override
+				public void onAnimationRepeat(Animation arg0) { }
+				@Override
+				public void onAnimationStart(Animation arg0) { }
+	    	});
+		    icLyricsAction.startAnimation(flyUpAnimation6);
+		    
+		    
+			final Context context = getActivity(); 								// create context
+	 		AlertDialog.Builder build = new AlertDialog.Builder(context); 				// create build for alert dialog
+	    	
+	    	LayoutInflater inflater = (LayoutInflater)context.getSystemService
+	    		      (Context.LAYOUT_INFLATER_SERVICE);
+	    	
+	    	//init views
+	    	View content = inflater.inflate(R.layout.dialog_lyrics, null);
+	    	TextView title = (TextView)content.findViewById(R.id.title);
+	    	TextView summary = (TextView)content.findViewById(R.id.summary);
+//	    	Button cancel = (Button)content.findViewById(R.id.cancel);
+	    	Button apply = (Button)content.findViewById(R.id.apply);
+//	    	ImageView icon = (ImageView)content.findViewById(R.id.icon);
+	    	
+	    	//set fonts
+	    	SFUIFonts.MEDIUM.apply(context, title);
+//	    	SFUIFonts.LIGHT.apply(context, cancel);
+	    	SFUIFonts.LIGHT.apply(context, apply);
+	    	SFUIFonts.LIGHT.apply(context, summary);
+	    	
+	    	summary.setText(intent.getExtras().getString(Constants.INTENT_PLAYER_PLAYBACK_IS_LYRICS_STATUS));
+	    	
+	    	//view job
+	    	apply.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					alert.dismiss();
+				}
+			});
+	    	
+	    	build.setView(content);
+	    	alert = build.create();															// show dialog
+	    	alert.show();
+		}
+	};
 	
 	private BroadcastReceiver isDownloadedStatus = new BroadcastReceiver(){
 		@Override

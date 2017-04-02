@@ -81,6 +81,7 @@
                 android:layout_height="40dp"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
+                android:padding="2dp"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_music_download_normal"
                 android:tag="dld" />
@@ -101,9 +102,11 @@
                 android:layout_height="40dp"
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
+                android:padding="2dp"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_music_remove_normal"
+                android:src="@drawable/ic_music_lyrics_text"
                 android:tag="dis" />
+
         </RelativeLayout>
 
         <SeekBar

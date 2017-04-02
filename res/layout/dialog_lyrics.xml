@@ -15,7 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:src="@drawable/ic_preferences_logout" />
+            android:src="@drawable/ic_music_lyrics_text" />
 
         <TextView
             android:id="@+id/title"
@@ -23,36 +23,49 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/icon"
-            android:text="@string/preferences_dialog_log_out"
             android:singleLine="true"
+            android:text="@string/player_dialog_lyrics"
             android:textColor="@color/white_color"
             android:textSize="18sp" />
     </RelativeLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.8"
         android:orientation="vertical"
         android:padding="5dp" >
-        <TextView
-                android:id="@+id/summary"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/activity_horizontal_margin_main"
-                android:paddingBottom="@dimen/activity_horizontal_margin_main"
-                android:paddingRight="@dimen/activity_horizontal_margin_main"
-                android:paddingTop="@dimen/activity_horizontal_margin_main"
-                android:text="@string/preferences_dialog_are_you_sure_logout"
-                android:autoLink="web"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/white_color"
-                android:textSize="16sp" />
 
+        <ScrollView
+            android:id="@+id/scrollView1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/summary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autoLink="web"
+                    android:paddingBottom="@dimen/activity_horizontal_margin_main"
+                    android:paddingLeft="@dimen/activity_horizontal_margin_main"
+                    android:paddingRight="@dimen/activity_horizontal_margin_main"
+                    android:paddingTop="@dimen/activity_horizontal_margin_main"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/white_color"
+                    android:textSize="16sp" />
+            </LinearLayout>
+        </ScrollView>
     </LinearLayout>
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+         android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.2" >
 
         <Button
             android:id="@+id/apply"
@@ -62,7 +75,7 @@
             android:layout_alignParentTop="true"
             android:background="@drawable/ic_dialog_btn"
             android:padding="5dp"
-            android:text="@string/preferences_dialog_yes"
+            android:text="@string/player_dialog_ok"
             android:textColor="@color/white_color"
             android:textSize="16sp" />
 
@@ -76,7 +89,8 @@
             android:padding="5dp"
             android:text="@string/preferences_dialog_no"
             android:textColor="@color/white_color"
-            android:textSize="16sp"/>
+            android:textSize="16sp"
+            android:visibility="gone" />
     </RelativeLayout>
 
 </LinearLayout>
