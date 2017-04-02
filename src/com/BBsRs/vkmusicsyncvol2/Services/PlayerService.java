@@ -1,5 +1,6 @@
 package com.BBsRs.vkmusicsyncvol2.Services;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,10 +11,12 @@ import org.holoeverywhere.preference.SharedPreferences;
 import org.holoeverywhere.widget.Toast;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +35,7 @@ import android.os.IBinder;
 import android.os.Parcelable;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.BBsRs.vkmusicsyncvol2.ContentActivity;
 import com.BBsRs.vkmusicsyncvol2.R;
@@ -65,6 +69,8 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	int currentTrack;
 	int hLength;
 	String abTitle;
+	
+	ArrayList<MusicCollection> musicCollectionToDelete = new ArrayList<MusicCollection>();
 	
 	private MediaPlayer mediaPlayer;
 	int bufferingInMillis = 0;
@@ -111,6 +117,8 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().registerReceiver(NoisyAudioStreamReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
 		getApplicationContext().registerReceiver(startContentActivty, new IntentFilter(Constants.INTENT_PLAYER_OPEN_ACTIVITY));
 		getApplicationContext().registerReceiver(isInOwnerList, new IntentFilter(Constants.INTENT_IS_IN_OWNERS_LIST_ACTION));
+		getApplicationContext().registerReceiver(isDownloaded, new IntentFilter(Constants.INTENT_IS_DOWNLOADED_ACTION));
+		getApplicationContext().registerReceiver(changeSongDownloadPercentage, new IntentFilter(Constants.INTENT_CHANGE_SONG_DOWNLOAD_PERCENTAGE));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -172,6 +180,8 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		getApplicationContext().unregisterReceiver(NoisyAudioStreamReceiver);
 		getApplicationContext().unregisterReceiver(startContentActivty);
 		getApplicationContext().unregisterReceiver(isInOwnerList);
+		getApplicationContext().unregisterReceiver(isDownloaded);
+		getApplicationContext().unregisterReceiver(changeSongDownloadPercentage);
 		
 		//release player
 		releaseMP();
@@ -179,6 +189,21 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		// Abandon audio focus when playback complete    
 		if (am!=null && afListenerSound!=null)
 			am.abandonAudioFocus(afListenerSound);
+		
+		//delete selected files
+		if (!musicCollectionToDelete.isEmpty()){
+			//update all music lists
+			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, true).commit();
+			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_SEARCH_LIST, true).commit();
+			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_POPULAR_LIST, true).commit();
+			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_RECC_LIST, true).commit();
+			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_DOWNLOADED_LIST, true).commit();
+			//delete music wich user decided
+			for (MusicCollection AudioToDeleteFromStorage : musicCollectionToDelete){
+				File f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+".mp3").replaceAll("[\\/:*?\"<>|]", ""));
+				if (f.exists()) f.delete();
+			}
+		}
 		
 		//stop foreground
 		mNotificationManager.cancel(Constants.NOTIFICATION_PLAYER);
@@ -307,6 +332,97 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	        	pause.putExtra(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_PAUSE_ONLY);
 				sendBroadcast(pause);
 	        }
+	    }
+	};
+	
+	private BroadcastReceiver changeSongDownloadPercentage = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, Intent arg1) {
+			final MusicCollection audioToChangeDownloadPercentage = arg1.getParcelableExtra(Constants.INTENT_EXTRA_ONE_AUDIO);
+			Log.v("here", audioToChangeDownloadPercentage.isDownloaded+"");
+			
+			if (musicCollection != null){
+				int position = 0;
+				for (MusicCollection one : musicCollection){
+					if (one.aid == audioToChangeDownloadPercentage.aid && one.owner_id == audioToChangeDownloadPercentage.owner_id && one.artist.equals(audioToChangeDownloadPercentage.artist) && one.title.equals(audioToChangeDownloadPercentage.title)){
+						one.url = audioToChangeDownloadPercentage.url;
+						one.isDownloaded = audioToChangeDownloadPercentage.isDownloaded;
+
+						if (position == currentTrack){
+							Intent b = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_DOWNLOADED);
+							b.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_DOWNLOADED_STATUS, musicCollection.get(currentTrack).isDownloaded);
+							sendBroadcast(b);
+						}
+					}
+					position++;
+				}
+			}
+		}
+	};
+	
+	private BroadcastReceiver isDownloaded = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	    	if (!canSwitch)
+	    		return;
+	    	
+	    	canSwitch = false;
+	    	handler.removeCallbacks(resuming);
+			handler.postDelayed(resuming, 525);
+	    	
+			switch (musicCollection.get(currentTrack).isDownloaded){
+			case Constants.LIST_ACTION_DOWNLOAD:
+				musicCollection.get(currentTrack).isDownloaded = Constants.LIST_ACTION_DOWNLOAD_STARTED;
+				
+				//delete song from deleteList
+				int index = 0;
+				for (MusicCollection one : musicCollectionToDelete){
+					if (one.aid == musicCollection.get(currentTrack).aid && one.owner_id == musicCollection.get(currentTrack).owner_id && one.artist.equals(musicCollection.get(currentTrack).artist) && one.title.equals(musicCollection.get(currentTrack).title)){
+						musicCollectionToDelete.remove(index);
+						break;
+					}
+					index++;
+				}
+				
+				try {
+					if (!isMyServiceRunning(DownloadService.class)){
+						//start service with audio in Intent
+						Intent startDownload = new Intent(getApplicationContext(), DownloadService.class);
+						startDownload.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO, (Parcelable)musicCollection.get(currentTrack));
+						startService(startDownload);
+					} else {
+						Intent addSongToDownloadQueue = new Intent(Constants.INTENT_ADD_SONG_TO_DOWNLOAD_QUEUE);
+						addSongToDownloadQueue.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO, (Parcelable)musicCollection.get(currentTrack));
+						sendBroadcast(addSongToDownloadQueue);
+					}
+				} finally{
+					Intent b = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_DOWNLOADED);
+					b.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_DOWNLOADED_STATUS, musicCollection.get(currentTrack).isDownloaded);
+					sendBroadcast(b);
+				}
+				break;
+			case Constants.LIST_ACTION_DELETE:
+				musicCollection.get(currentTrack).isDownloaded = Constants.LIST_ACTION_DOWNLOAD;
+				
+				musicCollectionToDelete.add(musicCollection.get(currentTrack));
+				
+				Intent b = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_DOWNLOADED);
+				b.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_DOWNLOADED_STATUS, musicCollection.get(currentTrack).isDownloaded);
+				sendBroadcast(b);
+				break;
+			default:
+				//update here, cuz we won't use fragment 
+				musicCollection.get(currentTrack).isDownloaded = Constants.LIST_ACTION_DOWNLOAD;
+
+				Intent b1 = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_DOWNLOADED);
+				b1.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_DOWNLOADED_STATUS, musicCollection.get(currentTrack).isDownloaded);
+				sendBroadcast(b1);
+				
+				Intent removeSongFromDownloadQueue = new Intent(Constants.INTENT_REMOVE_SONG_FROM_DOWNLOAD_QUEUE);
+				removeSongFromDownloadQueue.putExtra(Constants.INTENT_EXTRA_ONE_AUDIO, (Parcelable)musicCollection.get(currentTrack));
+				context.sendBroadcast(removeSongFromDownloadQueue);
+				break;
+			}
 	    }
 	};
 	
@@ -648,6 +764,10 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		a.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_IN_OWNERS_LIST_STATUS, musicCollection.get(currentTrack).isInOwnerList);
 		sendBroadcast(a);
 		
+		Intent b = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_DOWNLOADED);
+		b.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_DOWNLOADED_STATUS, musicCollection.get(currentTrack).isDownloaded);
+		sendBroadcast(b);
+		
 		if (mediaPlayer == null)
 			return;
 		
@@ -817,5 +937,15 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
             startPlayProgressUpdater();
         }
     };
+    
+	private boolean isMyServiceRunning(Class<?> serviceClass) {			//returns true is service running
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

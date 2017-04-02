@@ -105,6 +105,14 @@ public class PlayerFragment extends BaseFragment {
 			}
 		}
 		
+		isDownloadedAction.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				Intent a = new Intent(Constants.INTENT_IS_DOWNLOADED_ACTION);
+				getActivity().sendBroadcast(a);
+			}
+		});
+		
 		isInOwnerList.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
@@ -279,6 +287,7 @@ public class PlayerFragment extends BaseFragment {
     	getActivity().registerReceiver(repeatStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_REPEAT));
     	getActivity().registerReceiver(shuffleStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_SHUFFLE));
     	getActivity().registerReceiver(isInOwnersListStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_IN_OWNERS_LIST));
+    	getActivity().registerReceiver(isDownloadedStatus, new IntentFilter(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_DOWNLOADED));
     }
     
 	@Override
@@ -291,11 +300,112 @@ public class PlayerFragment extends BaseFragment {
 		getActivity().unregisterReceiver(repeatStatus);
 		getActivity().unregisterReceiver(shuffleStatus);
 		getActivity().unregisterReceiver(isInOwnersListStatus);
+		getActivity().unregisterReceiver(isDownloadedStatus);
 		
 		//kill service if no song in player
 		Intent i = new Intent(Constants.INTENT_PLAYER_KILL_SERVICE_ON_PAUSE);
 		getActivity().sendBroadcast(i);
 	}
+	
+	private BroadcastReceiver isDownloadedStatus = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, final Intent intent) {
+			switch (intent.getExtras().getInt(Constants.INTENT_PLAYER_PLAYBACK_IS_DOWNLOADED_STATUS)){
+			case Constants.LIST_ACTION_DOWNLOAD:
+				if (!isDownloadedAction.getTag().equals("dld")){
+			    	Animation flyUpAnimation6 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
+				    flyUpAnimation6.setAnimationListener(new AnimationListener(){
+						@Override
+						public void onAnimationEnd(Animation arg0) {
+							isDownloadedAction.setVisibility(View.INVISIBLE);
+							isDownloadedAction.setImageResource(R.drawable.ic_music_download_normal);
+							isDownloadedAction.setTag("dld");
+							isDownloadedAction.setVisibility(View.VISIBLE);
+							
+							Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim_small);
+							isDownloadedAction.startAnimation(flyDownAnimation);
+						}
+						@Override
+						public void onAnimationRepeat(Animation arg0) { }
+						@Override
+						public void onAnimationStart(Animation arg0) { }
+			    	});
+				    isDownloadedAction.startAnimation(flyUpAnimation6);
+				}
+				break;
+			case Constants.LIST_ACTION_DOWNLOAD_STARTED:
+				if (!isDownloadedAction.getTag().equals("stp")){
+			    	Animation flyUpAnimation6 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
+				    flyUpAnimation6.setAnimationListener(new AnimationListener(){
+						@Override
+						public void onAnimationEnd(Animation arg0) {
+							isDownloadedAction.setVisibility(View.INVISIBLE);
+							isDownloadedAction.setImageResource(R.drawable.ic_music_download_stop_normal);
+							isDownloadedAction.setTag("stp");
+							isDownloadedAction.setVisibility(View.VISIBLE);
+							
+							Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim_small);
+							isDownloadedAction.startAnimation(flyDownAnimation);
+						}
+						@Override
+						public void onAnimationRepeat(Animation arg0) { }
+						@Override
+						public void onAnimationStart(Animation arg0) { }
+			    	});
+				    isDownloadedAction.startAnimation(flyUpAnimation6);
+				}
+				break;
+			case Constants.LIST_ACTION_DELETE:
+				if (!isDownloadedAction.getTag().equals("dlt")){
+			    	Animation flyUpAnimation6 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
+				    flyUpAnimation6.setAnimationListener(new AnimationListener(){
+						@Override
+						public void onAnimationEnd(Animation arg0) {
+							isDownloadedAction.setVisibility(View.INVISIBLE);
+							isDownloadedAction.setImageResource(R.drawable.ic_music_delete_normal);
+							isDownloadedAction.setTag("dlt");
+							isDownloadedAction.setVisibility(View.VISIBLE);
+							
+							Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim_small);
+							isDownloadedAction.startAnimation(flyDownAnimation);
+						}
+						@Override
+						public void onAnimationRepeat(Animation arg0) { }
+						@Override
+						public void onAnimationStart(Animation arg0) { }
+			    	});
+				    isDownloadedAction.startAnimation(flyUpAnimation6);
+				}
+				break;
+			case Constants.LIST_ACTION_DOWNLOADED:
+				if (!isDownloadedAction.getTag().equals("added")){
+			    	Animation flyUpAnimation6 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
+				    flyUpAnimation6.setAnimationListener(new AnimationListener(){
+						@Override
+						public void onAnimationEnd(Animation arg0) {
+							isDownloadedAction.setVisibility(View.INVISIBLE);
+							isDownloadedAction.setImageResource(R.drawable.ic_music_added_normal);
+							isDownloadedAction.setTag("added");
+							isDownloadedAction.setVisibility(View.VISIBLE);
+							
+							Animation flyDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_down_anim_small);
+							isDownloadedAction.startAnimation(flyDownAnimation);
+						}
+						@Override
+						public void onAnimationRepeat(Animation arg0) { }
+						@Override
+						public void onAnimationStart(Animation arg0) { }
+			    	});
+				    isDownloadedAction.startAnimation(flyUpAnimation6);
+				}
+				break;
+			default:
+				isDownloadedAction.setImageDrawable(getResources().getDrawable(R.drawable.ic_music_downloading));
+				isDownloadedAction.setImageLevel(intent.getExtras().getInt(Constants.INTENT_PLAYER_PLAYBACK_IS_DOWNLOADED_STATUS));
+				break;
+			}
+		}
+	};
 	
 	private BroadcastReceiver isInOwnersListStatus = new BroadcastReceiver(){
 		@Override
