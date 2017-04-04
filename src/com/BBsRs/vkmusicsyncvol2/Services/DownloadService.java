@@ -220,6 +220,9 @@ public class DownloadService extends Service {
 	public void downloadFileFromOneMusicCollection(final MusicCollection musicToDownload){
 		
 		File downloadFile = null;
+		File dir = new File (sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/");
+		downloadFile = new File(dir, (musicToDownload.artist+" - "+musicToDownload.title).replaceAll("[\\/:*?\"<>|]", ""));
+		
 		long startTime = System.currentTimeMillis();
 		
 		//check current download directory to availability 
@@ -254,14 +257,10 @@ public class DownloadService extends Service {
 		
 	    //start download
 	    try {
-	           File dir = new File (sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/");               
-
 	           if(dir.exists()==false) {
 	                dir.mkdirs();
 	           }
 
-	           downloadFile = new File(dir, (musicToDownload.artist+" - "+musicToDownload.title).replaceAll("[\\/:*?\"<>|]", ""));
-	           
 	           //if part downloaded file exist delete it !
 	           if (downloadFile.exists())
 	        	   downloadFile.delete();
@@ -543,6 +542,10 @@ public class DownloadService extends Service {
 	       	   getApplicationContext().sendBroadcast(sendChangeSongDownloadPercentage);
 	    	
 	    } catch (Exception e){
+	    	//if part downloaded file exist delete it !
+	        if (downloadFile.exists())
+	        	downloadFile.delete();
+	           
 	    	handler.post(new Runnable(){
 				@Override
 				public void run() {
