@@ -87,6 +87,7 @@ public class MusicFragment extends BaseFragment {
     //custom refresh listener where in new thread will load job doing, need to customize for all kind of data
     CustomOnRefreshListener customOnRefreshListener = new CustomOnRefreshListener();
 	PullToRefreshLayout mPullToRefreshLayout;
+	boolean refreshing = false;
 	ListView list;
 	View header;
 	
@@ -562,6 +563,7 @@ public class MusicFragment extends BaseFragment {
 		}
 		
 		if (loadM != null){
+			refreshing = false;
 			loadM.cancel(true);
 		}
 		
@@ -613,7 +615,7 @@ public class MusicFragment extends BaseFragment {
 			
 			boolean active = loadM != null && loadM.getStatus() != AsyncTask.Status.FINISHED;
 			
-			if (active)
+			if (active && refreshing)
 				mPullToRefreshLayout.setRefreshing(true);
 		}
 	};
@@ -1085,6 +1087,7 @@ public class MusicFragment extends BaseFragment {
 						public void run() {
 							// Notify PullToRefreshLayout that the refresh has finished
 		                    mPullToRefreshLayout.setRefreshComplete();
+		                    refreshing = false;
 						}
 					});
 					
@@ -1149,6 +1152,7 @@ public class MusicFragment extends BaseFragment {
 			};
 			
 			//start async
+			refreshing = true;
 	        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
 	        	loadM.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	        } else {
