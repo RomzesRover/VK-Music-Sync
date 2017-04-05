@@ -94,11 +94,11 @@ public class DownloadService extends Service {
 		mBuilder = new NotificationCompat.Builder(getApplicationContext());
 		mBuilder2 = new NotificationCompat.Builder(getApplicationContext());
 		//set up notification
-		mBuilder.setSmallIcon(R.drawable.ic_download_normal)
+		mBuilder.setSmallIcon(R.drawable.ic_not_downloading)
 		.setContentIntent(contentIntent)
 		.addAction(R.drawable.ic_remove_normal, getApplicationContext().getString(R.string.download_stop), stopDownloadIntent)
 		.setOngoing(true);
-		mBuilder2.setSmallIcon(R.drawable.ic_download_stop_normal_100)
+		mBuilder2.setSmallIcon(R.drawable.ic_not_download_stop)
 		.setContentIntent(contentIntent)
 		.setOngoing(false);
 
