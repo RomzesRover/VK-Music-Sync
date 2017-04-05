@@ -38,6 +38,7 @@ import android.util.Log;
 
 import com.BBsRs.vkmusicsyncvol2.ContentActivity;
 import com.BBsRs.vkmusicsyncvol2.R;
+import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.CustomEnvironment;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
@@ -45,8 +46,14 @@ import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.ID3v24Tag;
 import com.mpatric.mp3agic.Mp3File;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.perm.kate.api.Api;
 
 public class DownloadService extends Service {
+	
+    /*----------------------------VK API-----------------------------*/
+    Account account=new Account();
+    Api api;
+    /*----------------------------VK API-----------------------------*/
 	
 	SharedPreferences sPref;
 	private final Handler handler = new Handler();
@@ -75,6 +82,10 @@ public class DownloadService extends Service {
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getApplicationContext().getPackageName());
         wl.setReferenceCounted(false);
 		wl.acquire();
+		
+    	//init vkapi
+	    account.restore(getApplicationContext());
+        api=new Api(account.access_token, Constants.CLIENT_ID);
 		
 		//init notifications
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -411,6 +422,15 @@ public class DownloadService extends Service {
 			       Log.d("DownloadService", "compress bitmap to png");
 			       ByteArrayOutputStream stream = new ByteArrayOutputStream();
 			       bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+			       
+			       Log.d("DownloadService", "download lyrics");
+		       	   //try to load lyrics
+		       	   String lyrics = null;
+		       	   try {
+		       		   lyrics = api.getLyrics(musicToDownload.lyrics_id);
+		       	   } catch (Exception e) {
+		       		   lyrics = null;
+		       	   } 
 				
 			       Log.d("DownloadService", "setting tags with cover art");
 				
@@ -430,7 +450,7 @@ public class DownloadService extends Service {
 			    		   if (mp3file.getId3v2Tag().getChapterTOC() !=null && !mp3file.getId3v2Tag().getChapterTOC().contains("vk.com"))
 			    			   id3v2Tag.setChapterTOC(mp3file.getId3v2Tag().getChapterTOC());
 			    		   if (mp3file.getId3v2Tag().getComment() !=null && !mp3file.getId3v2Tag().getComment().contains("vk.com"))
-			    			   id3v2Tag.setComment(mp3file.getId3v2Tag().getComment());
+			    			   	id3v2Tag.setComment(mp3file.getId3v2Tag().getComment());
 			    		   if (mp3file.getId3v2Tag().getComposer() !=null && !mp3file.getId3v2Tag().getComposer().contains("vk.com"))
 			    			   id3v2Tag.setComposer(mp3file.getId3v2Tag().getComposer());
 			    		   if (mp3file.getId3v2Tag().getCopyright() !=null && !mp3file.getId3v2Tag().getCopyright().contains("vk.com"))
@@ -460,6 +480,14 @@ public class DownloadService extends Service {
 			    		   if (mp3file.getId3v2Tag().getYear() !=null && !mp3file.getId3v2Tag().getYear().contains("vk.com"))
 			    			   id3v2Tag.setYear(mp3file.getId3v2Tag().getYear());
 			    	   }
+			    	   if (lyrics != null){
+	    				   byte[] lyricsBytes = lyrics.getBytes("UTF-8");
+	    				   String lyricsBytesSeparated = "";
+	    				   for (byte one : lyricsBytes){
+	    					   lyricsBytesSeparated+=one+";";
+	    				   }
+		    			   id3v2Tag.setPaymentUrl(lyricsBytesSeparated);
+	    			   }
 			       } catch (Exception e){
 			    	   e.printStackTrace();
 			       }

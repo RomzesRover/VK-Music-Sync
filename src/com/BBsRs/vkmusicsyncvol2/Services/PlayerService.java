@@ -43,6 +43,9 @@ import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.ObjectSerializer;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
+import com.mpatric.mp3agic.InvalidDataException;
+import com.mpatric.mp3agic.Mp3File;
+import com.mpatric.mp3agic.UnsupportedTagException;
 import com.perm.kate.api.Api;
 
 public class PlayerService extends Service implements OnPreparedListener, OnCompletionListener, OnBufferingUpdateListener, OnErrorListener{
@@ -347,26 +350,54 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	    	handler.removeCallbacks(resuming);
 			handler.postDelayed(resuming, 525);
 			
-			new Thread (new Runnable(){
-				@Override
-				public void run() {
-					try {
-						String lyrics = api.getLyrics(musicCollection.get(currentTrack).lyrics_id);
-						
-						Intent b = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_LYRICS);
-						b.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_LYRICS_STATUS, lyrics);
-						sendBroadcast(b);
-					} catch (Exception e) {
-						handler.post(new Runnable(){
-							@Override
-							public void run() {
-								Toast.makeText(getApplicationContext(), getString(R.string.player_lyrycs_error), Toast.LENGTH_LONG).show();
-							}
-						});
-						e.printStackTrace();
-					} 
+			if (musicCollection.get(currentTrack).isDownloaded == Constants.LIST_ACTION_DELETE){
+				try {
+					Mp3File mp3file = new Mp3File(musicCollection.get(currentTrack).url);
+					String[] lyricsBytes = mp3file.getId3v2Tag().getPaymentUrl().split(";");
+					byte[] lyricsBytesByte = new byte[lyricsBytes.length];
+					
+					int idx = 0;
+					for (String one : lyricsBytes){
+						lyricsBytesByte[idx] = Byte.valueOf(one);
+						idx++;
+					}
+					
+					String lyrics = new String(lyricsBytesByte, "UTF-8");
+					
+					Intent b = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_LYRICS);
+					b.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_LYRICS_STATUS, lyrics);
+					sendBroadcast(b);
+				} catch (Exception e) {
+					handler.post(new Runnable(){
+						@Override
+						public void run() {
+							Toast.makeText(getApplicationContext(), getString(R.string.player_lyrycs_error), Toast.LENGTH_LONG).show();
+						}
+					});
+					e.printStackTrace();
 				}
-			}).start();
+			} else{ 
+				new Thread (new Runnable(){
+					@Override
+					public void run() {
+						try {
+							String lyrics = api.getLyrics(musicCollection.get(currentTrack).lyrics_id);
+							
+							Intent b = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_LYRICS);
+							b.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_LYRICS_STATUS, lyrics);
+							sendBroadcast(b);
+						} catch (Exception e) {
+							handler.post(new Runnable(){
+								@Override
+								public void run() {
+									Toast.makeText(getApplicationContext(), getString(R.string.player_lyrycs_error), Toast.LENGTH_LONG).show();
+								}
+							});
+							e.printStackTrace();
+						} 
+					}
+				}).start();
+			}
 	    }
 	};
 	
