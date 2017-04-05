@@ -485,6 +485,23 @@ public class PlayerFragment extends BaseFragment {
 		@Override
 		public void onReceive(Context arg0, final Intent intent) {
 			switch (intent.getExtras().getInt(Constants.INTENT_PLAYER_PLAYBACK_IS_IN_OWNERS_LIST_STATUS)){
+			case Constants.LIST_ACTION_OFFLINE_NO_ACTION:
+				if (!isInOwnerList.getTag().equals("gone")){
+			    	Animation flyUpAnimation6 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);
+				    flyUpAnimation6.setAnimationListener(new AnimationListener(){
+						@Override
+						public void onAnimationEnd(Animation arg0) {
+							isInOwnerList.setVisibility(View.GONE);
+							isInOwnerList.setTag("gone");
+						}
+						@Override
+						public void onAnimationRepeat(Animation arg0) { }
+						@Override
+						public void onAnimationStart(Animation arg0) { }
+			    	});
+				    isInOwnerList.startAnimation(flyUpAnimation6);
+				}
+				break;
 			case Constants.LIST_ACTION_ADD:
 				if (!isInOwnerList.getTag().equals("add")){
 			    	Animation flyUpAnimation6 = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_up_anim_small);

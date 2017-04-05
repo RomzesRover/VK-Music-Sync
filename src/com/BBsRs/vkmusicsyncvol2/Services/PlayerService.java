@@ -43,9 +43,7 @@ import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.ObjectSerializer;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
-import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
-import com.mpatric.mp3agic.UnsupportedTagException;
 import com.perm.kate.api.Api;
 
 public class PlayerService extends Service implements OnPreparedListener, OnCompletionListener, OnBufferingUpdateListener, OnErrorListener{
@@ -525,7 +523,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 										sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, true).commit();
 									}
 									Intent a = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_IN_OWNERS_LIST);
-									a.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_IN_OWNERS_LIST_STATUS, musicCollection.get(currentTrack).isInOwnerList);
+									a.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_IN_OWNERS_LIST_STATUS, musicCollection.get(currentTrack).aid != 0 ? musicCollection.get(currentTrack).isInOwnerList : Constants.LIST_ACTION_OFFLINE_NO_ACTION);
 									sendBroadcast(a);
 								}
 							});
@@ -557,7 +555,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 									sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, true).commit();
 									
 									Intent a = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_IN_OWNERS_LIST);
-									a.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_IN_OWNERS_LIST_STATUS, musicCollection.get(currentTrack).isInOwnerList);
+									a.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_IN_OWNERS_LIST_STATUS, musicCollection.get(currentTrack).aid != 0 ? musicCollection.get(currentTrack).isInOwnerList : Constants.LIST_ACTION_OFFLINE_NO_ACTION);
 									sendBroadcast(a);
 								}
 							});
@@ -830,7 +828,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 		sendBroadcast(backSwitchInfo);
 		
 		Intent a = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_IN_OWNERS_LIST);
-		a.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_IN_OWNERS_LIST_STATUS, musicCollection.get(currentTrack).isInOwnerList);
+		a.putExtra(Constants.INTENT_PLAYER_PLAYBACK_IS_IN_OWNERS_LIST_STATUS, musicCollection.get(currentTrack).aid != 0 ? musicCollection.get(currentTrack).isInOwnerList : Constants.LIST_ACTION_OFFLINE_NO_ACTION);
 		sendBroadcast(a);
 		
 		Intent b = new Intent(Constants.INTENT_PLAYER_PLAYBACK_CHANGE_IS_DOWNLOADED);

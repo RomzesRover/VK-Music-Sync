@@ -134,6 +134,7 @@ public class Constants {
 	public static final int LIST_ACTION_ADDED = 1;
 	public static final int LIST_ACTION_REMOVE = 2;
 	public static final int LIST_ACTION_RESTORE = 3;
+	public static final int LIST_ACTION_OFFLINE_NO_ACTION = -1;
 
 	public static final int LIST_ACTION_DOWNLOAD = -1;
 	public static final int LIST_ACTION_DOWNLOAD_STARTED = 0;
