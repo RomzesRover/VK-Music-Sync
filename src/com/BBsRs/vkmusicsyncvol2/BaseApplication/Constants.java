@@ -79,6 +79,7 @@ public class Constants {
 	public static final String BUNDLE_PLAYER_LIST_CURR_HLENGTH = "bundle:player_list_curr_hlength";
 	public static final String BUNDLE_PLAYER_CURRENT_SELECTED_POSITION = "bundle:player_current_selected_position";
 	public static final String BUNDLE_PLAYER_LIST_SIZE = "bundle:player_list_size";
+	public static final String BUNDLE_PLAYER_START_STOPPED = "bundle:player_start_stopped";
 	/*--*/
 	public static final String INTENT_PLAYER_RESTART = "intent:player_restart";
 	public static final String INTENT_PLAYER_NEXT = "intent:player_next";

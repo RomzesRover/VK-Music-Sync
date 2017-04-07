@@ -113,24 +113,75 @@ public class PlayerFragment extends BaseFragment {
 		icLyricsAction.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				Intent a = new Intent(Constants.INTENT_IS_LYRICS_ACTION);
-				getActivity().sendBroadcast(a);
+				if (isMyServiceRunning(PlayerService.class)){
+					Intent a = new Intent(Constants.INTENT_IS_LYRICS_ACTION);
+					getActivity().sendBroadcast(a);
+				} else {
+					//start service with audio in Intent
+					Intent startPlayer = new Intent(getActivity(), PlayerService.class);
+					Bundle bundlePause = bundle;
+					bundlePause.putBoolean(Constants.BUNDLE_PLAYER_START_STOPPED, true);
+					startPlayer.putExtras(bundlePause);
+					getActivity().startService(startPlayer);
+					
+			        //request back update, to fit to current list playing (Update cover art, titles, etc)
+			        handler.postDelayed(new Runnable(){
+						@Override
+						public void run() {
+							Intent a = new Intent(Constants.INTENT_IS_LYRICS_ACTION);
+							getActivity().sendBroadcast(a);
+					}}, 250);
+				}
 			}
 		});
 		
 		isDownloadedAction.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				Intent a = new Intent(Constants.INTENT_IS_DOWNLOADED_ACTION);
-				getActivity().sendBroadcast(a);
+				if (isMyServiceRunning(PlayerService.class)){
+					Intent a = new Intent(Constants.INTENT_IS_DOWNLOADED_ACTION);
+					getActivity().sendBroadcast(a);
+				} else {
+					//start service with audio in Intent
+					Intent startPlayer = new Intent(getActivity(), PlayerService.class);
+					Bundle bundlePause = bundle;
+					bundlePause.putBoolean(Constants.BUNDLE_PLAYER_START_STOPPED, true);
+					startPlayer.putExtras(bundlePause);
+					getActivity().startService(startPlayer);
+					
+			        //request back update, to fit to current list playing (Update cover art, titles, etc)
+			        handler.postDelayed(new Runnable(){
+						@Override
+						public void run() {
+							Intent a = new Intent(Constants.INTENT_IS_DOWNLOADED_ACTION);
+							getActivity().sendBroadcast(a);
+					}}, 250);
+				}
 			}
 		});
 		
 		isInOwnerList.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				Intent a = new Intent(Constants.INTENT_IS_IN_OWNERS_LIST_ACTION);
-				getActivity().sendBroadcast(a);
+				if (isMyServiceRunning(PlayerService.class)){
+					Intent a = new Intent(Constants.INTENT_IS_IN_OWNERS_LIST_ACTION);
+					getActivity().sendBroadcast(a);
+				} else {
+					//start service with audio in Intent
+					Intent startPlayer = new Intent(getActivity(), PlayerService.class);
+					Bundle bundlePause = bundle;
+					bundlePause.putBoolean(Constants.BUNDLE_PLAYER_START_STOPPED, true);
+					startPlayer.putExtras(bundlePause);
+					getActivity().startService(startPlayer);
+					
+			        //request back update, to fit to current list playing (Update cover art, titles, etc)
+			        handler.postDelayed(new Runnable(){
+						@Override
+						public void run() {
+							Intent a = new Intent(Constants.INTENT_IS_IN_OWNERS_LIST_ACTION);
+							getActivity().sendBroadcast(a);
+					}}, 250);
+				}
 			}
 		});
 		

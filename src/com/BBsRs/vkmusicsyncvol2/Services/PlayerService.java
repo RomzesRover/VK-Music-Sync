@@ -157,8 +157,11 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 				musicCollection.addAll((ArrayList<MusicCollection>) ObjectSerializer.deserialize(prefs.getString(Constants.PREFERENCES_PLAYER_LIST_COLLECTIONS, ObjectSerializer.serialize(new ArrayList<MusicCollection>()))));
 			}
 			
-	    	//strat play music
-	    	initMP();
+			if (!intent.getExtras().getBoolean(Constants.BUNDLE_PLAYER_START_STOPPED, false))
+		    	//strat play music
+		    	initMP();
+			else 
+				canSwitch = true;
 		} catch (Exception e){
 			e.printStackTrace();
 			stopSelf();
@@ -680,24 +683,26 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	    public void onReceive(Context context, Intent intent) {
 	    	if (!canSwitch)
 	    		return;
-	    	if (mediaPlayer == null)
-	    		return;
 	    	
-	    	if (mediaPlayer.isPlaying()){
-	    		if (intent.getExtras().getInt(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY) == Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_PAUSE_ONLY ||
-	    				intent.getExtras().getInt(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY) == Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY){
-		    		mediaPlayer.pause();
-		    		if (wl !=null && wl.isHeld())
-						wl.release();
-	    		}
+	    	if (mediaPlayer != null){
+		    	if (mediaPlayer.isPlaying()){
+		    		if (intent.getExtras().getInt(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY) == Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_PAUSE_ONLY ||
+		    				intent.getExtras().getInt(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY) == Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY){
+			    		mediaPlayer.pause();
+			    		if (wl !=null && wl.isHeld())
+							wl.release();
+		    		}
+		    	} else {
+		    		if (intent.getExtras().getInt(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY) == Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_PLAY_ONLY ||
+			    			intent.getExtras().getInt(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY) == Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY){
+			    		if (wl !=null && !wl.isHeld())
+			    			wl.acquire();
+			    		mediaPlayer.start();
+			    		startPlayProgressUpdater();
+		    		}
+		    	}
 	    	} else {
-	    		if (intent.getExtras().getInt(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY) == Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_PLAY_ONLY ||
-		    			intent.getExtras().getInt(Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_MODE, Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY) == Constants.INTENT_PLAYER_PLAY_PAUSE_STRICT_ANY){
-		    		if (wl !=null && !wl.isHeld())
-		    			wl.acquire();
-		    		mediaPlayer.start();
-		    		startPlayProgressUpdater();
-	    		}
+	    		initMP();
 	    	}
 	    	
 	    	Intent i = new Intent(Constants.INTENT_PLAYER_PLAYBACK_PLAY_PAUSE);
