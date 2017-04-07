@@ -232,6 +232,9 @@ public class MusicFragment extends BaseFragment {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int _position, long arg3) {
 				
+    			Intent i2 = new Intent(Constants.INTENT_FORCE_CLOSE_SEARCH_KEYBOARD);
+    			getActivity().sendBroadcast(i2);
+				
 				//null list of music to delete to prevent possible play error
 		    	musicCollectionToDelete = new ArrayList<MusicCollection>();
 		    	
@@ -1047,7 +1050,7 @@ public class MusicFragment extends BaseFragment {
                     			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_DOWNLOADED_LIST, false).commit();
 					        	break;
 				        }
-						
+				        
 				        File f;
 						for (Audio one : musicList){
 							f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(one.artist+" - "+one.title+".mp3").replaceAll("[\\/:*?\"<>|]", ""));
