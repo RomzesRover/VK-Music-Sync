@@ -853,6 +853,8 @@ public class PlayerFragment extends BaseFragment {
 		@Override
 		public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
 			
+			if (getActivity()==null) return;
+			
 			ImageView imageView = (ImageView) view;
 			
 			Animation flyRightOutAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_right_anim_out);
@@ -876,6 +878,9 @@ public class PlayerFragment extends BaseFragment {
 
 		@Override
 		public void onLoadingComplete(String imageUri, View view, final Bitmap loadedImage) {
+			
+			if (getActivity()==null) return;
+			
 			if (loadedImage != null) {
 				ImageView imageView = (ImageView) view;
 				
@@ -908,6 +913,8 @@ public class PlayerFragment extends BaseFragment {
 		@Override
 		public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
 			
+			if (getActivity()==null) return;
+			
 			ImageView imageView = (ImageView) view;
 			
 			Animation flyLeftOutAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_left_anim_out);
@@ -931,6 +938,9 @@ public class PlayerFragment extends BaseFragment {
 
 		@Override
 		public void onLoadingComplete(String imageUri, View view, final Bitmap loadedImage) {
+			
+			if (getActivity()==null) return;
+			
 			if (loadedImage != null) {
 				ImageView imageView = (ImageView) view;
 				
