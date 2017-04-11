@@ -486,7 +486,7 @@ public class MusicFragment extends BaseFragment {
             mQueryTextView.setLayoutParams(layoutParams);
             //set text font
             SFUIFonts.ULTRALIGHT.apply(getActivity(), mQueryTextView);
-//            mQueryTextView.setHint(getString(R.string.content_activity_search_hint));
+            mQueryTextView.setHint(" ");
             mQueryTextView.setHintTextColor(getActivity().getResources().getColor(R.color.gray_three_color));
             mQueryTextView.setTextColor(getActivity().getResources().getColor(R.color.white_color));
             mQueryTextView.setTextSize((float)17);
