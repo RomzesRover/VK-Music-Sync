@@ -39,6 +39,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginBottom="10dp"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:layout_weight="0.4125"
@@ -184,7 +185,7 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="85dp"
                 android:layout_centerVertical="true"
                 android:layout_toLeftOf="@+id/play_pause"
                 android:layout_toRightOf="@+id/shuffle"
@@ -201,7 +202,7 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="85dp"
                 android:layout_centerVertical="true"
                 android:layout_toLeftOf="@+id/repeat"
                 android:layout_toRightOf="@+id/play_pause"
