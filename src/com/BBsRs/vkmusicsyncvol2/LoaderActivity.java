@@ -19,7 +19,7 @@ public class LoaderActivity extends Activity {
         super.onCreate(savedInstanceState);
         account.restore(this);
         
-        if (System.currentTimeMillis()>=1492437600000L){
+        if (System.currentTimeMillis()>=1494424800000L){
         	Toast.makeText(getApplicationContext(), "Alpha test of this version has end. Download new version, Thank you", Toast.LENGTH_LONG).show();
         } else {
 	        if (account.access_token == null){
