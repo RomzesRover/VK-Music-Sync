@@ -42,6 +42,7 @@
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:layout_weight="0.4125"
+        android:gravity="center"
         android:orientation="vertical"
         android:paddingTop="10dp" >
 
@@ -148,7 +149,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="-10dp" >
 
             <ImageView
@@ -183,7 +184,7 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_toLeftOf="@+id/play_pause"
                 android:layout_toRightOf="@+id/shuffle"
@@ -200,7 +201,7 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_toLeftOf="@+id/repeat"
                 android:layout_toRightOf="@+id/play_pause"
