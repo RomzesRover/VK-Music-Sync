@@ -570,6 +570,9 @@ public class DownloadService extends Service {
 	       	   getApplicationContext().sendBroadcast(sendChangeSongDownloadPercentage);
 	    	
 	    } catch (Exception e){
+	    	
+	    	e.printStackTrace();
+	    	
 	    	//if part downloaded file exist delete it !
 	        if (downloadFile.exists())
 	        	downloadFile.delete();
