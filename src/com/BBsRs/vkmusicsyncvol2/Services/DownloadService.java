@@ -232,7 +232,7 @@ public class DownloadService extends Service {
 		
 		File downloadFile = null;
 		File dir = new File (sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/");
-		downloadFile = new File(dir, (musicToDownload.artist+" - "+musicToDownload.title).replaceAll("[\\/:*?\"<>|]", ""));
+		downloadFile = new File(dir, (musicToDownload.artist+" - "+musicToDownload.title).replaceAll("[\\\\/:*?\"<>|]", ""));
 		
 		long startTime = System.currentTimeMillis();
 		
