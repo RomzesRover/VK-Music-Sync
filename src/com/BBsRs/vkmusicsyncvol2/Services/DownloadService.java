@@ -277,7 +277,7 @@ public class DownloadService extends Service {
 	        	   downloadFile.delete();
 	           
 	           //if music already exists return true
-	           if (new File(downloadFile.getAbsolutePath()+".mp3").exists()){
+	           if (new File(downloadFile.getAbsolutePath()+Constants.PROPRIET_MFORMAT).exists()){
 	        	   	//send that song is downloaded
 		       		musicToDownload.isDownloaded = Constants.LIST_ACTION_DOWNLOADED;
 		       		
@@ -512,22 +512,22 @@ public class DownloadService extends Service {
 			       //setting up new tags
 			       mp3file.setId3v2Tag(id3v2Tag);
 					
-			       Log.d("DownloadManager", "save .mp3 file");
-			       mp3file.save(downloadFile.getAbsolutePath()+".mp3");
+			       Log.d("DownloadManager", "save "+Constants.PROPRIET_MFORMAT+" file");
+			       mp3file.save(downloadFile.getAbsolutePath()+Constants.PROPRIET_MFORMAT);
 			       downloadFile.delete();
-			       downloadFile = new File(downloadFile.getAbsolutePath()+".mp3");
+			       downloadFile = new File(downloadFile.getAbsolutePath()+Constants.PROPRIET_MFORMAT);
 		       } catch (Exception e){
 		    	   e.printStackTrace();
-		    	   Log.d("DownloadService", "save .mp3 file");
-		       	   downloadFile.renameTo(new File(downloadFile.getAbsolutePath()+".mp3"));
+		    	   Log.d("DownloadService", "save "+Constants.PROPRIET_MFORMAT+" file");
+		       	   downloadFile.renameTo(new File(downloadFile.getAbsolutePath()+Constants.PROPRIET_MFORMAT));
 		       	   downloadFile.delete();
-		       	   downloadFile = new File(downloadFile.getAbsolutePath()+".mp3");
+		       	   downloadFile = new File(downloadFile.getAbsolutePath()+Constants.PROPRIET_MFORMAT);
 		       } catch (OutOfMemoryError e){
 		    	   e.printStackTrace();
-		    	   Log.d("DownloadService", "save .mp3 file");
-		       	   downloadFile.renameTo(new File(downloadFile.getAbsolutePath()+".mp3"));
+		    	   Log.d("DownloadService", "save "+Constants.PROPRIET_MFORMAT+" file");
+		       	   downloadFile.renameTo(new File(downloadFile.getAbsolutePath()+Constants.PROPRIET_MFORMAT));
 		       	   downloadFile.delete();
-		       	   downloadFile = new File(downloadFile.getAbsolutePath()+".mp3");
+		       	   downloadFile = new File(downloadFile.getAbsolutePath()+Constants.PROPRIET_MFORMAT);
 		       }
 	       	   
 	       	   Log.d("DownloadService", "edit modified time");

@@ -1,6 +1,7 @@
 package com.BBsRs.vkmusicsyncvol2.BaseApplication;
 
 public class Constants {
+	
 
 	public static final String CLIENT_SECRET = "hHbZxrka2uZ6jB1inYsH";
 	public static final String CLIENT_ID = "2274003";

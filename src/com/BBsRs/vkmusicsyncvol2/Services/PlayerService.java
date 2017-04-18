@@ -206,7 +206,7 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_DOWNLOADED_LIST, true).commit();
 			//delete music wich user decided
 			for (MusicCollection AudioToDeleteFromStorage : musicCollectionToDelete){
-				File f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+".mp3").replaceAll("[\\\\/:*?\"<>|]", "_"));
+				File f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+Constants.PROPRIET_MFORMAT).replaceAll("[\\\\/:*?\"<>|]", "_"));
 				if (f.exists()) f.delete();
 			}
 		}

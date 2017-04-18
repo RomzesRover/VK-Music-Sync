@@ -590,7 +590,7 @@ public class MusicFragment extends BaseFragment {
 			sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_DOWNLOADED_LIST, true).commit();
 			//delete music wich user decided
 			for (MusicCollection AudioToDeleteFromStorage : musicCollectionToDelete){
-				File f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+".mp3").replaceAll("[\\\\/:*?\"<>|]", "_"));
+				File f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+Constants.PROPRIET_MFORMAT).replaceAll("[\\\\/:*?\"<>|]", "_"));
 				if (f.exists()) f.delete();
 			}
 		} else {
@@ -929,7 +929,7 @@ public class MusicFragment extends BaseFragment {
 							sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_DOWNLOADED_LIST, true).commit();
 							//delete music wich user decided
 							for (MusicCollection AudioToDeleteFromStorage : musicCollectionToDelete){
-								File f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+".mp3").replaceAll("[\\\\/:*?\"<>|]", "_"));
+								File f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+Constants.PROPRIET_MFORMAT).replaceAll("[\\\\/:*?\"<>|]", "_"));
 								if (f.exists()) f.delete();
 							}
 						}
@@ -1053,7 +1053,7 @@ public class MusicFragment extends BaseFragment {
 				        
 				        File f;
 						for (Audio one : musicList){
-							f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(one.artist+" - "+one.title+".mp3").replaceAll("[\\\\/:*?\"<>|]", "_"));
+							f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(one.artist+" - "+one.title+Constants.PROPRIET_MFORMAT).replaceAll("[\\\\/:*?\"<>|]", "_"));
 							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, f.exists() ? f.getAbsolutePath() : one.url, one.lyrics_id, (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE || bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM)) ? Constants.LIST_ACTION_REMOVE : Constants.LIST_ACTION_ADD, !f.exists() ? Constants.LIST_ACTION_DOWNLOAD : Constants.LIST_ACTION_DELETE, Constants.LIST_APAR_NaN, null));
 						}
 						
@@ -1171,7 +1171,7 @@ public class MusicFragment extends BaseFragment {
     	// get all the files from a directory
     	File[] fList = directory.listFiles();
     	for (File file : fList) {
-    	    if (file.isFile() && file.getName().endsWith(".mp3")) {
+    	    if (file.isFile() && file.getName().endsWith(Constants.PROPRIET_MFORMAT)) {
     	        files.add(file);
     	    } else if (file.isDirectory()) {
     	        listf(file.getAbsolutePath(), files);
