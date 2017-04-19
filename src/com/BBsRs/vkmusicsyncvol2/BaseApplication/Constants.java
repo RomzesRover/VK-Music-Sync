@@ -2,7 +2,10 @@ package com.BBsRs.vkmusicsyncvol2.BaseApplication;
 
 public class Constants {
 	
+	public static final String PROPRIET_MFORMAT = ".4br";
 
+	public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
+	public static final int USER_TIMEOUT = 10000;
 	public static final String CLIENT_SECRET = "hHbZxrka2uZ6jB1inYsH";
 	public static final String CLIENT_ID = "2274003";
 	
