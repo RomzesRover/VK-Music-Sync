@@ -28,6 +28,9 @@
     <string name="preferences_stop_download_success">Download service has been successfully stoped.</string>
     <string name="preferences_account">Account</string>
     <string name="preferences_account_logout">Log out</string>
+    <string name="preferences_checking_prep">Please wait, checking your premium status…</string>
+    <string name="preferences_prep_ok">Successfully activated premium</string>
+    <string name="preferences_prep_notok">You have no premium or it is expired</string>
     
     <string name="download_default_folder_name">VK_Music_Sync</string>
     <string name="download_folder_is_unavailable">Download folder is unavailable, check your sdcard.</string>

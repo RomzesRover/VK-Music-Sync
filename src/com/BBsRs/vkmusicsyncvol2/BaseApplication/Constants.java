@@ -3,13 +3,17 @@ package com.BBsRs.vkmusicsyncvol2.BaseApplication;
 public class Constants {
 	
 	public static final String PROPRIET_MFORMAT = ".4br";
+	public static final String OPEN_MFORMAT = ".mp3";
 
-	public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
-	public static final int USER_TIMEOUT = 10000;
 	public static final String CLIENT_SECRET = "hHbZxrka2uZ6jB1inYsH";
 	public static final String CLIENT_ID = "2274003";
 	
 	public static final String GOOGLE_IMAGE_REQUEST_URL = "https://www.google.ru/search?&safe=off&tbm=isch&tbs=isz:m,iar:s&q=";
+	
+	public static String GENERATION = "_gen_release_two_edited";
+	public static final String PREMIUM_GETTER_NEW_EDITION = "http://brothers-rovers.ru/VKMusicSync"+GENERATION+"/premium/premuim_getter.php?user_id=%s";
+	
+	public static final String PREFERENCES_PREP_STATUS = "preferences:prep_status";
 	
 	public static final String PREFERENCES_USER_AVATAR_URL = "preferences:user_avatar_url";
 	public static final String PREFERENCES_USER_FIRST_NAME = "preferences:user_first_name";

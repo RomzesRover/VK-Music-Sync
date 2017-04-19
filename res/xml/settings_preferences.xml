@@ -3,9 +3,10 @@
     xmlns:holo="http://schemas.android.com/apk/res-auto" >
 
     <Preference
+        android:key="preferences:prep_getter"
         android:icon="@drawable/ic_launcher"
         android:summary="@string/app_version"
-        android:selectable="false"
+        android:selectable="true"
         android:title="@string/app_name" />
 
     <PreferenceCategory android:title="@string/preferences_base" >

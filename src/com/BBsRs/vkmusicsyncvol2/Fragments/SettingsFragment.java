@@ -1,9 +1,11 @@
 package com.BBsRs.vkmusicsyncvol2.Fragments;
 
 import java.io.File;
+import java.util.Calendar;
 
 import org.holoeverywhere.LayoutInflater;
 import org.holoeverywhere.app.AlertDialog;
+import org.holoeverywhere.app.ProgressDialog;
 import org.holoeverywhere.preference.Preference;
 import org.holoeverywhere.preference.Preference.OnPreferenceClickListener;
 import org.holoeverywhere.preference.PreferenceManager;
@@ -12,15 +14,21 @@ import org.holoeverywhere.widget.Button;
 import org.holoeverywhere.widget.EditText;
 import org.holoeverywhere.widget.TextView;
 import org.holoeverywhere.widget.Toast;
+import org.jsoup.Jsoup;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 
 import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
 import com.BBsRs.vkmusicsyncvol2.LoaderActivity;
 import com.BBsRs.vkmusicsyncvol2.R;
+import com.BBsRs.vkmusicsyncvol2.BaseApplication.Account;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.BasePreferencesFragment;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 
@@ -31,9 +39,16 @@ public class SettingsFragment extends BasePreferencesFragment {
     //for retrieve data from activity
     Bundle bundle;
     
-    Preference stopDownload, logout, downloadDirectory;
+    Preference stopDownload, logout, downloadDirectory, prep;
     
     AlertDialog alert = null;
+    
+    int clicks = 0;
+    private final static Handler handler = new Handler();
+    ProgressDialog progressDialog = null;
+    /*----------------------------VK API-----------------------------*/
+    Account account=new Account();
+    /*----------------------------VK API-----------------------------*/
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,12 +62,39 @@ public class SettingsFragment extends BasePreferencesFragment {
       	
         addPreferencesFromResource(R.xml.settings_preferences);
         
+    	//init vkapi
+	    account.restore(getActivity());
+        
+        progressDialog = new ProgressDialog(getActivity());
+        
         //init
         downloadDirectory = (Preference) findPreference(Constants.PREFERENCES_DOWNLOAD_DIRECTORY);
         stopDownload = (Preference)findPreference("preference:stop_download");
         logout = (Preference)findPreference("preference:logout");
+        prep = (Preference)findPreference("preferences:prep_getter");
         
         //pref job
+        prep.setOnPreferenceClickListener(new OnPreferenceClickListener(){
+			@TargetApi(Build.VERSION_CODES.HONEYCOMB) @Override
+			public boolean onPreferenceClick(Preference preference) {
+				clicks++;
+				
+				if (clicks == 5){
+					clicks = 0;
+					
+			        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+			        	new premiumCheckTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, account);
+			        } else {
+			        	new premiumCheckTask().execute(account);
+			        }
+				}
+				
+				handler.removeCallbacks(nullClicks);
+				handler.postDelayed(nullClicks, 2000);
+				return false;
+			}
+        });
+        
         downloadDirectory.setOnPreferenceClickListener(new OnPreferenceClickListener(){
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
@@ -172,6 +214,12 @@ public class SettingsFragment extends BasePreferencesFragment {
         
     }
     
+	Runnable nullClicks = new Runnable() {
+        public void run() {
+            clicks=0;
+        }
+    };
+    
     @Override
     public void onResume() {
         super.onResume();
@@ -179,10 +227,87 @@ public class SettingsFragment extends BasePreferencesFragment {
         setTitle(bundle.getString(Constants.BUNDLE_LIST_TITLE_NAME));
         getListView().setSelector(R.drawable.purple_list_selector_holo_light);
         updateSummary();
+        //
+        clicks = 0;
     }
     
     public void updateSummary(){
     	downloadDirectory.setSummary(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, ""));
     	logout.setSummary(sPref.getString(Constants.PREFERENCES_USER_FIRST_NAME, "no value") + " " + sPref.getString(Constants.PREFERENCES_USER_LAST_NAME, "no value"));
     }
+    
+	class premiumCheckTask extends AsyncTask<Account, String, Boolean>{
+		
+		@Override
+		protected Boolean doInBackground(Account... arg0) {
+			
+	        handler.post(new Runnable(){
+				@Override
+				public void run() {
+					//show an dialog intermediate 
+			        progressDialog.setIndeterminate(true);
+			        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			        progressDialog.setMessage(getText(R.string.preferences_checking_prep));
+			        progressDialog.setCancelable(false);
+			        progressDialog.setCanceledOnTouchOutside(false);
+			        try {
+			        	progressDialog.show();
+			    	} catch (Exception e){
+			    		e.printStackTrace();
+			    	}
+				}
+			});
+	        
+	        Boolean result = sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false);
+			try {
+				int summ = 0;
+				long id = arg0[0].user_id;
+				
+				while (id!=0){
+					summ += id % 10;
+					id = id / 10;
+				}
+				
+				String premData = Jsoup.connect(String.format(Constants.PREMIUM_GETTER_NEW_EDITION, arg0[0].user_id)).timeout(10000).get().text();
+				
+				if (Integer.parseInt(premData.split(";")[0])==1){
+					Calendar currentDate = Calendar.getInstance();
+					currentDate.setTimeInMillis(System.currentTimeMillis());
+					
+					Calendar UntilDate = Calendar.getInstance();
+					UntilDate.setTimeInMillis(System.currentTimeMillis());
+					UntilDate.set(Integer.parseInt(premData.split(";")[1].split(",")[0]), Integer.parseInt(premData.split(";")[1].split(",")[1])-1, Integer.parseInt(premData.split(";")[1].split(",")[2]));
+					
+					
+					if (currentDate.before(UntilDate)){
+						//user have premium, check license
+						result = Integer.parseInt(premData.split(";")[2]) == summ ? true : false;
+					} else {
+						//user's premium expired
+						result = false;
+					}
+				} else {
+					//user with this id isn't exist in base
+					result = false;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				result = sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false);
+	        }
+	        return result;
+		}
+		
+	    @Override
+	    protected void onPostExecute(Boolean result) {
+	        super.onPostExecute(result);
+	        progressDialog.dismiss();
+	        sPref.edit().putBoolean(Constants.PREFERENCES_PREP_STATUS, result);
+	        if (result){
+	        	Toast.makeText(getActivity(), getString(R.string.preferences_prep_ok), Toast.LENGTH_LONG).show();
+	        }
+	        else {
+	        	Toast.makeText(getActivity(), getString(R.string.preferences_prep_notok), Toast.LENGTH_LONG).show();
+	        }
+	    }
+	}
 }
