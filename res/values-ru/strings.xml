@@ -51,8 +51,8 @@
     <string name="login_activity_wait">Вход…</string>
     <string name="login_activity_error">Ошибка. Проверьте ваше подключение к vk.com.</string>
     <string name="login_activity_wrong">email, номер телефона или пароль - неверны.</string>
-    <string name="login_activity_captcha">Пожалуйста, введите капчу.</string>
-    <string name="login_activity_redirect">ВК перенаправило вас на эту страницу.</string>
+    <string name="login_activity_captcha">Введите капчу</string>
+    <string name="login_activity_redirect">ВК перенаправило вас</string>
     <string name="login_activity_apply">Ok</string>
     <string name="login_activity_cancel">Отмена</string>
     
