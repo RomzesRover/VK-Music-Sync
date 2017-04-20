@@ -640,7 +640,21 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 	    	if (musicCollectionOriginal.isEmpty()){
 	    		musicCollectionOriginal = new ArrayList<MusicCollection>();
 	    		musicCollectionOriginal.addAll(musicCollection);
+	    		
+	    		//save current track info
+	    		MusicCollection currentTrackNonShuffle = musicCollection.get(currentTrack);
+	    		
 	    		Collections.shuffle(musicCollection, new Random(System.currentTimeMillis()));
+	    		
+	    		//determine new position in shuffled list
+	    		int index=0;
+    			for (MusicCollection one : musicCollection){
+    				if (one.aid == currentTrackNonShuffle.aid && one.owner_id == currentTrackNonShuffle.owner_id && one.artist.equals(currentTrackNonShuffle.artist) && one.title.equals(currentTrackNonShuffle.title)){
+    					currentTrack = index;
+    					break;
+    				}
+    				index++;
+    			}
 	    	}
 	    	else {
 	    		//determine new position in list
