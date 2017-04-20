@@ -277,7 +277,7 @@ public class DownloadService extends Service {
 	        	   downloadFile.delete();
 	           
 	           //if music already exists return true
-	           if (new File(downloadFile.getAbsolutePath()+Constants.PROPRIET_MFORMAT).exists()){
+	           if (new File(downloadFile.getAbsolutePath()+Constants.PROPRIET_MFORMAT).exists() || new File(downloadFile.getAbsolutePath()+Constants.OPEN_MFORMAT).exists()){
 	        	   	//send that song is downloaded
 		       		musicToDownload.isDownloaded = Constants.LIST_ACTION_DOWNLOADED;
 		       		
@@ -512,31 +512,33 @@ public class DownloadService extends Service {
 			       //setting up new tags
 			       mp3file.setId3v2Tag(id3v2Tag);
 					
-			       Log.d("DownloadManager", "save "+Constants.PROPRIET_MFORMAT+" file");
-			       mp3file.save(downloadFile.getAbsolutePath()+Constants.PROPRIET_MFORMAT);
+			       Log.d("DownloadManager", "save "+(sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false) ? Constants.OPEN_MFORMAT : Constants.PROPRIET_MFORMAT)+" file");
+			       mp3file.save(downloadFile.getAbsolutePath()+(sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false) ? Constants.OPEN_MFORMAT : Constants.PROPRIET_MFORMAT));
 			       downloadFile.delete();
-			       downloadFile = new File(downloadFile.getAbsolutePath()+Constants.PROPRIET_MFORMAT);
+			       downloadFile = new File(downloadFile.getAbsolutePath()+(sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false) ? Constants.OPEN_MFORMAT : Constants.PROPRIET_MFORMAT));
 		       } catch (Exception e){
 		    	   e.printStackTrace();
-		    	   Log.d("DownloadService", "save "+Constants.PROPRIET_MFORMAT+" file");
-		       	   downloadFile.renameTo(new File(downloadFile.getAbsolutePath()+Constants.PROPRIET_MFORMAT));
+		    	   Log.d("DownloadService", "save "+(sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false) ? Constants.OPEN_MFORMAT : Constants.PROPRIET_MFORMAT)+" file");
+		       	   downloadFile.renameTo(new File(downloadFile.getAbsolutePath()+(sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false) ? Constants.OPEN_MFORMAT : Constants.PROPRIET_MFORMAT)));
 		       	   downloadFile.delete();
-		       	   downloadFile = new File(downloadFile.getAbsolutePath()+Constants.PROPRIET_MFORMAT);
+		       	   downloadFile = new File(downloadFile.getAbsolutePath()+(sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false) ? Constants.OPEN_MFORMAT : Constants.PROPRIET_MFORMAT));
 		       } catch (OutOfMemoryError e){
 		    	   e.printStackTrace();
-		    	   Log.d("DownloadService", "save "+Constants.PROPRIET_MFORMAT+" file");
-		       	   downloadFile.renameTo(new File(downloadFile.getAbsolutePath()+Constants.PROPRIET_MFORMAT));
+		    	   Log.d("DownloadService", "save "+(sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false) ? Constants.OPEN_MFORMAT : Constants.PROPRIET_MFORMAT)+" file");
+		       	   downloadFile.renameTo(new File(downloadFile.getAbsolutePath()+(sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false) ? Constants.OPEN_MFORMAT : Constants.PROPRIET_MFORMAT)));
 		       	   downloadFile.delete();
-		       	   downloadFile = new File(downloadFile.getAbsolutePath()+Constants.PROPRIET_MFORMAT);
+		       	   downloadFile = new File(downloadFile.getAbsolutePath()+(sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false) ? Constants.OPEN_MFORMAT : Constants.PROPRIET_MFORMAT));
 		       }
 	       	   
 	       	   Log.d("DownloadService", "edit modified time");
 	       	   downloadFile.setLastModified(System.currentTimeMillis());
 	       	   
-	       	   Log.d("DownloadManager", "sent intent that new mp3 file added to library");
-	       	   Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-	       	   intent.setData(Uri.fromFile(downloadFile));
-	       	   sendBroadcast(intent);
+	       	   if (downloadFile.getName().endsWith(Constants.OPEN_MFORMAT)){
+		       	   Log.d("DownloadManager", "sent intent that new mp3 file added to library");
+		       	   Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+		       	   intent.setData(Uri.fromFile(downloadFile));
+		       	   sendBroadcast(intent);
+	       	   }
 	       	   
 	       	   Log.d("DownloadService", "download ready in " + ((System.currentTimeMillis() - startTime) / 1000) + " sec");
 	       	   

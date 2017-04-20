@@ -27,6 +27,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -592,6 +593,16 @@ public class MusicFragment extends BaseFragment {
 			for (MusicCollection AudioToDeleteFromStorage : musicCollectionToDelete){
 				File f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+Constants.PROPRIET_MFORMAT).replaceAll("[\\\\/:*?\"<>|]", "_"));
 				if (f.exists()) f.delete();
+				else {
+					File fOpen = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+Constants.OPEN_MFORMAT).replaceAll("[\\\\/:*?\"<>|]", "_"));
+					if (fOpen.exists()){
+						fOpen.delete();
+						
+						Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+						intent.setData(Uri.fromFile(fOpen));
+						getActivity().sendBroadcast(intent);
+					}
+				}
 			}
 		} else {
 			if (musicListAdapter != null){
@@ -929,8 +940,18 @@ public class MusicFragment extends BaseFragment {
 							sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_DOWNLOADED_LIST, true).commit();
 							//delete music wich user decided
 							for (MusicCollection AudioToDeleteFromStorage : musicCollectionToDelete){
-								File f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+Constants.PROPRIET_MFORMAT).replaceAll("[\\\\/:*?\"<>|]", "_"));
-								if (f.exists()) f.delete();
+								File fProp = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+Constants.PROPRIET_MFORMAT).replaceAll("[\\\\/:*?\"<>|]", "_"));
+								if (fProp.exists()) fProp.delete();
+								else {
+									File fOpen = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+Constants.OPEN_MFORMAT).replaceAll("[\\\\/:*?\"<>|]", "_"));
+									if (fOpen.exists()){
+										fOpen.delete();
+										
+										Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+										intent.setData(Uri.fromFile(fOpen));
+										getActivity().sendBroadcast(intent);
+									}
+								}
 							}
 						}
 						
@@ -1051,10 +1072,11 @@ public class MusicFragment extends BaseFragment {
 					        	break;
 				        }
 				        
-				        File f;
+				        File fProp, fOpen;
 						for (Audio one : musicList){
-							f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(one.artist+" - "+one.title+Constants.PROPRIET_MFORMAT).replaceAll("[\\\\/:*?\"<>|]", "_"));
-							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, f.exists() ? f.getAbsolutePath() : one.url, one.lyrics_id, (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE || bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM)) ? Constants.LIST_ACTION_REMOVE : Constants.LIST_ACTION_ADD, !f.exists() ? Constants.LIST_ACTION_DOWNLOAD : Constants.LIST_ACTION_DELETE, Constants.LIST_APAR_NaN, null));
+							fProp = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(one.artist+" - "+one.title+Constants.PROPRIET_MFORMAT).replaceAll("[\\\\/:*?\"<>|]", "_"));
+							fOpen = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(one.artist+" - "+one.title+Constants.OPEN_MFORMAT).replaceAll("[\\\\/:*?\"<>|]", "_"));
+							musicCollection.add(new MusicCollection(one.aid, one.owner_id, one.artist, one.title, one.duration, fProp.exists() ? fProp.getAbsolutePath() : fOpen.exists() ? fOpen.getAbsolutePath() : one.url, one.lyrics_id, (bundle.getLong(Constants.BUNDLE_LIST_USRFRGR_ID) == account.user_id && (bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_OF_PAGE || bundle.getInt(Constants.BUNDLE_MUSIC_LIST_TYPE) == Constants.BUNDLE_MUSIC_LIST_ALBUM)) ? Constants.LIST_ACTION_REMOVE : Constants.LIST_ACTION_ADD, fProp.exists() || fOpen.exists() ? Constants.LIST_ACTION_DELETE : Constants.LIST_ACTION_DOWNLOAD, Constants.LIST_APAR_NaN, null));
 						}
 						
 						if (musicCollection.isEmpty()){
@@ -1171,7 +1193,7 @@ public class MusicFragment extends BaseFragment {
     	// get all the files from a directory
     	File[] fList = directory.listFiles();
     	for (File file : fList) {
-    	    if (file.isFile() && file.getName().endsWith(Constants.PROPRIET_MFORMAT)) {
+    	    if (file.isFile() && (file.getName().endsWith(Constants.PROPRIET_MFORMAT) || file.getName().endsWith(Constants.OPEN_MFORMAT))) {
     	        files.add(file);
     	    } else if (file.isDirectory()) {
     	        listf(file.getAbsolutePath(), files);

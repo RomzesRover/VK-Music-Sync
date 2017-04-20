@@ -28,6 +28,7 @@ import android.media.MediaPlayer.OnBufferingUpdateListener;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -208,6 +209,16 @@ public class PlayerService extends Service implements OnPreparedListener, OnComp
 			for (MusicCollection AudioToDeleteFromStorage : musicCollectionToDelete){
 				File f = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+Constants.PROPRIET_MFORMAT).replaceAll("[\\\\/:*?\"<>|]", "_"));
 				if (f.exists()) f.delete();
+				else {
+					File fOpen = new File(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/"+(AudioToDeleteFromStorage.artist+" - "+AudioToDeleteFromStorage.title+Constants.OPEN_MFORMAT).replaceAll("[\\\\/:*?\"<>|]", "_"));
+					if (fOpen.exists()){
+						fOpen.delete();
+						
+						Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+						intent.setData(Uri.fromFile(fOpen));
+						sendBroadcast(intent);
+					}
+				}
 			}
 		}
 		

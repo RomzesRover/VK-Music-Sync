@@ -301,7 +301,7 @@ public class SettingsFragment extends BasePreferencesFragment {
 	    protected void onPostExecute(Boolean result) {
 	        super.onPostExecute(result);
 	        progressDialog.dismiss();
-	        sPref.edit().putBoolean(Constants.PREFERENCES_PREP_STATUS, result);
+	        sPref.edit().putBoolean(Constants.PREFERENCES_PREP_STATUS, result).commit();
 	        if (result){
 	        	Toast.makeText(getActivity(), getString(R.string.preferences_prep_ok), Toast.LENGTH_LONG).show();
 	        }
