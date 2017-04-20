@@ -323,6 +323,14 @@ public class SettingsFragment extends BasePreferencesFragment {
 	        progressDialog.dismiss();
 	        sPref.edit().putBoolean(Constants.PREFERENCES_PREP_STATUS, result).commit();
 	        if (result){
+	        	
+	        	//update all music lists
+	        	sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_OWNER_LIST, true).commit();
+	        	sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_SEARCH_LIST, true).commit();
+	        	sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_POPULAR_LIST, true).commit();
+	        	sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_RECC_LIST, true).commit();
+	        	sPref.edit().putBoolean(Constants.PREFERENCES_UPDATE_DOWNLOADED_LIST, true).commit();
+		       	   
 	        	Toast.makeText(getActivity(), getString(R.string.preferences_prep_ok), Toast.LENGTH_LONG).show();
 	        }
 	        else {
