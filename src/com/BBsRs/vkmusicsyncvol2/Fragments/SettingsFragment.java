@@ -1,6 +1,7 @@
 package com.BBsRs.vkmusicsyncvol2.Fragments;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import org.holoeverywhere.LayoutInflater;
@@ -19,6 +20,7 @@ import org.jsoup.Jsoup;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -282,6 +284,24 @@ public class SettingsFragment extends BasePreferencesFragment {
 					if (currentDate.before(UntilDate)){
 						//user have premium, check license
 						result = Integer.parseInt(premData.split(";")[2]) == summ ? true : false;
+						
+						try {
+							if (result){
+								//rename all proprite files to open
+								ArrayList<File> files = new ArrayList<File>();
+	                			listf(sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, "")+"/", files);
+	                			for (File oneMusicFile : files){
+	                				File newName = new File(oneMusicFile.getAbsolutePath().substring(0, oneMusicFile.getAbsolutePath().length()-4)+Constants.OPEN_MFORMAT);
+	                				oneMusicFile.renameTo(newName);
+	                				
+	                				Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+	             		       	   	intent.setData(Uri.fromFile(newName));
+	             		       	   	getActivity().sendBroadcast(intent);
+	                			}
+							}
+						} catch (Exception e){
+							e.printStackTrace();
+						}
 					} else {
 						//user's premium expired
 						result = false;
@@ -309,5 +329,19 @@ public class SettingsFragment extends BasePreferencesFragment {
 	        	Toast.makeText(getActivity(), getString(R.string.preferences_prep_notok), Toast.LENGTH_LONG).show();
 	        }
 	    }
+	    
+	    //get the list of files in directory
+	    public void listf(String directoryName, ArrayList<File> files) {
+	    	File directory = new File(directoryName);
+	    	// get all the files from a directory
+	    	File[] fList = directory.listFiles();
+	    	for (File file : fList) {
+	    	    if (file.isFile() && (file.getName().endsWith(Constants.PROPRIET_MFORMAT))) {
+	    	        files.add(file);
+	    	    } else if (file.isDirectory()) {
+	    	        listf(file.getAbsolutePath(), files);
+	    	    }
+	    	}
+		}
 	}
 }

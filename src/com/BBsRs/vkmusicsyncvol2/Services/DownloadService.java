@@ -520,13 +520,11 @@ public class DownloadService extends Service {
 		    	   e.printStackTrace();
 		    	   Log.d("DownloadService", "save "+(sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false) ? Constants.OPEN_MFORMAT : Constants.PROPRIET_MFORMAT)+" file");
 		       	   downloadFile.renameTo(new File(downloadFile.getAbsolutePath()+(sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false) ? Constants.OPEN_MFORMAT : Constants.PROPRIET_MFORMAT)));
-		       	   downloadFile.delete();
 		       	   downloadFile = new File(downloadFile.getAbsolutePath()+(sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false) ? Constants.OPEN_MFORMAT : Constants.PROPRIET_MFORMAT));
 		       } catch (OutOfMemoryError e){
 		    	   e.printStackTrace();
 		    	   Log.d("DownloadService", "save "+(sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false) ? Constants.OPEN_MFORMAT : Constants.PROPRIET_MFORMAT)+" file");
 		       	   downloadFile.renameTo(new File(downloadFile.getAbsolutePath()+(sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false) ? Constants.OPEN_MFORMAT : Constants.PROPRIET_MFORMAT)));
-		       	   downloadFile.delete();
 		       	   downloadFile = new File(downloadFile.getAbsolutePath()+(sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false) ? Constants.OPEN_MFORMAT : Constants.PROPRIET_MFORMAT));
 		       }
 	       	   
