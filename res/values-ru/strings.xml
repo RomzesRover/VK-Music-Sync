@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string name="player_dialog_lyrics">Текст песни</string>
+    <string name="player_dialog_ok">Ok</string>
+    <string name="player_lyrycs_error">У этой аудиозаписи нет текста в ВК</string>
+    <string name="player_prev_short_not">ПРЕД</string>
+    <string name="player_next_short_not">СЛЕД</string>
+    <string name="player_play_short_not">ПЛЕЙ</string>
+    <string name="player_pause_short_not">ПАУЗА</string>
+    <string name="player_of">из</string>
+    <string name="player_error">Случилась непредвиденная ошибка, в попытке воспроизвести эту аудиозапись.</string>
+    <string name="player_now">Сейчас играет:</string>
+    
+    <string name="preferences_dialog_log_out">Выйти</string>
+    <string name="preferences_dialog_are_you_sure_logout">Вы действительно хотите выйти?</string>
+    <string name="preferences_dialog_yes">Да</string>
+    <string name="preferences_dialog_no">Нет</string>
+    
+    <string name="preferences_dialog_download_directory">Директория загрузки</string>
+    <string name="preferences_dialog_ok">Ok</string>
+    <string name="preferences_dialog_cancel">Отмена</string>
+    
+    <string name="preferences_base">Основные</string>
+    <string name="preferences_download_directory">Директория загрузки</string>
+    <string name="preferences_download_directory_unavailable">Эта директория загрузки недоступна для этого приложения.</string>
+    <string name="preferences_stop_download">Остановить загрузку</string>
+    <string name="preferences_stop_download_success">Сервис загрузки был успешно остановлен.</string>
+    <string name="preferences_account">Аккаунт</string>
+    <string name="preferences_account_logout">Выйти</string>
+    <string name="preferences_checking_prep">Пожалуйста, подождите, проверяем ваш премиум статус…</string>
+    <string name="preferences_prep_ok">Премиум успешно активирован.</string>
+    <string name="preferences_prep_notok">У вас нет премиума, или он истёк.</string>
+    
+    <string name="download_default_folder_name">VK_Music_Sync</string>
+    <string name="download_folder_is_unavailable">Директория загрузки недоступна, проверьте вашу карту памяти.</string>
+    <string name="download_rightholders_error">ВК удалила %s из публичного доступа</string>
+    <string name="download_unhangled_error">Непредвиденная ошибка при загрузке</string>
+    <string name="download_no_free_space">Недостаточно места для загрузки</string>
+    <string name="download_downloading">Загрузка…, осталось [%s]</string>
+    <string name="download_stop">Отмена загрузки</string>
+
+    <string name="app_name">VK Music Sync</string>
+    <string name="app_version">0.6 Релиз-Кандидат 2</string>
+    <string name="hello_world">Привет, мир!</string>
+    <string name="action_settings">Настройки</string>
+    <string name="login_activity_authorization">Авторизация</string>
+    <string name="login_activity_username">email или номер телефона</string>
+    <string name="login_activity_password">пароль</string>
+    <string name="login_activity_login">Войти</string>
+    <string name="login_activity_wait">Вход…</string>
+    <string name="login_activity_error">Ошибка. Проверьте ваше подключение к vk.com.</string>
+    <string name="login_activity_wrong">email, номер телефона или пароль - неверны.</string>
+    <string name="login_activity_captcha">Пожалуйста, введите капчу.</string>
+    <string name="login_activity_redirect">ВК перенаправило вас на эту страницу.</string>
+    <string name="login_activity_apply">Ok</string>
+    <string name="login_activity_cancel">Отмена</string>
+    
+    <string name="content_activity_search">Поиск</string>
+    <string name="content_activity_search_hint">исполнитель, заголовок, год, ost …</string>
+    <string name="content_activity_wall">Со стены</string>
+    <string name="content_activity_albums">Альбомы</string>
+    <string name="content_activity_recommendations">Рекомендации</string>
+    
+    <string name="content_activity_access_to_users_audio_denied">Пользователь ограничил доступ, к этой странице.\nПроверьте стену.</string>
+    <string name="content_activity_group_audio_is_disabled">Аудиозаписи группы отключены.\nПроверьте стену.</string>
+    <string name="content_activity_empty_audio_list">Тут еще нет аудиозаписей.</string>
+    <string name="content_activity_error">Случилась непредвиденная ошибка.\nПроверьте подключение к vk.com.</string>
+    <string name="content_activity_error_info">Вы можете обновить эту страницу потянув вниз.</string>
+    <string name="content_activity_no_search_request">Введите поисковой запрос.</string>
+    <string name="content_activity_page_deactivated">К сожалению эта страница недоступна.</string>
+    <string name="content_activity_no_friends">У вас нет друзей.</string>
+    <string name="content_activity_no_groups">Вы не состоите ни в одной из групп.</string>
+    <string name="content_activity_no_albums">Тут еще нет альбомов.</string>
+    
+    <string name="content_activity_error_on_adding_to_owner_list">При добавлении на вашу страницу: %s, случилась ошибка.</string>
+    <string name="content_activity_error_on_remove_from_owner_list">При удалении с вашей страницы: %s, случилась ошибка.</string>
+    
+    <string-array name="menu">
+        <item >Разделы</item>
+        <item >Мои аудиозаписи</item>
+        <item >Поиск</item>
+        <item >Популярное</item>
+        <item >Рекомандации</item>
+        <item >Мои друзья</item>
+        <item >Мои группы</item>
+        <item >Загруженное</item>
+        <item >Приложение</item>
+        <item >Настройки</item>
+    </string-array>
+    
+    
+
+</resources>
