@@ -208,9 +208,13 @@ public class ContentActivity extends BaseActivity {
 		Calendar birthday = Calendar.getInstance();
 		birthday.setTimeInMillis(System.currentTimeMillis());
 		
-		String[] bDate = (sPref.getString(Constants.PREFERENCES_USER_BIRTHDAY, "10.5.2000")).split("\\.");
-		
-		birthday.set(Integer.parseInt(bDate[2]), Integer.parseInt(bDate[1])-1, Integer.parseInt(bDate[0]));
+		try {
+			String[] bDate = (sPref.getString(Constants.PREFERENCES_USER_BIRTHDAY, "10.5.2000")).split("\\.");
+			birthday.set(Integer.parseInt(bDate[2]), Integer.parseInt(bDate[1])-1, Integer.parseInt(bDate[0]));
+		} catch (Exception e){
+			e.printStackTrace();
+			birthday.set(2000, 04, 10);
+		}
 		
 		int gender = sPref.getInt(Constants.PREFERENCES_USER_GENDER, 0);
 		
