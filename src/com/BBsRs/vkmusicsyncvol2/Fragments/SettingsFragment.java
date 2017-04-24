@@ -92,7 +92,7 @@ public class SettingsFragment extends BasePreferencesFragment {
 				}
 				
 				handler.removeCallbacks(nullClicks);
-				handler.postDelayed(nullClicks, 2000);
+				handler.postDelayed(nullClicks, 500);
 				return false;
 			}
         });
