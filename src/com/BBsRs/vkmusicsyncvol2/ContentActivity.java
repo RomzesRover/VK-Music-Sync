@@ -239,7 +239,14 @@ public class ContentActivity extends BaseActivity {
 		adRequest = builder.build();
 		
 		adView = new AdView(this);
-		adView.setAdSize(AdSize.LARGE_BANNER);
+		switch (getResources().getInteger(R.integer.banner_size)){
+			case 0:
+				adView.setAdSize(AdSize.LARGE_BANNER);
+				break;
+			case 1:
+				adView.setAdSize(AdSize.FULL_BANNER);
+				break;
+		}
 	    adView.setAdUnitId("ca-app-pub-6690318766939525/5352028493");
 	    
 	    adView.setAdListener(new AdListener() {
