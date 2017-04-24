@@ -1,150 +1,158 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:paddingLeft="13dp"
-    android:paddingRight="13dp"
-    android:paddingTop="13dp" >
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants" >
 
-    <ImageView
-        android:id="@+id/albumArtBg"
-        android:layout_width="63dp"
-        android:layout_height="63dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:scaleType="centerCrop"
-        android:src="@drawable/music_stub" />
-
-    <ImageView
-        android:id="@+id/albumArt"
-        android:layout_width="63dp"
-        android:layout_height="63dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:scaleType="centerCrop" />
-
-    <ImageView
-        android:id="@+id/albumArtMask"
-        android:layout_width="63dp"
-        android:layout_height="63dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:scaleType="centerCrop"
-        android:src="@color/gray_four_alpha_color"
-        android:visibility="invisible" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout1"
-        android:layout_width="wrap_content"
-        android:layout_height="63dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="8dp"
-        android:layout_toLeftOf="@+id/linearLayout3"
-        android:gravity="center_vertical" >
-
-        <TextView
-            android:id="@+id/length"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="03:25"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/black_color"
-            android:textSize="13sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout3"
-        android:layout_width="wrap_content"
-        android:layout_height="63dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true" >
-
-        <ImageView
-            android:id="@+id/isInOwnerListAction"
-            android:layout_width="31.5dip"
-            android:layout_height="match_parent"
-            android:padding="7dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_add_normal" />
-
-        <ImageView
-            android:id="@+id/isDownloadedAction"
-            android:layout_width="31.5dip"
-            android:layout_height="match_parent"
-            android:padding="7dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_download_normal" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/albumArt"
-        android:layout_alignParentTop="true"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="6dp"
-        android:layout_marginTop="8dp"
-        android:layout_toLeftOf="@+id/linearLayout1"
-        android:layout_toRightOf="@+id/albumArt"
-        android:gravity="center_vertical"
-        android:orientation="vertical" >
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:lines="1"
-            android:singleLine="true"
-            android:text="Medium Text"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/black_color"
-            android:textSize="15sp" />
-
-        <TextView
-            android:id="@+id/subtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="-7dp"
-            android:ellipsize="end"
-            android:lines="1"
-            android:singleLine="true"
-            android:text="Small Text"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/gray_two_color"
-            android:textSize="13sp" />
-
-        <TextView
-            android:id="@+id/quality"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="-5dp"
-            android:ellipsize="end"
-            android:lines="1"
-            android:singleLine="true"
-            android:text="Small Text"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/gray_two_color"
-            android:textSize="10sp" />
-    </LinearLayout>
-
-    <ImageView
-        android:id="@+id/imageView2"
+    <RelativeLayout
+        android:id="@+id/rlLt"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_alignLeft="@+id/linearLayout2"
-        android:layout_alignRight="@id/linearLayout1"
-        android:layout_below="@+id/albumArt"
-        android:layout_marginTop="13dp"
-        android:scaleType="fitXY"
-        android:src="@color/gray_three_color" />
+        android:layout_height="wrap_content"
+        android:paddingLeft="13dp"
+        android:paddingRight="13dp"
+        android:paddingTop="13dp" >
+
+        <ImageView
+            android:id="@+id/albumArtBg"
+            android:layout_width="63dp"
+            android:layout_height="63dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/music_stub" />
+
+        <ImageView
+            android:id="@+id/albumArt"
+            android:layout_width="63dp"
+            android:layout_height="63dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:scaleType="centerCrop" />
+
+        <ImageView
+            android:id="@+id/albumArtMask"
+            android:layout_width="63dp"
+            android:layout_height="63dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:scaleType="centerCrop"
+            android:src="@color/gray_four_alpha_color"
+            android:visibility="invisible" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout1"
+            android:layout_width="wrap_content"
+            android:layout_height="63dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="8dp"
+            android:layout_toLeftOf="@+id/linearLayout3"
+            android:gravity="center_vertical" >
+
+            <TextView
+                android:id="@+id/length"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="03:25"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/black_color"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayout3"
+            android:layout_width="wrap_content"
+            android:layout_height="63dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true" >
+
+            <ImageView
+                android:id="@+id/isInOwnerListAction"
+                android:layout_width="31.5dip"
+                android:layout_height="match_parent"
+                android:padding="7dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_add_normal" />
+
+            <ImageView
+                android:id="@+id/isDownloadedAction"
+                android:layout_width="31.5dip"
+                android:layout_height="match_parent"
+                android:padding="7dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_download_normal" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/albumArt"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="6dp"
+            android:layout_marginTop="8dp"
+            android:layout_toLeftOf="@+id/linearLayout1"
+            android:layout_toRightOf="@+id/albumArt"
+            android:gravity="center_vertical"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:lines="1"
+                android:singleLine="true"
+                android:text="Medium Text"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/black_color"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-7dp"
+                android:ellipsize="end"
+                android:lines="1"
+                android:singleLine="true"
+                android:text="Small Text"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/gray_two_color"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/quality"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-5dp"
+                android:ellipsize="end"
+                android:lines="1"
+                android:singleLine="true"
+                android:text="Small Text"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/gray_two_color"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignLeft="@+id/linearLayout2"
+            android:layout_alignRight="@id/linearLayout1"
+            android:layout_below="@+id/albumArt"
+            android:layout_marginTop="13dp"
+            android:scaleType="fitXY"
+            android:src="@color/gray_three_color" />
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/adLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/imageView2"
+        android:layout_below="@id/rlLt"
+        android:background="@color/white_color"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:paddingTop="13dp"
