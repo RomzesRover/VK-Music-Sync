@@ -140,4 +140,16 @@
         android:scaleType="fitXY"
         android:src="@color/gray_three_color" />
 
+    <LinearLayout
+        android:id="@+id/adLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imageView2"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingTop="13dp"
+        android:visibility="gone" >
+
+    </LinearLayout>
+
 </RelativeLayout>

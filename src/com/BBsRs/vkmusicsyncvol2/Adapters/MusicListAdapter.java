@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.holoeverywhere.LayoutInflater;
+import org.holoeverywhere.widget.LinearLayout;
 import org.holoeverywhere.widget.ListView;
 import org.holoeverywhere.widget.TextView;
 
@@ -38,6 +39,7 @@ import android.widget.ImageView;
 
 import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
 import com.BBsRs.vkmusicsyncvol2.R;
+import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseActivity;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
 import com.mpatric.mp3agic.Mp3File;
@@ -69,7 +71,6 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		options = _options;
 		
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		
 	}
 	
 	public void bindListView(ListView _list){
@@ -245,6 +246,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
         public ImageView albumArtMask;
         public ImageView isInOwnerList;
         public ImageView isDownloadedAction;
+        public LinearLayout adLayout;
     }
     
 	private void setViewHolder(View rowView) {
@@ -258,6 +260,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		holder.isInOwnerList = (ImageView)rowView.findViewById(R.id.isInOwnerListAction);
 		holder.isDownloadedAction = (ImageView)rowView.findViewById(R.id.isDownloadedAction);
 		holder.needInflate = false;
+		holder.adLayout = (LinearLayout) rowView.findViewById(R.id.adLayout);
 		rowView.setTag(holder);
 	}
 	
@@ -466,8 +469,9 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
 		final ViewHolder holder;
-        final View rowView;
-		if (convertView==null) {
+        View rowView = null;
+        
+        if (convertView==null) {
 			rowView = inflater.inflate(R.layout.adapter_simple_element_music, parent, false);
 			setViewHolder(rowView);
 		}
@@ -480,6 +484,17 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		}
         
 		holder = (ViewHolder)rowView.getTag();
+		
+		BaseActivity activty = (BaseActivity) context;
+        if (position == 10 || position == 60 || position == 100 || position == 140){
+        	activty.setUpAd(holder.adLayout);
+			holder.adLayout.setVisibility(View.VISIBLE);
+        } else {
+        	if (holder.adLayout.getVisibility() == View.VISIBLE){
+				holder.adLayout.setVisibility(View.GONE);
+				holder.adLayout.removeAllViews();
+        	}
+        }
 		
 		//set fonts
 		SFUIFonts.LIGHT.apply(context, holder.subtitle);

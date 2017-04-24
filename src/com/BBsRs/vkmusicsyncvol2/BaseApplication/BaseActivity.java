@@ -1,6 +1,10 @@
 package com.BBsRs.vkmusicsyncvol2.BaseApplication;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import org.holoeverywhere.app.Activity;
+import org.holoeverywhere.widget.LinearLayout;
 import org.holoeverywhere.widget.TextView;
 
 import android.animation.Animator;
@@ -10,25 +14,49 @@ import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
 import com.BBsRs.vkmusicsyncvol2.R;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 
 public class BaseActivity extends Activity{
-    
+	
+	AdView adView;
+
 	@Override
-	public void onResume(){
+	public void onResume() {
 		super.onResume();
-		if (getSupportActionBar() != null){
+		if (getSupportActionBar() != null) {
 			getSupportActionBar().setSubtitle(null);
 			getSupportActionBar().setTitle(null);
 		}
+
+		if (adView != null)
+			adView.resume();
+	}
+	
+	@Override
+	public void onPause() {
+		if (adView != null)
+			adView.pause();
+		super.onPause();
+	}
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (adView != null)
+			adView.destroy();
 	}
 	
 	@Override
@@ -51,6 +79,9 @@ public class BaseActivity extends Activity{
 		//set font
 		SFUIFonts.ULTRALIGHT.apply(BaseActivity.this, maintitle);
 		SFUIFonts.ULTRALIGHT.apply(this, subtitle);
+		
+		//init ad
+		initAd();
 	}
 	
 	ActionBar actionBar;
@@ -192,6 +223,41 @@ public class BaseActivity extends Activity{
         float px = dp * ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
         return px;
     }
+    
+	
+	public void initAd(){
+		//load banner ad
+		Calendar birthday = Calendar.getInstance();
+		birthday.setTimeInMillis(System.currentTimeMillis());
+		birthday.set(1975, 04, 10);
+		
+		int gender = AdRequest.GENDER_FEMALE;
+		
+		Location loc = new Location("dummyprovider");
+		loc.setLatitude(55.7522200);
+		loc.setLongitude(37.6155600);
+		
+		AdRequest adRequest = new AdRequest.Builder()
+		.setBirthday(new Date(birthday.getTimeInMillis()))
+		.setGender(gender)
+		.setLocation(loc)
+		.build();
+		
+		adView = new AdView(this);
+		adView.setAdSize(AdSize.LARGE_BANNER);
+	    adView.setAdUnitId("ca-app-pub-6690318766939525/5352028493");
+		adView.loadAd(adRequest);
+	}
+	
+	public void setUpAd(LinearLayout layAd) {
+	    // Locate the Banner Ad in activity xml
+		if (adView.getParent() != null) {
+			ViewGroup tempVg = (ViewGroup) adView.getParent();
+			tempVg.removeView(adView);
+		}
+		
+	    layAd.addView(adView);
+	}
     
 //    TODO Solve if this is really needed
 //	@Override

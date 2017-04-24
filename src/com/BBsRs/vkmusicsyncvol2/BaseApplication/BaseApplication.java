@@ -28,13 +28,14 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
  */
 public class BaseApplication extends Application {
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
 
 		initImageLoader(getApplicationContext());
 	}
-
+	
 	public static void initImageLoader(Context context) {
 		// This configuration tuning is custom. You can tune every option, you may tune some of them,
 		// or you can create default configuration by
