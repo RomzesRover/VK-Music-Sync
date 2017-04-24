@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.view.View;
@@ -218,15 +219,22 @@ public class ContentActivity extends BaseActivity {
 		
 		int gender = sPref.getInt(Constants.PREFERENCES_USER_GENDER, 0);
 		
-		Location loc = new Location("dummyprovider");
-		loc.setLatitude(55.7522200);
-		loc.setLongitude(37.6155600);
+		AdRequest.Builder builder = new AdRequest.Builder()
+			.setBirthday(new Date(birthday.getTimeInMillis()))
+			.setGender(gender == 0 ? AdRequest.GENDER_UNKNOWN : gender == 1 ? AdRequest.GENDER_FEMALE : AdRequest.GENDER_MALE);
+		AdRequest adRequest;
 		
-		AdRequest adRequest = new AdRequest.Builder()
-		.setBirthday(new Date(birthday.getTimeInMillis()))
-		.setGender(gender == 0 ? AdRequest.GENDER_UNKNOWN : gender == 1 ? AdRequest.GENDER_FEMALE : AdRequest.GENDER_MALE)
-		.setLocation(loc)
-		.build();
+		try {
+			final LocationManager mlocManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+			Location loc = mlocManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+			if (loc!=null)
+				builder.setLocation(loc);
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
+		
+		adRequest = builder.build();
 		
 		adView = new AdView(this);
 		adView.setAdSize(AdSize.LARGE_BANNER);
