@@ -211,6 +211,8 @@ public class ContentActivity extends BaseActivity {
 	}
 	
 	public void initAd(){
+		if (sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false)) return;
+		
 		//load banner ad
 		Calendar birthday = Calendar.getInstance();
 		birthday.setTimeInMillis(System.currentTimeMillis());
@@ -275,23 +277,26 @@ public class ContentActivity extends BaseActivity {
 	}
 	
 	public void showIntersttial(){
-		if (interstitial !=null && interstitial.isLoaded()) {
+		if (interstitial !=null && interstitial.isLoaded() && !sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false)) {
 			interstitial.show();
 		}
 	}
 	
 	public void setUpAd(LinearLayout layAd) {
 	    // Locate the Banner Ad in activity xml
-		if (adView.getParent() != null) {
+		if (adView != null && adView.getParent() != null) {
 			ViewGroup tempVg = (ViewGroup) adView.getParent();
 			tempVg.removeView(adView);
 		}
 		
-		if (adBannerLoaded){
+		if (adBannerLoaded  && !sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false)){
 			layAd.addView(adView);
 			layAd.setVisibility(View.VISIBLE);
 		} else {
-			layAd.setVisibility(View.GONE);
+			if (layAd.getVisibility() == View.VISIBLE){
+				layAd.setVisibility(View.GONE);
+				layAd.removeAllViews();
+        	}
 		}
 	}
 	
