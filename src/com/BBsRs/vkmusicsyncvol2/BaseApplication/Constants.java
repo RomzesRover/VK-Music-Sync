@@ -18,6 +18,8 @@ public class Constants {
 	public static final String PREFERENCES_USER_AVATAR_URL = "preferences:user_avatar_url";
 	public static final String PREFERENCES_USER_FIRST_NAME = "preferences:user_first_name";
 	public static final String PREFERENCES_USER_LAST_NAME = "preferences:user_last_name";
+	public static final String PREFERENCES_USER_BIRTHDAY = "preferences:user_birthday";
+	public static final String PREFERENCES_USER_GENDER = "preferences:user_gender";
 	
 	public static final String PREFERENCES_UPDATE_OWNER_LIST = "preferences:update_owner_list";
 	public static final String PREFERENCES_UPDATE_SEARCH_LIST = "preferences:update_search_list";

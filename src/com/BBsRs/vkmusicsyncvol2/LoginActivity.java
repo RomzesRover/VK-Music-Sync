@@ -521,10 +521,12 @@ public class LoginActivity extends BaseActivity {
 			            Collection<String> d = new ArrayList<String>();
 			            d.add("");
 			            
-			            User userOne = api.getProfiles(u, d, "photo_200,photo_100", "", "", "").get(0);
+			            User userOne = api.getProfiles(u, d, "photo_200,photo_100,sex,bdate", "", "", "").get(0);
 			            sPref.edit().putString(Constants.PREFERENCES_USER_AVATAR_URL, ((userOne.photo_200 == null || userOne.photo_200.length()<1) ? userOne.photo_medium_rec : userOne.photo_200)).commit();
 						sPref.edit().putString(Constants.PREFERENCES_USER_FIRST_NAME, userOne.first_name).commit();
 						sPref.edit().putString(Constants.PREFERENCES_USER_LAST_NAME, userOne.last_name).commit();
+						sPref.edit().putString(Constants.PREFERENCES_USER_BIRTHDAY, userOne.birthdate).commit();
+						sPref.edit().putInt(Constants.PREFERENCES_USER_GENDER, userOne.sex).commit();
 						
 						//set default download folder:
 						if (sPref.getString(Constants.PREFERENCES_DOWNLOAD_DIRECTORY, null) == null){

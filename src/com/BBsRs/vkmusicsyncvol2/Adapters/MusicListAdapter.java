@@ -38,8 +38,8 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 
 import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
+import com.BBsRs.vkmusicsyncvol2.ContentActivity;
 import com.BBsRs.vkmusicsyncvol2.R;
-import com.BBsRs.vkmusicsyncvol2.BaseApplication.BaseActivity;
 import com.BBsRs.vkmusicsyncvol2.BaseApplication.Constants;
 import com.BBsRs.vkmusicsyncvol2.collections.MusicCollection;
 import com.mpatric.mp3agic.Mp3File;
@@ -485,7 +485,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
         
 		holder = (ViewHolder)rowView.getTag();
 		
-		BaseActivity activty = (BaseActivity) context;
+		ContentActivity activty = (ContentActivity) context;
         if (position == 10 || position == 60 || position == 100 || position == 140){
         	activty.setUpAd(holder.adLayout);
 			holder.adLayout.setVisibility(View.VISIBLE);

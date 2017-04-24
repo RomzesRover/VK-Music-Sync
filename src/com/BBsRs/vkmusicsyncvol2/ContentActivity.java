@@ -1,6 +1,8 @@
 package com.BBsRs.vkmusicsyncvol2;
 
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,6 +11,7 @@ import org.holoeverywhere.addon.Addons;
 import org.holoeverywhere.preference.PreferenceManager;
 import org.holoeverywhere.preference.SharedPreferences;
 import org.holoeverywhere.slider.SliderMenu;
+import org.holoeverywhere.widget.LinearLayout;
 import org.holoeverywhere.widget.TextView;
 
 import android.annotation.SuppressLint;
@@ -17,9 +20,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.BBsRs.SFUIFontsEverywhere.SFUIFonts;
@@ -30,6 +35,9 @@ import com.BBsRs.vkmusicsyncvol2.Fragments.FrGrFragment;
 import com.BBsRs.vkmusicsyncvol2.Fragments.MusicFragment;
 import com.BBsRs.vkmusicsyncvol2.Fragments.PlayerFragment;
 import com.BBsRs.vkmusicsyncvol2.Fragments.SettingsFragment;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
@@ -53,12 +61,20 @@ public class ContentActivity extends BaseActivity {
 	SliderMenu sliderMenu;
 	
 	SharedPreferences sPref;
+	
+	AdView adView;
 
 	/** Called when the activity is first created. */
 	@SuppressLint("DefaultLocale") 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
+	    
+	    //set up preferences
+	    sPref = PreferenceManager.getDefaultSharedPreferences(this);
+	    
+	    //init ad
+	    initAd();
 	    
     	//init vkapi
 	    account.restore(this);
@@ -69,10 +85,7 @@ public class ContentActivity extends BaseActivity {
         .showImageOnLoading(R.drawable.nopic)
         .cacheInMemory(true)					
         .build();
-	    
-	    //set up preferences
-	    sPref = PreferenceManager.getDefaultSharedPreferences(this);
-	    
+        
 	    //init slider menu
         sliderMenu = addonSlider().obtainDefaultSliderMenu(R.layout.menu);
         sliderMenu.setInverseTextColorWhenSelected(false);
@@ -167,6 +180,9 @@ public class ContentActivity extends BaseActivity {
 		//
 		registerReceiver(openPlayerFragment, new IntentFilter(Constants.INTENT_PLAYER_OPEN_ACTIVITY_PLAYER_FRAGMENT));
 		registerReceiver(openLastFragment, new IntentFilter(Constants.INTENT_PLAYER_OPEN_ACTIVITY_LAST_FRAGMENT));
+		
+		if (adView != null)
+			adView.resume();
 	}
 	
 	@Override
@@ -175,6 +191,53 @@ public class ContentActivity extends BaseActivity {
 		//
 		unregisterReceiver(openPlayerFragment);
 		unregisterReceiver(openLastFragment);
+		
+		if (adView != null)
+			adView.pause();
+	}
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (adView != null)
+			adView.destroy();
+	}
+	
+	public void initAd(){
+		//load banner ad
+		Calendar birthday = Calendar.getInstance();
+		birthday.setTimeInMillis(System.currentTimeMillis());
+		
+		String[] bDate = (sPref.getString(Constants.PREFERENCES_USER_BIRTHDAY, "10.5.2000")).split("\\.");
+		
+		birthday.set(Integer.parseInt(bDate[2]), Integer.parseInt(bDate[1])-1, Integer.parseInt(bDate[0]));
+		
+		int gender = sPref.getInt(Constants.PREFERENCES_USER_GENDER, 0);
+		
+		Location loc = new Location("dummyprovider");
+		loc.setLatitude(55.7522200);
+		loc.setLongitude(37.6155600);
+		
+		AdRequest adRequest = new AdRequest.Builder()
+		.setBirthday(new Date(birthday.getTimeInMillis()))
+		.setGender(gender == 0 ? AdRequest.GENDER_UNKNOWN : gender == 1 ? AdRequest.GENDER_FEMALE : AdRequest.GENDER_MALE)
+		.setLocation(loc)
+		.build();
+		
+		adView = new AdView(this);
+		adView.setAdSize(AdSize.LARGE_BANNER);
+	    adView.setAdUnitId("ca-app-pub-6690318766939525/5352028493");
+		adView.loadAd(adRequest);
+	}
+	
+	public void setUpAd(LinearLayout layAd) {
+	    // Locate the Banner Ad in activity xml
+		if (adView.getParent() != null) {
+			ViewGroup tempVg = (ViewGroup) adView.getParent();
+			tempVg.removeView(adView);
+		}
+		
+	    layAd.addView(adView);
 	}
 	
 	private BroadcastReceiver openLastFragment = new BroadcastReceiver() {
