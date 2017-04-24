@@ -278,6 +278,9 @@ public class MusicFragment extends BaseFragment {
 					 //start new music list fragment
 					 ((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(playerFragment, Constants.FRAGMENT_PLAYER_TAG, true);
 					 
+					 //show ad
+					 ((ContentActivity) getSupportActivity()).showIntersttial();
+					 
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import org.holoeverywhere.addon.AddonSlider;
 import org.holoeverywhere.addon.Addons;
@@ -24,6 +25,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -40,6 +42,7 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
@@ -66,6 +69,7 @@ public class ContentActivity extends BaseActivity {
 	
 	AdView adView;
 	boolean adBannerLoaded = false;
+	private InterstitialAd interstitial;
 
 	/** Called when the activity is first created. */
 	@SuppressLint("DefaultLocale") 
@@ -241,7 +245,7 @@ public class ContentActivity extends BaseActivity {
 		adView = new AdView(this);
 		switch (getResources().getInteger(R.integer.banner_size)){
 			case 0:
-				adView.setAdSize(AdSize.LARGE_BANNER);
+				adView.setAdSize(AdSize.MEDIUM_RECTANGLE);
 				break;
 			case 1:
 				adView.setAdSize(AdSize.FULL_BANNER);
@@ -261,6 +265,19 @@ public class ContentActivity extends BaseActivity {
 	    });
 	    
 		adView.loadAd(adRequest);
+		
+		//load intestitial
+		if (((new Random(System.currentTimeMillis())).nextInt(5) + 1) == 1){
+			interstitial = new InterstitialAd(this);
+		    interstitial.setAdUnitId("ca-app-pub-6690318766939525/9782228099");
+		    interstitial.loadAd(adRequest);
+    	}
+	}
+	
+	public void showIntersttial(){
+		if (interstitial !=null && interstitial.isLoaded()) {
+			interstitial.show();
+		}
 	}
 	
 	public void setUpAd(LinearLayout layAd) {
