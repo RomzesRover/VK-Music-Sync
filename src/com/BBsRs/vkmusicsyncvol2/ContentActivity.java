@@ -36,6 +36,7 @@ import com.BBsRs.vkmusicsyncvol2.Fragments.FrGrFragment;
 import com.BBsRs.vkmusicsyncvol2.Fragments.MusicFragment;
 import com.BBsRs.vkmusicsyncvol2.Fragments.PlayerFragment;
 import com.BBsRs.vkmusicsyncvol2.Fragments.SettingsFragment;
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
@@ -64,6 +65,7 @@ public class ContentActivity extends BaseActivity {
 	SharedPreferences sPref;
 	
 	AdView adView;
+	boolean adBannerLoaded = false;
 
 	/** Called when the activity is first created. */
 	@SuppressLint("DefaultLocale") 
@@ -239,6 +241,18 @@ public class ContentActivity extends BaseActivity {
 		adView = new AdView(this);
 		adView.setAdSize(AdSize.LARGE_BANNER);
 	    adView.setAdUnitId("ca-app-pub-6690318766939525/5352028493");
+	    
+	    adView.setAdListener(new AdListener() {
+	        @Override
+	        public void onAdLoaded() {
+	        	adBannerLoaded = true;
+	        }
+	        @Override
+	        public void onAdFailedToLoad(int errorCode) {
+	        	adBannerLoaded = false;
+	        }
+	    });
+	    
 		adView.loadAd(adRequest);
 	}
 	
@@ -249,7 +263,12 @@ public class ContentActivity extends BaseActivity {
 			tempVg.removeView(adView);
 		}
 		
-	    layAd.addView(adView);
+		if (adBannerLoaded){
+			layAd.addView(adView);
+			layAd.setVisibility(View.VISIBLE);
+		} else {
+			layAd.setVisibility(View.GONE);
+		}
 	}
 	
 	private BroadcastReceiver openLastFragment = new BroadcastReceiver() {

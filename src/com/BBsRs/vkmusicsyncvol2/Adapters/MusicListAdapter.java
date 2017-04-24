@@ -488,7 +488,6 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		ContentActivity activty = (ContentActivity) context;
         if (position == 10 || position == 60 || position == 100 || position == 140){
         	activty.setUpAd(holder.adLayout);
-			holder.adLayout.setVisibility(View.VISIBLE);
         } else {
         	if (holder.adLayout.getVisibility() == View.VISIBLE){
 				holder.adLayout.setVisibility(View.GONE);
