@@ -233,6 +233,9 @@ public class MusicFragment extends BaseFragment {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int _position, long arg3) {
 				
+				//show ad
+				((ContentActivity) getSupportActivity()).showIntersttial();
+				
     			Intent i2 = new Intent(Constants.INTENT_FORCE_CLOSE_SEARCH_KEYBOARD);
     			getActivity().sendBroadcast(i2);
 				
@@ -277,10 +280,6 @@ public class MusicFragment extends BaseFragment {
 			           	
 					 //start new music list fragment
 					 ((ContentActivity) getSupportActivity()).addonSlider().obtainSliderMenu().replaceFragment(playerFragment, Constants.FRAGMENT_PLAYER_TAG, true);
-					 
-					 //show ad
-					 ((ContentActivity) getSupportActivity()).showIntersttial();
-					 
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

@@ -486,7 +486,7 @@ public class MusicListAdapter extends BaseAdapter implements Filterable{
 		holder = (ViewHolder)rowView.getTag();
 		
 		ContentActivity activty = (ContentActivity) context;
-        if (position == 10 || position == 60 || position == 100 || position == 140){
+        if (position == 9 || position == 75 || position == 150 || position == 225){
         	activty.setUpAd(holder.adLayout);
         } else {
         	if (holder.adLayout.getVisibility() == View.VISIBLE){

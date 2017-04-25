@@ -252,7 +252,7 @@ public class ContentActivity extends BaseActivity {
 				adView.setAdSize(AdSize.FULL_BANNER);
 				break;
 		}
-	    adView.setAdUnitId("ca-app-pub-6690318766939525/5352028493");
+	    adView.setAdUnitId("ca-app-pub-6690318766939525/4415068494");
 	    
 	    adView.setAdListener(new AdListener() {
 	        @Override
@@ -268,9 +268,9 @@ public class ContentActivity extends BaseActivity {
 		adView.loadAd(adRequest);
 		
 		//load intestitial
-		if (((new Random(System.currentTimeMillis())).nextInt(5) + 1) == 1){
+		if (((new Random(System.currentTimeMillis())).nextInt(4) + 1) == 3){
 			interstitial = new InterstitialAd(this);
-		    interstitial.setAdUnitId("ca-app-pub-6690318766939525/9782228099");
+		    interstitial.setAdUnitId("ca-app-pub-6690318766939525/1077995691");
 		    interstitial.loadAd(adRequest);
     	}
 	}
