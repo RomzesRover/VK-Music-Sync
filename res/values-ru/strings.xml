@@ -41,7 +41,7 @@
     <string name="download_stop">Отмена загрузки</string>
 
     <string name="app_name">VK Music Sync</string>
-    <string name="app_version">0.7 Релиз-Кандидат 3</string>
+    <string name="app_version">1.0 Релиз 3</string>
     <string name="hello_world">Привет, мир!</string>
     <string name="action_settings">Настройки</string>
     <string name="login_activity_authorization">Авторизация</string>
