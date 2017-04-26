@@ -66,8 +66,8 @@ public class ContentActivity extends BaseActivity {
 	
 	SharedPreferences sPref;
 	
-	AdView adView;
-	boolean adBannerLoaded = false;
+	AdView adView, adView2;
+	boolean adBannerLoaded = false, adBannerLoaded2 = false;
 	private InterstitialAd interstitial;
 
 	/** Called when the activity is first created. */
@@ -189,6 +189,8 @@ public class ContentActivity extends BaseActivity {
 		
 		if (adView != null)
 			adView.resume();
+		if (adView2 != null)
+			adView2.resume();
 	}
 	
 	@Override
@@ -200,6 +202,8 @@ public class ContentActivity extends BaseActivity {
 		
 		if (adView != null)
 			adView.pause();
+		if (adView2 != null)
+			adView2.pause();
 	}
 	
 	@Override
@@ -207,6 +211,8 @@ public class ContentActivity extends BaseActivity {
 		super.onDestroy();
 		if (adView != null)
 			adView.destroy();
+		if (adView2 != null)
+			adView2.destroy();
 	}
 	
 	public void initAd(){
@@ -244,15 +250,19 @@ public class ContentActivity extends BaseActivity {
 		adRequest = builder.build();
 		
 		adView = new AdView(this);
+		adView2 = new AdView(this);
 		switch (getResources().getInteger(R.integer.banner_size)){
 			case 0:
 				adView.setAdSize(AdSize.MEDIUM_RECTANGLE);
+				adView2.setAdSize(AdSize.LARGE_BANNER);
 				break;
 			case 1:
 				adView.setAdSize(AdSize.FULL_BANNER);
+				adView2.setAdSize(AdSize.FULL_BANNER);
 				break;
 		}
 	    adView.setAdUnitId("ca-app-pub-6690318766939525/4415068494");
+	    adView2.setAdUnitId("ca-app-pub-6690318766939525/3316451696");
 	    
 	    adView.setAdListener(new AdListener() {
 	        @Override
@@ -265,7 +275,19 @@ public class ContentActivity extends BaseActivity {
 	        }
 	    });
 	    
+	    adView2.setAdListener(new AdListener() {
+	        @Override
+	        public void onAdLoaded() {
+	        	adBannerLoaded2 = true;
+	        }
+	        @Override
+	        public void onAdFailedToLoad(int errorCode) {
+	        	adBannerLoaded2 = false;
+	        }
+	    });
+	    
 		adView.loadAd(adRequest);
+		adView2.loadAd(adRequest);
 		
 		//load intestitial
 		if (((new Random(System.currentTimeMillis())).nextInt(4) + 1) == 3){
@@ -288,8 +310,26 @@ public class ContentActivity extends BaseActivity {
 			tempVg.removeView(adView);
 		}
 		
-		if (adBannerLoaded  && !sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false)){
+		if (adView != null && adBannerLoaded  && !sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false)){
 			layAd.addView(adView);
+			layAd.setVisibility(View.VISIBLE);
+		} else {
+			if (layAd.getVisibility() == View.VISIBLE){
+				layAd.setVisibility(View.GONE);
+				layAd.removeAllViews();
+        	}
+		}
+	}
+	
+	public void setUpAd2(LinearLayout layAd) {
+	    // Locate the Banner Ad in activity xml
+		if (adView2 != null && adView2.getParent() != null) {
+			ViewGroup tempVg = (ViewGroup) adView2.getParent();
+			tempVg.removeView(adView2);
+		}
+		
+		if (adView2 != null && adBannerLoaded2  && !sPref.getBoolean(Constants.PREFERENCES_PREP_STATUS, false)){
+			layAd.addView(adView2);
 			layAd.setVisibility(View.VISIBLE);
 		} else {
 			if (layAd.getVisibility() == View.VISIBLE){
