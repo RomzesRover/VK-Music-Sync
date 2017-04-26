@@ -234,7 +234,7 @@ public class ContentActivity extends BaseActivity {
 		
 		AdRequest.Builder builder = new AdRequest.Builder()
 			.setBirthday(new Date(birthday.getTimeInMillis()))
-			.setGender(gender == 0 ? AdRequest.GENDER_UNKNOWN : gender == 1 ? AdRequest.GENDER_FEMALE : AdRequest.GENDER_MALE);
+			.setGender(gender == 2 ? AdRequest.GENDER_MALE : gender == 1 ? AdRequest.GENDER_FEMALE : AdRequest.GENDER_UNKNOWN);
 		AdRequest adRequest;
 		
 		try {
