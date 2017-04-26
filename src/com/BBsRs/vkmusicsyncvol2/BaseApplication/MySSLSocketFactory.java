@@ -16,17 +16,35 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.holoeverywhere.widget.Toast;
+
+import android.content.Context;
+import android.os.AsyncTask;
+
+import com.BBsRs.vkmusicsyncvol2.LoginActivity;
 public class MySSLSocketFactory extends SSLSocketFactory {
     SSLContext sslContext = SSLContext.getInstance("TLS");
-
-    public MySSLSocketFactory(KeyStore truststore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
+    
+    public MySSLSocketFactory(KeyStore truststore, final AsyncTask<String, String, String> AuthTask, final Context context) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
         super(truststore);
 
         TrustManager tm = new X509TrustManager() {
             public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
             }
 
-            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException  {
+            	try {
+            		chain[0].checkValidity();
+            	} catch (Exception e){
+                	AuthTask.cancel(true);
+                	((LoginActivity) context).runOnUiThread(new Runnable(){
+    					@Override
+    					public void run() {
+    						Toast.makeText(context, "There a problem with the security certificate for this web site. Cancel Loging in", Toast.LENGTH_LONG).show();
+    					}
+            		});
+            		e.printStackTrace();
+            	}
             }
 
             public X509Certificate[] getAcceptedIssuers() {

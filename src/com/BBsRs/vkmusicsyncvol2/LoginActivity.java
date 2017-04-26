@@ -214,9 +214,9 @@ public class LoginActivity extends BaseActivity {
 		        KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
 		        trustStore.load(null, null);
 
-		        SSLSocketFactory sf = new MySSLSocketFactory(trustStore);
+		        SSLSocketFactory sf = new MySSLSocketFactory(trustStore, this, LoginActivity.this);
 		        sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-
+		        
 		        HttpParams params = new BasicHttpParams();
 		        HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
 		        HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
@@ -234,9 +234,16 @@ public class LoginActivity extends BaseActivity {
 
 		        return http;
 		    } catch (Exception e) {
+		    	e.printStackTrace();
 		        return new DefaultHttpClient();
 		    }
 		}  
+		
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			progressDialog.dismiss();
+		}
 		
 		@Override
 		protected String doInBackground(String... arg0) {
